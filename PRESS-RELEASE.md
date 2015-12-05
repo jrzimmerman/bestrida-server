@@ -1,4 +1,4 @@
-# Project Name #
+# Bestrida
 
 <!-- 
 > This material was originally posted [here](http://www.quora.com/What-is-Amazons-approach-to-product-development-and-product-management). It is reproduced here for posterities sake.
@@ -17,28 +17,28 @@ Once the project moves into development, the press release can be used as a touc
  -->
  
 ## Heading ##
-  > Name the product in a way the reader (i.e. your target customers) will understand.
+  > Bestrida - challenge your buddies for bragging rights.
 
 ## Sub-Heading ##
-  > Describe who the market for the product is and what benefit they get. One sentence only underneath the title.
+  > Cycling and running enthusiasts who use Strava.  They can directly challenge their friends for bragging rights.  
 
 ## Summary ##
-  > Give a summary of the product and the benefit. Assume the reader will not read anything else so make this paragraph good.
+  > Bestrida is a mobile app where you can challenge your friend for the best on a particular segment, and then brag about when you win (or feel bad about it when you lose).  Pick a friend, pick a segment, challenge your friend (or accept your friend's challenge), and the race for the best time.
 
 ## Problem ##
-  > Describe the problem your product solves.
+  > Currently, there is no way on Strava to directly challenge your friends.
 
 ## Solution ##
-  > Describe how your product elegantly solves the problem.
+  > Bestrida let's you conveniently pick who out of your friends you would like to challenge and also lets you pick a segment to either run or cycle on.  Bestrida will then compare the times for each person, and calculate who the winner is.  
 
 ## Quote from You ##
-  > A quote from a spokesperson in your company.
+  > "Want to brag about how much faster you are then your buddy?  Download this app now!"
 
 ## How to Get Started ##
-  > Describe how easy it is to get started.
+  > Sign up for Strava (if you don't already use it), then download the app, then start challenging your buddies.  
 
 ## Customer Quote ##
-  > Provide a quote from a hypothetical customer that describes how they experienced the benefit.
+  > "Now that I have Bestrida, I have improved my fitness because challenging my friends has motivated me to do my best."
 
 ## Closing and Call to Action ##
-  > Wrap it up and give pointers where the reader should go next.
+  > Download Bestrida to imporve your fitness and have more enjoyable workouts with your friends.  
