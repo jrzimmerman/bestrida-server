@@ -1,0 +1,30 @@
+{
+  "name": "bestrida",
+  "version": "0.0.1",
+  "description": "A Strava challenge app",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bestrida/bestrida.git"
+  },
+  "keywords": [
+    "bestrida",
+    "strava",
+    "challenge",
+    "segment"
+  ],
+  "author": "Justin Zimmerman, Shan Batla, A.J. Mullins, David Lee",
+  "bugs": {
+    "url": "https://github.com/Bestrida/bestrida/issues"
+  },
+  "homepage": "https://github.com/Bestrida/bestrida#readme",
+  "dependencies": {
+    "express": "^4.13.3"
+  },
+  "engines": {
+    "node": "0.12.x"
+  }
+}
