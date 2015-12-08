@@ -15,6 +15,30 @@ module.exports = function(app, express) {
       res.json({ message: 'this is a specific user!' });   
     });
 
+  // challenges route
+  apiRouter.route('/challenges')
+    .get(function(req, res) {
+      res.json({ message: 'this returns all challenges!' });   
+    });
+
+  // specific challenge route
+  apiRouter.route('/challenges/:challenge_id')
+    .get(function(req, res) {
+      res.json({ message: 'this is a specific challenge!' });   
+    });
+
+  // athletes route
+  apiRouter.route('/athletes')
+    .get(function(req, res) {
+      res.json({ message: 'this returns all athletes!' });   
+    });
+
+  // specific athlete route
+  apiRouter.route('/athletes/:athlete_id')
+    .get(function(req, res) {
+      res.json({ message: 'this is a specific athlete!' });   
+    });
+
   // segments route
   apiRouter.route('/segments')
     .get(function(req, res) {
