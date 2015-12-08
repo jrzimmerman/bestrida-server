@@ -1,7 +1,7 @@
 var mongoose = require('../db');
 
 var effortSchema = mongoose.Schema({ 
-  effortId: { type: Number, required: true },
+  _id: { type: Number, required: true },
   segmentId: { type: Number, required: true },
   stravaId: { type: Number, required: true },
   name: { type: String, required: true },
@@ -15,7 +15,7 @@ module.exports = {
   findOrCreate: function (effortId, segmentId, stravaId, name, elapsedTime) {
     Effort.findOrCreate(
       {
-        effortId: effortId
+        _id: effortId
       },
       {
         segmentId: segmentId,
