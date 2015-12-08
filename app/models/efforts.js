@@ -15,7 +15,9 @@ module.exports = {
   findOrCreate: function (effortId, segmentId, stravaId, name, elapsedTime) {
     Effort.findOrCreate(
       {
-        effortId: effortId,
+        effortId: effortId
+      },
+      {
         segmentId: segmentId,
         stravaId: stravaId,
         name: name,
