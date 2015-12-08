@@ -9,6 +9,9 @@ var User = mongoose.model('User', userSchema);
 
 // Helper functions
 module.exports = {
+  find: function (parameters, cb) {
+    User.find(parameters, cb);
+  },
   findOrCreate: function (stravaId, name) {
     User.findOrCreate(
       {
@@ -22,6 +25,7 @@ module.exports = {
         if (err) {
           console.error(err);
         }
+        // console.log(user);
         return user;
       }
     );
