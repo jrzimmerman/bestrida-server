@@ -2,6 +2,7 @@ var bodyParser = require('body-parser');
 var Users = require('../models/users');
 var Efforts = require('../models/efforts');
 var Segments = require('../models/segments');
+var Challenges = require('../models/challenges');
 
 module.exports = function(app, express) {
   var apiRouter = express.Router();
