@@ -22,12 +22,14 @@
   },
   "homepage": "https://github.com/Bestrida/bestrida#readme",
   "dependencies": {
+    "body-parser": "^1.14.1",
     "express": "^4.13.3",
     "mongodb": "^2.1.0",
     "mongoose": "^4.2.9",
-    "mongoose-findorcreate": "^0.1.2"
+    "mongoose-findorcreate": "^0.1.2",
+    "morgan": "^1.6.1"
   },
   "engines": {
-    "node": "0.12.x"
+    "node": "4.x.x"
   }
 }
