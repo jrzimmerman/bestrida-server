@@ -10,7 +10,7 @@ module.exports = function(app, express) {
     });
 
   // specific user route
-  apiRoute.route('/users/:user_id')
+  apiRouter.route('/users/:user_id')
     .get(function(req, res) {
       res.json({ message: 'this is a specific user!' });   
     });
@@ -38,4 +38,6 @@ module.exports = function(app, express) {
     .get(function(req, res) {
       res.json({ message: 'this is a specific effort!' });   
     });
+
+  return apiRouter;
 };
