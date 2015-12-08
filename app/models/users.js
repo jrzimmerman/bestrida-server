@@ -10,7 +10,10 @@ var User = mongoose.model('User', userSchema);
 module.exports = User;
 
 module.exports.create = function (stravaId, name) {
-  var newUser = new User({ _id: stravaId, name: name });
+  var newUser = new User({
+    _id: stravaId,
+    name: name 
+  });
   newUser.save();
 };
 

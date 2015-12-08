@@ -14,14 +14,13 @@ module.exports = Effort;
 
 module.exports.create = function (effortId, segmentId, stravaId, name, elapsedTime) {
   var newEffort = new Effort(
-    {
-      _id: effortId,
-      segmentId: segmentId,
-      stravaId: stravaId,
-      name: name,
-      elapsedTime: elapsedTime
-    }
-  );
+  {
+    _id: effortId,
+    segmentId: segmentId,
+    stravaId: stravaId,
+    name: name,
+    elapsedTime: elapsedTime
+  });
   newEffort.save();
 };
 

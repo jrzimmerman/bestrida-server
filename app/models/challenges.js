@@ -13,13 +13,11 @@ var Challenge = mongoose.model('Challenge', challengeSchema);
 module.exports = Challenge;
 
 module.exports.create = function (segmentId, challengerId, challengeeId) {
-  var newChallenge = new Challenge(
-    {
-      segmentId: segmentId,
-      challengerId: challengerId,
-      challengeeId: challengeeId
-    }
-  );
+  var newChallenge = new Challenge({
+    segmentId: segmentId,
+    challengerId: challengerId,
+    challengeeId: challengeeId
+  });
   newChallenge.save();
 };
 
