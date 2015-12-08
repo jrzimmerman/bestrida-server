@@ -10,26 +10,41 @@ var effortSchema = mongoose.Schema({
 
 var Effort = mongoose.model('Effort', effortSchema);
 
-// Helper functions
-module.exports = {
-  findOrCreate: function (effortId, segmentId, stravaId, name, elapsedTime) {
-    Effort.findOrCreate(
-      {
-        _id: effortId
-      },
-      {
-        segmentId: segmentId,
-        stravaId: stravaId,
-        name: name,
-        elapsedTime: elapsedTime
-      },
-      function (err, effort, created) {
-        // 'created' will be true if a new effort was created
-        if (err) {
-          console.error(err);
-        }
-        return effort;
-      }
-    );
-  }
+module.exports = Effort;
+
+module.exports.create = function (effortId, segmentId, stravaId, name, elapsedTime) {
+  var newEffort = new Effort(
+    {
+      _id: effortId,
+      segmentId: segmentId,
+      stravaId: stravaId,
+      name: name,
+      elapsedTime: elapsedTime
+    }
+  );
+  newEffort.save();
 };
+
+// If we need findOrCreate method, can use this code but wouldn't have access to mongoose Model methods
+// module.exports = {
+//   findOrCreate: function (effortId, segmentId, stravaId, name, elapsedTime) {
+//     Effort.findOrCreate(
+//       {
+//         _id: effortId
+//       },
+//       {
+//         segmentId: segmentId,
+//         stravaId: stravaId,
+//         name: name,
+//         elapsedTime: elapsedTime
+//       },
+//       function (err, effort, created) {
+//         // 'created' will be true if a new effort was created
+//         if (err) {
+//           console.error(err);
+//         }
+//         return effort;
+//       }
+//     );
+//   }
+// };
