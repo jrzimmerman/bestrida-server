@@ -5,6 +5,7 @@ var Efforts = Promise.promisifyAll(require('../models/efforts'));
 var Segments = Promise.promisifyAll(require('../models/segments'));
 var Challenges = Promise.promisifyAll(require('../models/challenges'));
 var strava = require('../strava');
+var config = require('../config');
 
 module.exports = function(app, express) {
   var apiRouter = express.Router();
@@ -84,7 +85,7 @@ module.exports = function(app, express) {
     .get(function(req, res) {
       var stravaCode = req.query.code;
 
-      if (stravaCode == null) {
+      if (stravaCode === null) {
         var description = 'Query parameter "code" is missing';
         console.log(description);
         sendErrorMessage(res, description);
@@ -98,7 +99,7 @@ module.exports = function(app, express) {
     .get(function(req, res) {
       var stravaToken = req.query.token;
 
-      if (stravaToken == null) {
+      if (stravaToken === null) {
         var description = 'Query parameter "token" is missing';
         console.log(description);
         sendErrorMessage(res, description);
