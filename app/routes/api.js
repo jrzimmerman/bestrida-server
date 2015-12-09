@@ -5,7 +5,6 @@ var Efforts = Promise.promisifyAll(require('../models/efforts'));
 var Segments = Promise.promisifyAll(require('../models/segments'));
 var Challenges = Promise.promisifyAll(require('../models/challenges'));
 var strava = require('../strava');
-var config = require('../config');
 
 module.exports = function(app, express) {
   var apiRouter = express.Router();

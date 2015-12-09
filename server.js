@@ -3,16 +3,6 @@ var app = express();
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var path = require('path');
-var config = require('./app/config');
-
-// Write strava config out to file in time for loading by the Strava module.
-try {
-  fs.mkdirSync(__dirname + '/data');
-} catch (err) {
-  if (err.code != 'EEXIST') throw err;
-}
-fs.writeFileSync(__dirname + '/data/strava_config', JSON.stringify(config.strava));
-
 var strava = require('./app/strava');
 
 // use body parser so we can grab information from POST requests

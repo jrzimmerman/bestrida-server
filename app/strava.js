@@ -1,5 +1,4 @@
 var strava = require('strava-v3');
-var config = require('./config');
 var Users = require('./models/users.js');
 
 function registerAthlete(stravaCode, callback) {
