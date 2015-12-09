@@ -1,4 +1,10 @@
 var bodyParser = require('body-parser');
+var Promise = require('bluebird');
+var Users = Promise.promisifyAll(require('../models/users'));
+var Efforts = Promise.promisifyAll(require('../models/efforts'));
+var Segments = Promise.promisifyAll(require('../models/segments'));
+var Challenges = Promise.promisifyAll(require('../models/challenges'));
+var strava = require('../strava');
 
 module.exports = function(app, express) {
   var apiRouter = express.Router();
@@ -6,7 +12,10 @@ module.exports = function(app, express) {
   // users route
   apiRouter.route('/users')
     .get(function(req, res) {
-      res.json({ message: 'this returns all users!' });   
+    //   Users.findAsync({})
+    //   .then(function (users) {
+        res.json({ message: users });   
+      // })
     });
 
   // specific user route
@@ -61,6 +70,44 @@ module.exports = function(app, express) {
   apiRouter.route('/efforts/:effort_id')
     .get(function(req, res) {
       res.json({ message: 'this is a specific effort!' });   
+    });
+
+  // register/login route
+  apiRouter.route('/register')
+    .get(function(req, res) {
+      // Redirect the browser to the Strava OAuth grant page.
+      res.redirect(strava.getOAuthRequestAccessUrl());
+    });
+
+  // Handle the OAuth callback from Strava, and exchange the temporary code for an access token.
+  apiRouter.route('/registercode')
+    .get(function(req, res) {
+      var stravaCode = req.query.code;
+
+      if (stravaCode == null) {
+        var description = 'Query parameter "code" is missing';
+        console.log(description);
+        sendErrorMessage(res, description);
+      } else {
+        registerAthlete(stravaCode);
+      }
+    });
+
+  // Directly register a bearer token.  Primarily useful in a development setting.
+  apiRouter.route('/registertoken')
+    .get(function(req, res) {
+      var stravaToken = req.query.token;
+
+      if (stravaToken == null) {
+        var description = 'Query parameter "token" is missing';
+        console.log(description);
+        sendErrorMessage(res, description);
+      } else {
+        registerAthleteToken(stravaToken, function(err) {
+          if (err) sendErrorMessage(res, "Unable to register Strava token");
+          else res.redirect('./');
+        });
+      }   
     });
 
   return apiRouter;
