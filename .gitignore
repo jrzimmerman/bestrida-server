@@ -1,5 +1,6 @@
 ### node etc ###
 data/strava_config
+data/db_config
 
 # Logs
 logs
