@@ -116,7 +116,13 @@ module.exports = function(app, express) {
         console.log(description);
         sendErrorMessage(res, description);
       } else {
-        strava.registerAthlete(stravaCode);
+        strava.registerAthlete(stravaCode,
+          function (err, user) {
+            if (err) {
+              console.error('Error registering athlete:', err);
+            }
+            res.redirect('../');
+          });
       }
     });
 
