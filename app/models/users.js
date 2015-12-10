@@ -20,7 +20,13 @@ module.exports.registerAthlete = function (stravaId, name, token, photo, email) 
     photo: photo,
     email: email
   });
-  newUser.save();
+  newUser.save(function (err, user) {
+    if (err) {
+      console.error('Error saving user:', err);
+    } else {
+      console.log('User saved!', user);
+    }
+  });
 };
 
 // If we need findOrCreate method, can use this code but wouldn't have access to mongoose Model methods

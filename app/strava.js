@@ -5,7 +5,7 @@ var Users = require('./models/users.js');
 function registerAthlete(stravaCode, callback) {
   console.log('Registering athlete with code ' + stravaCode);
   // Exchange the temporary code for an access token.
-  strava.getOAuthToken(stravaCode, function(err, payload) {
+  strava.oauth.getToken(stravaCode, function(err, payload) {
     if (err) {
       callback(err);
     } else {
