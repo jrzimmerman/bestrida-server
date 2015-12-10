@@ -32,6 +32,6 @@
     "strava-v3": "^1.8.1"
   },
   "engines": {
-    "node": "4.x.x"
+    "node": "0.12.x"
   }
 }
