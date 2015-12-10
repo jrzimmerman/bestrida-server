@@ -13,16 +13,16 @@ var User = mongoose.model('User', userSchema);
 
 module.exports = User;
 
-module.exports.registerAthlete = function (user) {
+module.exports.registerAthlete = function (user, callback) {
   // Check if user exists in db
   User.find({ _id: user.id })
   .then(function (usersArray) {
     // If user exists, just refresh token
     if (usersArray[0]){
-      refreshToken(user.id, user.token);
+      refreshToken(user, callback);
     } else {
       // Else if user doesn't exist in db, save them to db
-      saveAthlete(user);
+      saveAthlete(user, callback);
     }
   }, function (err) {
     console.error('Error retrieving user:', err);
@@ -30,7 +30,7 @@ module.exports.registerAthlete = function (user) {
 
 };
 
-function saveAthlete (user) {
+function saveAthlete (user, callback) {
   // TODO: create a default photo and save the path to defaultPhoto var
   var defaultPhoto = '/some/file/path.jpg';
   var newUser = new User({
@@ -44,42 +44,21 @@ function saveAthlete (user) {
   newUser.save(function (err, user) {
     if (err) {
       console.error('Error saving user:', err);
+      callback(err);
     } else {
       console.log('User saved!', user);
+      callback(null, user);
     }
   });
 }
 
-function refreshToken (stravaId, token) {
-  User.update({ _id: stravaId }, { token: token }, function (err, res) {
+function refreshToken (user, callback) {
+  User.update({ _id: user.id }, { token: user.token }, function (err, res) {
     if (err) {
       console.error('Error refreshing token:', err);
+      callback(err);
     }
     console.log('Successfully refreshed token:', res);
+    callback(null, res);
   });
 };
-
-// If we need findOrCreate method, can use this code but wouldn't have access to mongoose Model methods
-// module.exports = {
-//   find: function (parameters, cb) {
-//     User.find(parameters, cb);
-//   },
-//   findOrCreate: function (stravaId, name) {
-//     User.findOrCreate(
-//       {
-//         _id: stravaId
-//       },
-//       {
-//         name: name
-//       },
-//       function (err, user, created) {
-//         // 'created' will be true if a new user was created
-//         if (err) {
-//           console.error(err);
-//         }
-//         // console.log(user);
-//         return user;
-//       }
-//     );
-//   }
-// };
