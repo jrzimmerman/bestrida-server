@@ -24,7 +24,6 @@ function getOAuthRequestAccessUrl() {
   return accessUrl;
 }
 
-
 function getAthlete(athleteId, callback) {
   strava.athlete.get( {id: athleteId}, function(err, payload) {
     if (err) {
@@ -37,8 +36,34 @@ function getAthlete(athleteId, callback) {
   });
 }
 
+function getAllUsers(callback) {
+  Users.find({}, function (err, users) {
+    if (err) {
+      callback(err);
+    }
+    if (users.length) {
+      callback(null, users);
+    }
+  });
+}
+
+function getUser(id, callback) {
+  Users.find({ _id: id }, function (err, user) {
+    if (err) {
+      callback(err);
+    }
+    if (!user[0]) {
+      callback(null, 'User ' + id + ' not found!');
+    } else if (user[0]) {
+      callback(null, user[0]);
+    }
+  });
+}
+
 module.exports = {
   registerAthlete: registerAthlete,
   getOAuthRequestAccessUrl: getOAuthRequestAccessUrl,
-  getAthlete: getAthlete
+  getAthlete: getAthlete,
+  getAllUsers: getAllUsers,
+  getUser: getUser
 };
