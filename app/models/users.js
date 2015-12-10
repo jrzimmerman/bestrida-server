@@ -19,7 +19,7 @@ module.exports.registerAthlete = function (user, callback) {
   .then(function (usersArray) {
     // If user exists, just refresh token
     if (usersArray[0]){
-      refreshToken(user, callback);
+      refreshAthlete(user, callback);
     } else {
       // Else if user doesn't exist in db, save them to db
       saveAthlete(user, callback);
@@ -38,7 +38,7 @@ function saveAthlete (user, callback) {
     firstname: user.firstname,
     lastname: user.lastname,
     token: user.token,
-    photo: user.photo || defaultPhoto,
+    photo: user.profile || defaultPhoto,
     email: user.email
   });
   newUser.save(function (err, user) {
@@ -52,13 +52,22 @@ function saveAthlete (user, callback) {
   });
 }
 
-function refreshToken (user, callback) {
-  User.update({ _id: user.id }, { token: user.token }, function (err, res) {
-    if (err) {
-      console.error('Error refreshing token:', err);
-      callback(err);
-    }
-    console.log('Successfully refreshed token:', res);
-    callback(null, res);
-  });
+function refreshAthlete (user, callback) {
+  User.update(
+    { _id: user.id },
+    {
+      firstname: user.firstname,
+      lastname: user.lastname,
+      token: user.token,
+      photo: user.profile,
+      email: user.email
+    },
+    function (err, res) {
+      if (err) {
+        console.error('Error refreshing token:', err);
+        callback(err);
+      }
+      console.log('Successfully refreshed token:', res);
+      callback(null, res);
+    });
 };
