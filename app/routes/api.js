@@ -46,7 +46,31 @@ module.exports = function(app, express) {
       res.json({ message: 'this is a specific challenge!' });   
     });
 
+  // active challenges for a specific user
+  apiRouter.route('/challenges/active/:user_id')
+    .get(function(req, res) {
+      var userId = parseInt(req.params.user_id);
+      Challenges.getChallenges(userId, 'active', function (err, challenges) {
+        if (err) {
+          console.error('Error retrieving challenges:', err);
+        } else {
+          res.json(challenges);
+        }
+      })
+    });
 
+  // completed challenges for a specific user
+  apiRouter.route('/challenges/completed/:user_id')
+    .get(function(req, res) {
+      var userId = parseInt(req.params.user_id);
+      Challenges.getChallenges(userId, 'complete', function (err, challenges) {
+        if (err) {
+          console.error('Error retrieving challenges:', err);
+        } else {
+          res.json(challenges);
+        }
+      })
+    });
 
   // specific athlete route
   apiRouter.route('/athletes/:athlete_id')
