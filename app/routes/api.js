@@ -5,6 +5,7 @@ var Efforts = Promise.promisifyAll(require('../models/efforts'));
 var Segments = Promise.promisifyAll(require('../models/segments'));
 var Challenges = Promise.promisifyAll(require('../models/challenges'));
 var strava = require('../strava');
+var util = require('./../util');
 
 module.exports = function(app, express) {
   var apiRouter = express.Router();
@@ -36,17 +37,43 @@ module.exports = function(app, express) {
       res.json({ message: 'this is a specific challenge!' });   
     });
 
-  // athletes route
-  apiRouter.route('/athletes')
-    .get(function(req, res) {
-      res.json({ message: 'this returns all athletes!' });   
-    });
+
 
   // specific athlete route
   apiRouter.route('/athletes/:athlete_id')
     .get(function(req, res) {
-      res.json({ message: 'this is a specific athlete!' });   
+      var athleteId = parseInt(req.params.id);
+      strava.getAthlete(athleteId,
+        function(err,payload) {
+          if(!err) {
+            res.json(payload);
+          } else {
+            console.log(err);
+          }
+        });
     });
+
+    ////////////////////////////////
+    // Display information available for a specific athlete.
+    // app.get('/athlete/:id', function(req, res) {
+    //   var athleteId = parseInt(req.params.id);
+
+    //   if (isNaN(athleteId)) {
+    //     var description = 'Athlete identifier is missing';
+    //     console.log(description);
+    //     sendErrorMessage(res, description);
+    //   } else db.getItems('athletes', { id : athleteId }, function(err, athletes) {
+    //     if (err) sendError(res);
+    //     else db.getItems('activites', { athleteId : athleteId }, function(err, activities) {
+    //       if (err) sendError(res);
+    //       else res.render('athlete.handlebars', {
+    //         athlete: athletes[0],
+    //         activities: activities
+    //       });
+    //     });
+    //   });
+    // });
+    ////////////////////////////////
 
   // segments route
   apiRouter.route('/segments')

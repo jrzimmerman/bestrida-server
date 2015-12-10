@@ -1,4 +1,5 @@
 var strava = require('strava-v3');
+var util = require('./util');
 var Users = require('./models/users.js');
 
 function registerAthlete(stravaCode, callback) {
@@ -29,7 +30,21 @@ function getOAuthRequestAccessUrl() {
   return accessUrl;
 }
 
+
+function getAthlete(athleteId, callback) {
+  strava.athlete.get( {id: athleteId}, function(err, payload) {
+    if (err) {
+      console.log("Received error from athlete.get service:\n" + util.stringify(err));
+      callback(err);
+    } else {
+      console.log("Received athlete payload:\n" + util.stringify(payload));
+      callback(null, payload);
+    }
+  });
+}
+
 module.exports = {
   registerAthlete: registerAthlete,
-  getOAuthRequestAccessUrl: getOAuthRequestAccessUrl
+  getOAuthRequestAccessUrl: getOAuthRequestAccessUrl,
+  getAthlete: getAthlete
 };
