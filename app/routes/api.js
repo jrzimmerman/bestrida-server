@@ -13,16 +13,25 @@ module.exports = function(app, express) {
   // users route
   apiRouter.route('/users')
     .get(function(req, res) {
-    //   Users.findAsync({})
-    //   .then(function (users) {
-        res.json({ message: users });   
-      // })
+      strava.getAllUsers(function (err, users) {
+        if (err) {
+          console.error('Error retrieving all users:', err);
+        } else {
+          res.json(users);
+        }
+      });
     });
 
   // specific user route
   apiRouter.route('/users/:user_id')
     .get(function(req, res) {
-      res.json({ message: 'this is a specific user!' });   
+      strava.getUser(req.params.user_id, function (err, user) {
+        if (err) {
+          console.error('Error retrieving user:', err);
+        } else {
+          res.json(user);
+        }
+      });
     });
 
   // challenges route
