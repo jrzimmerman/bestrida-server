@@ -2,17 +2,23 @@ var mongoose = require('../db');
 
 var userSchema = mongoose.Schema({ 
   _id: { type: Number, required: true },
-  name: { type: String, required: true }
+  name: { type: String, required: true },
+  token: { type: Number },
+  photo: { type: String },
+  email: { type: String }
 });
 
 var User = mongoose.model('User', userSchema);
 
 module.exports = User;
 
-module.exports.create = function (stravaId, name) {
+module.exports.registerAthlete = function (stravaId, name, token, photo, email) {
   var newUser = new User({
     _id: stravaId,
-    name: name 
+    name: name,
+    token: token,
+    photo: photo,
+    email: email
   });
   newUser.save();
 };

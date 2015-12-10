@@ -12,7 +12,7 @@ function registerAthlete(stravaCode, callback) {
       // Save athlete information to the database.
       var athlete = payload.athlete;
       var token = payload.access_token;
-      Users.create(athlete.id, athlete.firstname + ' ' + athlete.lastname);
+      Users.registerAthlete(athlete.id, athlete.firstname + ' ' + athlete.lastname);
       // Users.create(athlete.id, athlete.name, function(err) {
       //   if (err) callback(err);
       //   else db.saveAthleteToken(athlete.id, token, function(err) {
