@@ -14,6 +14,23 @@ var User = mongoose.model('User', userSchema);
 module.exports = User;
 
 module.exports.registerAthlete = function (user) {
+  // Check if user exists in db
+  User.find({ _id: user.id })
+  .then(function (usersArray) {
+    // If user exists, just refresh token
+    if (usersArray[0]){
+      refreshToken(user.id, user.token);
+    } else {
+      // Else if user doesn't exist in db, save them to db
+      saveAthlete(user);
+    }
+  }, function (err) {
+    console.error('Error retrieving user:', err);
+  });
+
+};
+
+function saveAthlete (user) {
   // TODO: create a default photo and save the path to defaultPhoto var
   var defaultPhoto = '/some/file/path.jpg';
   var newUser = new User({
@@ -31,10 +48,10 @@ module.exports.registerAthlete = function (user) {
       console.log('User saved!', user);
     }
   });
-};
+}
 
-module.exports.refreshToken = function (stravaId, token) {
-  User.where({ _id: stravaId }).update({ token: token }, function (err, res) {
+function refreshToken (stravaId, token) {
+  User.update({ _id: stravaId }, { token: token }, function (err, res) {
     if (err) {
       console.error('Error refreshing token:', err);
     }

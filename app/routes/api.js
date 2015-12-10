@@ -124,7 +124,6 @@ module.exports = function(app, express) {
   apiRouter.route('/registertoken')
     .get(function(req, res) {
       var stravaToken = req.query.token;
-
       if (stravaToken === null) {
         var description = 'Query parameter "token" is missing';
         console.log(description);

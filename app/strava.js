@@ -12,6 +12,7 @@ function registerAthlete(stravaCode, callback) {
       // Save athlete information to the database.
       var athlete = payload.athlete;
       athlete.token = payload.access_token;
+      console.log('hi', athlete.token);
       Users.registerAthlete(athlete);
     }
   });
