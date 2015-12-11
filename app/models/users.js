@@ -1,12 +1,13 @@
 var mongoose = require('../db');
 
 var userSchema = mongoose.Schema({ 
-  _id: { type: Number, required: true },
+  _id:       { type: Number, required: true },
   firstname: { type: String, required: true },
-  lastname: { type: String, required: true },
-  token: { type: String },
-  photo: { type: String },
-  email: { type: String }
+  lastname:  { type: String, required: true },
+  token:     { type: String },
+  photo:     { type: String },
+  email:     { type: String },
+  friends:   { type: [mongoose.Schema.Types.Mixed], default: [] }
 });
 
 var User = mongoose.model('User', userSchema);
@@ -27,7 +28,18 @@ module.exports.registerAthlete = function (user, callback) {
   }, function (err) {
     console.error('Error retrieving user:', err);
   });
+};
 
+module.exports.saveFriends = function (user, friends) {
+  console.log('friends for', user, friends);
+  User.update({ _id: user }, { friends: friends },
+    function (err, res) {
+    if (err) {
+      console.error('Error saving friends:', err);
+    } else {
+      console.log('Saved friends:', res);
+    }
+  });
 };
 
 function saveAthlete (user, callback) {
