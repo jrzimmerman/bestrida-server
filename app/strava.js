@@ -13,6 +13,7 @@ function registerAthlete(stravaCode, callback) {
       var athlete = payload.athlete;
       athlete.token = payload.access_token;
       Users.registerAthlete(athlete, callback);
+      setTimeout(getFriends(athlete.id), 5000);
     }
   });
 }
@@ -69,6 +70,24 @@ function getUser(id, callback) {
     } else if (user[0]) {
       callback(null, user[0]);
     }
+  });
+}
+
+function getFriends (id) {
+  strava.athletes.listFriends({ id: id }, function (err, friends) {
+    if (err) {
+      console.error('Error retrieving friends', err);
+    }
+    friends = friends.map(function(friend) {
+      return {
+        id: friend.id,
+        username: friend.username, 
+        firstname: friend.firstname, 
+        lastname: friend.lastname, 
+        photo: friend.profile 
+      }
+    });
+    Users.saveFriends(id, friends);
   });
 }
 
