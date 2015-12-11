@@ -25,13 +25,13 @@ function getOAuthRequestAccessUrl() {
 }
 
 function getAthlete(athleteId, callback) {
-  strava.athlete.get( {id: athleteId}, function(err, payload) {
+  strava.athletes.get( {id: athleteId}, function(err, athlete) {
     if (err) {
       console.log("Received error from athlete.get service:\n" + util.stringify(err));
       callback(err);
     } else {
-      console.log("Received athlete payload:\n" + util.stringify(payload));
-      callback(null, payload);
+      console.log("Received athlete data:\n" + util.stringify(athlete));
+      callback(null, athlete);
     }
   });
 }

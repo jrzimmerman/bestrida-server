@@ -75,8 +75,8 @@ module.exports = function(app, express) {
   // specific athlete route
   apiRouter.route('/athletes/:athlete_id')
     .get(function(req, res) {
-      var athleteId = parseInt(req.params.id);
-      strava.getAthlete(athleteId,
+      var athlete_id = parseInt(req.params.athlete_id);
+      strava.getAthlete(athlete_id,
         function(err,payload) {
           if(!err) {
             res.json(payload);
