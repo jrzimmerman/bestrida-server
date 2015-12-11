@@ -122,7 +122,7 @@ module.exports = function(app, express) {
       res.json({ message: 'this returns all segments!' });   
     });
 
-  // specific athlete route
+  // specific segment route
   apiRouter.route('/segments/:segment_id')
     .get(function(req, res) {
       var segment_id = parseInt(req.params.segment_id);
@@ -145,7 +145,15 @@ module.exports = function(app, express) {
   // specific segment effort route
   apiRouter.route('/efforts/:effort_id')
     .get(function(req, res) {
-      res.json({ message: 'this is a specific effort!' });   
+      var effort_id = parseInt(req.params.effort_id);
+      strava.getEffort(effort_id,
+        function(err,payload) {
+          if(!err) {
+            res.json(payload);
+          } else {
+            console.log(err);
+          }
+        });
     });
 
   // register/login route
