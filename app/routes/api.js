@@ -34,6 +34,19 @@ module.exports = function(app, express) {
       });
     });
 
+  // get friends for a user
+  apiRouter.route('/friends/:user_id')
+    .get(function (req, res) {
+      var userId = req.params.user_id;
+      strava.getFriendsFromDb(userId, function (err, friends) {
+        if (err) {
+          console.error('Error retrieving friends;', err);
+        } else {
+          res.json(friends);
+        }
+      });
+    });
+
   // challenges route
   apiRouter.route('/challenges')
     .get(function(req, res) {
