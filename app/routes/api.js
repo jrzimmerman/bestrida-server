@@ -114,10 +114,18 @@ module.exports = function(app, express) {
       res.json({ message: 'this returns all segments!' });   
     });
 
-  // specific segment route
+  // specific athlete route
   apiRouter.route('/segments/:segment_id')
     .get(function(req, res) {
-      res.json({ message: 'this is a specific segment!' });   
+      var segment_id = parseInt(req.params.segment_id);
+      strava.getSegment(segment_id,
+        function(err,payload) {
+          if(!err) {
+            res.json(payload);
+          } else {
+            console.log(err);
+          }
+        });
     });
 
   // efforts route

@@ -36,6 +36,18 @@ function getAthlete(athleteId, callback) {
   });
 }
 
+function getSegment(segmentId, callback) {
+  strava.segments.get( {id: segmentId}, function(err, segment) {
+    if (err) {
+      console.log("Received error from segment.get service:\n" + util.stringify(err));
+      callback(err);
+    } else {
+      console.log("Received segment data:\n" + util.stringify(segment));
+      callback(null, segment);
+    }
+  });
+}
+
 function getAllUsers(callback) {
   Users.find({}, function (err, users) {
     if (err) {
@@ -64,6 +76,7 @@ module.exports = {
   registerAthlete: registerAthlete,
   getOAuthRequestAccessUrl: getOAuthRequestAccessUrl,
   getAthlete: getAthlete,
+  getSegment: getSegment,
   getAllUsers: getAllUsers,
   getUser: getUser
 };
