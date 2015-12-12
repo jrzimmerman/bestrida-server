@@ -187,11 +187,11 @@ module.exports = function(app, express) {
         sendErrorMessage(res, description);
       } else {
         strava.registerAthlete(stravaCode,
-          function (err, user) {
+          function (err, token) {
             if (err) {
               console.error('Error registering athlete:', err);
             }
-            res.end();
+            res.send(token);
           });
       }
     });

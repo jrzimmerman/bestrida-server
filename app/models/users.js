@@ -31,7 +31,6 @@ module.exports.registerAthlete = function (user, callback) {
 };
 
 module.exports.saveFriends = function (user, friends) {
-  console.log('friends for', user, friends);
   User.update({ _id: user }, { friends: friends },
     function (err, res) {
     if (err) {
@@ -53,7 +52,7 @@ function saveAthlete (user, callback) {
     photo: user.profile || defaultPhoto,
     email: user.email
   });
-  newUser.save(function (err, user) {
+  newUser.save(function (err, savedUser) {
     if (err) {
       console.error('Error saving user:', err);
       callback(err);
@@ -80,6 +79,6 @@ function refreshAthlete (user, callback) {
         callback(err);
       }
       console.log('Successfully refreshed token:', res);
-      callback(null, res);
+      callback(null, user.token);
     });
 };
