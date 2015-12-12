@@ -109,7 +109,9 @@ function getFriendsFromStrava (id) {
         username: friend.username, 
         firstname: friend.firstname, 
         lastname: friend.lastname, 
-        photo: friend.profile 
+        photo: friend.profile,
+        challengeCount: 0,
+        record: [0, 0]
       }
     });
     Users.saveFriends(id, friends);
