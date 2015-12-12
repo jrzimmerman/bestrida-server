@@ -191,6 +191,7 @@ module.exports = function(app, express) {
             if (err) {
               console.error('Error registering athlete:', err);
             }
+            res.end();
           });
       }
     });
