@@ -10,7 +10,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-karma');
   grunt.loadNpmTasks('grunt-casperjs');
   grunt.loadNpmTasks('grunt-mocha');
-  grunt.loadNpmTasks('grunt-nodemon');
 
 
   // in what order should the files be concatenated
@@ -73,17 +72,8 @@ module.exports = function(grunt) {
       }
     },
 
-    // configure the server for travis
+    // configure the server
     express: {
-      dev: {
-        options: {
-          script: 'dist/app/server.js'
-        }
-      }
-    },
-
-    // configure the server for local
-    nodemon: {
       dev: {
         options: {
           script: 'dist/app/server.js'
@@ -175,5 +165,5 @@ module.exports = function(grunt) {
   grunt.registerTask('ci', [ 'build','karma:ci', 'express:dev', 'casperjs' ]);
 
   // Start watching and run tests when files change
-  grunt.registerTask('default', [ 'build', 'nodemon:dev', 'karma:watch:start', 'watch' ]);
+  grunt.registerTask('default', [ 'build', 'express:dev', 'karma:watch:start', 'watch' ]);
 };
