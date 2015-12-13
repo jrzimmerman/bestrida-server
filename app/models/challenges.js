@@ -7,7 +7,9 @@ var challengeSchema = mongoose.Schema({
   challengeeId: { type: Number, required: true },
   challengerTime: Number,
   challengeeTime: Number,
-  status: { type: String, default: 'pending' }
+  status: { type: String, default: 'pending' },
+  created: { type: Date, default: Date.now },
+  expires: { type: Date }
 });
 
 var Challenge = mongoose.model('Challenge', challengeSchema);
@@ -35,27 +37,23 @@ module.exports.accept = function () {
 };
 
 module.exports.decline = function () {
-  // TODO: remove challenge from db
+  // TODO: update challenge status as declined so that both users can see it in
+  //       challenges feed as declined
 };
 
 module.exports.complete = function () {
   // TODO: call strava api, get user's time for the correct segment
   // TODO: update challenge with the effort time (and other details, if necessary)
+  // TODO: update wins, losses, and challenge count for both users
+    // Need to access the correct friend from user's friends array
 };
 
 module.exports.getChallenges = function (user, status, callback) {
   Challenge.find()
-    .and([
-      { 
-        $or: [
-          { challengerId: user },
-          { challengeeId: user }
-        ],
-        $and: [
-          { status: status }
-        ]
-      }
-    ])
+    .and([{ 
+      $or: [{ challengerId: user }, { challengeeId: user }],
+      $and: [{ status: status }]
+    }])
     .exec(function (err, challenges) {
       if (err) {
         callback(err);

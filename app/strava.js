@@ -118,6 +118,12 @@ function getFriendsFromStrava (id) {
   });
 }
 
+function getSegmentEffort (segmentId, callback) {
+  // get user's efforts for the segment id
+    // check if the most recent effort falls within challenge timeframe
+      // effort should be after challenge create date, before challenge due date
+}
+
 module.exports = {
   registerAthlete: registerAthlete,
   getOAuthRequestAccessUrl: getOAuthRequestAccessUrl,
@@ -126,5 +132,6 @@ module.exports = {
   getEffort: getEffort,
   getAllUsers: getAllUsers,
   getUser: getUser,
-  getFriendsFromDb: getFriendsFromDb
+  getFriendsFromDb: getFriendsFromDb,
+  getSegmentEffort: getSegmentEffort
 };
