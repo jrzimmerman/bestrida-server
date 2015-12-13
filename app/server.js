@@ -3,7 +3,7 @@ var app = express();
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var path = require('path');
-var strava = require('./app/strava');
+var strava = require('./strava');
 
 // use body parser so we can grab information from POST requests
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -22,15 +22,15 @@ app.use(morgan('dev'));
 
 // set static files location
 // used for requests that our frontend will make
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + './../public'));
 
 // API ROUTES ------------------------
-var apiRoutes = require('./app/routes/api')(app, express);
+var apiRoutes = require('./routes/api')(app, express);
 app.use('/api', apiRoutes);
 
 // routing all non-api requests to frontend
 app.get('*', function(req, res) {
-  res.sendFile(path.join(__dirname + '/public/index.html'));
+  res.sendFile(path.join(__dirname + './../public/index.html'));
 });
 
 
