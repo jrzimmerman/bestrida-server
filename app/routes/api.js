@@ -50,7 +50,13 @@ module.exports = function(app, express) {
   // challenges route
   apiRouter.route('/challenges')
     .get(function(req, res) {
-      res.json({ message: 'this returns all challenges!' });   
+      Challenges.find({}, function (err, challenges) {
+        if (err) {
+          res.json('Error! ' + err);
+        } else {
+          res.json(challenges);
+        }
+      });
     });
 
   // specific challenge route
@@ -72,7 +78,7 @@ module.exports = function(app, express) {
       })
     });
 
-  // completed challenges for a specific user
+  // get completed challenges for a specific user
   apiRouter.route('/challenges/completed/:user_id')
     .get(function(req, res) {
       var userId = parseInt(req.params.user_id);
@@ -85,12 +91,25 @@ module.exports = function(app, express) {
       })
     });
 
+  // Creates a new challenge
   apiRouter.route('/challenges/create')
     .post(function (req, res) {
       var challenge = req.body;
       Challenges.create(challenge);
       // TODO: What do we do with user after challenge has been created?
-      // res.send('challenge received');
+      res.end('challenge created', req.body);
+    });
+
+  // Completes a challenge for the user (call this route when "Complete Challenge" is clicked)
+  apiRouter.route('/challenges/complete/:segment_id&:user_id')
+    .post(function (req, res) {
+      console.log('segment id', req.params.segment_id);
+      console.log('user id', req.params.user_id);
+      // Call strava.getSegmentEffort
+      // If we found correct effort, call strava.completeChallenge with the effort info
+
+      // TODO: What response do we need to send back to the frontend?
+      res.end('challenge completed');
     });
 
   // specific athlete route
