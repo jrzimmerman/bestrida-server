@@ -1,6 +1,7 @@
 var strava = require('strava-v3');
 var util = require('./util');
-var Users = require('./models/users.js');
+var Users = require('./models/users');
+var Challenges = require('./models/challenges');
 
 function registerAthlete(stravaCode, callback) {
   console.log('Registering athlete with code ' + stravaCode);
@@ -96,7 +97,7 @@ function getFriendsFromDb (id, callback) {
       callback(null, users[0].friends);
     }
   });
-};
+}
 
 function getFriendsFromStrava (id) {
   strava.athletes.listFriends({ id: id }, function (err, friends) {
@@ -112,7 +113,7 @@ function getFriendsFromStrava (id) {
         photo: friend.profile,
         challengeCount: 0,
         record: [0, 0]
-      }
+      };
     });
     Users.saveFriends(id, friends);
   });
@@ -124,6 +125,30 @@ function getSegmentEffort (segmentId, callback) {
       // effort should be after challenge create date, before challenge due date
 }
 
+function getAllChallenges(callback) {
+  Challenges.find({}, function (err, challenges) {
+    if (err) {
+      callback(err);
+    }
+    if (challenges.length) {
+      callback(null, challenges);
+    }
+  });
+}
+
+function getChallenge(id, callback) {
+  Challenges.find({ _id: id }, function (err, challenge) {
+    if (err) {
+      callback(err);
+    }
+    if (!challenge[0]) {
+      callback(null, 'challenge ' + id + ' not found!');
+    } else if (challenge[0]) {
+      callback(null, challenge[0]);
+    }
+  });
+}
+
 module.exports = {
   registerAthlete: registerAthlete,
   getOAuthRequestAccessUrl: getOAuthRequestAccessUrl,
@@ -133,5 +158,7 @@ module.exports = {
   getAllUsers: getAllUsers,
   getUser: getUser,
   getFriendsFromDb: getFriendsFromDb,
-  getSegmentEffort: getSegmentEffort
+  getSegmentEffort: getSegmentEffort,
+  getAllChallenges: getAllChallenges,
+  getChallenge: getChallenge
 };

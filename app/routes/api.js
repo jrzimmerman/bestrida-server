@@ -50,9 +50,9 @@ module.exports = function(app, express) {
   // challenges route
   apiRouter.route('/challenges')
     .get(function(req, res) {
-      Challenges.find({}, function (err, challenges) {
+      strava.getAllChallenges(function (err, challenges) {
         if (err) {
-          res.json('Error! ' + err);
+          console.error('Error retrieving all challenges:', err);
         } else {
           res.json(challenges);
         }
@@ -62,20 +62,26 @@ module.exports = function(app, express) {
   // specific challenge route
   apiRouter.route('/challenges/:challenge_id')
     .get(function(req, res) {
-      res.json({ message: 'this is a specific challenge!' });   
+      strava.getChallenge(req.params.challenge_id, function (err, challenge) {
+        if (err) {
+          console.error('Error retrieving challenge:', err);
+        } else {
+          res.json(challenge);
+        }
+      });
     });
 
   // active challenges for a specific user
   apiRouter.route('/challenges/active/:user_id')
     .get(function(req, res) {
-      var userId = parseInt(req.params.user_id);
-      Challenges.getChallenges(userId, 'active', function (err, challenges) {
-        if (err) {
-          console.error('Error retrieving challenges:', err);
-        } else {
-          res.json(challenges);
-        }
-      })
+      Challenges.getChallenges(req.params.user_id, 'active',
+        function (err, challenges) {
+          if (err) {
+            console.error('Error retrieving challenges:', err);
+          } else {
+            res.json(challenges);
+          }
+      });
     });
 
   // get completed challenges for a specific user
@@ -88,7 +94,7 @@ module.exports = function(app, express) {
         } else {
           res.json(challenges);
         }
-      })
+      });
     });
 
   // Creates a new challenge
@@ -115,8 +121,7 @@ module.exports = function(app, express) {
   // specific athlete route
   apiRouter.route('/athletes/:athlete_id')
     .get(function(req, res) {
-      var athlete_id = parseInt(req.params.athlete_id);
-      strava.getAthlete(athlete_id,
+      strava.getAthlete(req.params.athlete_id,
         function(err,payload) {
           if(!err) {
             res.json(payload);
@@ -125,28 +130,6 @@ module.exports = function(app, express) {
           }
         });
     });
-
-    ////////////////////////////////
-    // Display information available for a specific athlete.
-    // app.get('/athlete/:id', function(req, res) {
-    //   var athleteId = parseInt(req.params.id);
-
-    //   if (isNaN(athleteId)) {
-    //     var description = 'Athlete identifier is missing';
-    //     console.log(description);
-    //     sendErrorMessage(res, description);
-    //   } else db.getItems('athletes', { id : athleteId }, function(err, athletes) {
-    //     if (err) sendError(res);
-    //     else db.getItems('activites', { athleteId : athleteId }, function(err, activities) {
-    //       if (err) sendError(res);
-    //       else res.render('athlete.handlebars', {
-    //         athlete: athletes[0],
-    //         activities: activities
-    //       });
-    //     });
-    //   });
-    // });
-    ////////////////////////////////
 
   // segments route
   apiRouter.route('/segments')
@@ -157,8 +140,7 @@ module.exports = function(app, express) {
   // specific segment route
   apiRouter.route('/segments/:segment_id')
     .get(function(req, res) {
-      var segment_id = parseInt(req.params.segment_id);
-      strava.getSegment(segment_id,
+      strava.getSegment(req.params.segment_id,
         function(err,payload) {
           if(!err) {
             res.json(payload);
