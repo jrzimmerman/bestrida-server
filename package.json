@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A Strava challenge app",
   "main": "dist/app/server.js",
-  "private": true,
+  "private" : true,
   "scripts": {
     "start": "node dist/app/server.js",
     "dev": "nodemon dist/app/server.js",
@@ -52,6 +52,7 @@
     "grunt-karma": "^0.12.1",
     "grunt-mocha": "^0.4.15",
     "grunt-nodemon": "^0.4.1",
+    "istanbul": "^0.4.1",
     "karma": "^0.13.15",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^0.2.2",
@@ -59,6 +60,8 @@
     "karma-mocha": "^0.2.1",
     "karma-sinon": "^1.0.4",
     "mocha": "^2.3.4",
-    "sinon": "^1.17.2"
+    "mocha-istanbul": "^0.2.0",
+    "sinon": "^1.17.2",
+    "supertest": "^1.1.0"
   }
 }
