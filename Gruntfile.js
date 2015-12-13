@@ -10,6 +10,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-karma');
   grunt.loadNpmTasks('grunt-casperjs');
   grunt.loadNpmTasks('grunt-mocha');
+  grunt.loadNpmTasks('grunt-nodemon');
 
 
   // in what order should the files be concatenated
@@ -29,7 +30,7 @@ module.exports = function(grunt) {
     // what files should be linted
     jshint: {
       gruntfile: 'Gruntfile.js',
-      //public: publicIncludeOrder,
+      public: publicIncludeOrder,
       server: 'server/**/*.js',
       options: {
         globals: {
@@ -72,8 +73,17 @@ module.exports = function(grunt) {
       }
     },
 
-    // configure the server
+    // configure the server for travis
     express: {
+      dev: {
+        options: {
+          script: 'dist/app/server.js'
+        }
+      }
+    },
+
+    // configure the server for local
+    nodemon: {
       dev: {
         options: {
           script: 'dist/app/server.js'
@@ -153,7 +163,7 @@ module.exports = function(grunt) {
   grunt.registerTask('build', [ 'jshint', 'clean', 'copy', 'concat', 'uglify']);
 
   // Run end2end tests once
-  grunt.registerTask('testend2end', [ 'express:dev', 'casperjs' ]);
+  grunt.registerTask('testend2end', [ 'casperjs' ]);
 
   // Run public tests once
   grunt.registerTask('testPublic', [ 'karma:single' ]);
@@ -165,5 +175,5 @@ module.exports = function(grunt) {
   grunt.registerTask('ci', [ 'build','karma:ci', 'express:dev', 'casperjs' ]);
 
   // Start watching and run tests when files change
-  grunt.registerTask('default', [ 'build', 'express:dev', 'karma:watch:start', 'watch' ]);
+  grunt.registerTask('default', [ 'build', 'nodemon:dev', 'karma:watch:start', 'watch' ]);
 };
