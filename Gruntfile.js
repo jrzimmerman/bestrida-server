@@ -138,7 +138,7 @@ module.exports = function(grunt) {
         tasks: [ 'build', 'karma:watch:run', 'casperjs' ]
       },
       server: {
-        files: [ 'server/**' ],
+        files: [ 'app/**' ],
         tasks: [ 'build', 'express:dev', 'casperjs' ],
         options: {
           spawn: false // Restart server
