@@ -129,10 +129,38 @@ function getFriendsFromStrava (id) {
   });
 }
 
-function getSegmentEffort (segmentId, callback) {
-  // get user's efforts for the segment id
-    // check if the most recent effort falls within challenge timeframe
-      // effort should be after challenge create date, before challenge due date
+function getSegmentEffort (challenge, callback) {
+  Challenges.find({ _id: challenge.id }, function (err, challenges) {
+    if (err) {
+      callback(err);
+    } else if (!challenges.length) {
+      callback('No challenge found');
+    } else if (challenges.length) {
+      challenge.segmentId = challenges[0].segmentId;
+      challenge.start = challenges[0].created;
+      challenge.end = challenges[0].expires;
+
+      strava.segments.listEfforts({
+        id: challenge.segmentId,
+        // id: 10864730,    // *** DEV ***
+        athlete_id: challenge.userId,
+        start_date_local: challenge.start,
+        // start_date_local: '2015-12-09T00:00:00.000Z',    // *** DEV ***
+        end_date_local: challenge.end
+        // end_date_local: '2015-12-09T23:23:59.999Z'    // **** DEV ****
+      }, function (err, efforts) {
+        if (err) {
+          console.error('Error getting segment efforts:', err);
+        }
+        if (!efforts) {
+          callback(null, 'No effort found');
+        } else {
+          // Strava returns the best effort first if there are multiple efforts
+          Challenges.complete(challenge, efforts[0].elapsed_time, callback);
+        }
+      });
+    }
+  });
 }
 
 function getAllChallenges(callback) {
