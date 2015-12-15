@@ -4,6 +4,7 @@ var userSchema = mongoose.Schema({
   _id:       { type: Number, required: true },
   firstname: { type: String, required: true },
   lastname:  { type: String, required: true },
+  fullName:  { type: String, required: true },
   token:     { type: String },
   photo:     { type: String },
   email:     { type: String },
@@ -48,6 +49,7 @@ function saveAthlete (user, callback) {
     _id: user.id,
     firstname: user.firstname,
     lastname: user.lastname,
+    fullName: user.firstname + ' ' + user.lastname,
     token: user.token,
     photo: user.profile || defaultPhoto,
     email: user.email
@@ -69,6 +71,7 @@ function refreshAthlete (user, callback) {
     {
       firstname: user.firstname,
       lastname: user.lastname,
+      fullName: user.firstname + ' ' + user.lastname,
       token: user.token,
       photo: user.profile,
       email: user.email
