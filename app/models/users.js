@@ -81,4 +81,4 @@ function refreshAthlete (user, callback) {
       console.log('Successfully refreshed token:', res);
       callback(null, user.token);
     });
-};
+}

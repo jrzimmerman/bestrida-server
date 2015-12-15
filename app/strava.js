@@ -2,6 +2,7 @@ var strava = require('strava-v3');
 var util = require('./util');
 var Users = require('./models/users');
 var Challenges = require('./models/challenges');
+var Segments = require('./models/segments');
 
 function registerAthlete(stravaCode, callback) {
   console.log('Registering athlete with code ' + stravaCode);
@@ -39,13 +40,22 @@ function getAthlete(athleteId, callback) {
 }
 
 function getSegment(segmentId, callback) {
-  strava.segments.get( {id: segmentId}, function(err, segment) {
+  Segments.find({ _id: segmentId }, function (err, segment) {
     if (err) {
-      console.log("Received error from segment.get service:\n" + util.stringify(err));
       callback(err);
-    } else {
-      console.log("Received segment data:\n" + util.stringify(segment));
-      callback(null, segment);
+    } // if not found send API request
+    if (!segment[0]) {
+      strava.segments.get( {id: segmentId}, function(err, segment) {
+        if (err) {
+          console.log("Received error from segment.get service:\n" + util.stringify(err));
+          callback(err);
+        } else {
+          console.log("Received segment data:\n" + util.stringify(segment));
+          Segments.saveSegment(segment, callback);
+        }
+      }); // if found
+    } else if (segment[0]) {
+      callback(null, segment[0]);
     }
   });
 }
