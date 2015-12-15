@@ -8,7 +8,9 @@ var userSchema = mongoose.Schema({
   token:     { type: String },
   photo:     { type: String },
   email:     { type: String },
-  friends:   { type: [mongoose.Schema.Types.Mixed], default: [] }
+  friends:   { type: [mongoose.Schema.Types.Mixed], default: [] },
+  wins:      { type: Number, default: 0 },
+  losses:    { type: Number, default: 0 }
 });
 
 var User = mongoose.model('User', userSchema);
@@ -41,6 +43,46 @@ module.exports.saveFriends = function (user, friends) {
     }
   });
 };
+
+// Increment wins and challenge count on the user's friend object
+module.exports.incrementWins = function (userId, friendId) {
+  User.where({ _id: userId, "friends.id": friendId })
+  .update({ 
+    $inc: { 
+      'friends.$.challengeCount': 1,
+      'friends.$.wins': 1,
+      wins: 1
+    }
+  },
+  function (err, res) {
+    if (err) {
+      console.error('Error incrementing wins:', err);
+    } else {
+      console.log('Incremented wins:', res);
+    }
+  });
+};
+
+// Increment losses and challenge count on the user's friend object
+module.exports.incrementLosses = function (userId, friendId) {
+  User.where({ _id: userId, "friends.id": friendId })
+  .update({
+    $inc: {
+      'friends.$.challengeCount': 1,
+      'friends.$.losses': 1,
+      losses: 1
+    }
+  },
+  function (err, res) {
+    if (err) {
+      console.error('Error incrementing losses:', err);
+    } else {
+      console.log('Incremented losses:', res);
+    }
+  });
+};
+
+// Helper functions
 
 function saveAthlete (user, callback) {
   // TODO: create a default photo and save the path to defaultPhoto var
