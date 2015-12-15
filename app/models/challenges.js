@@ -22,6 +22,7 @@ module.exports.create = function (challenge) {
     segmentName: challenge.segmentName,
     challengerId: challenge.challengerId,
     challengeeId: challenge.challengeeId
+    // TODO: Handle due date
   });
   newChallenge.save(function (err, res) {
     if (err) {
@@ -41,24 +42,57 @@ module.exports.decline = function () {
   //       challenges feed as declined
 };
 
-module.exports.complete = function () {
-  // TODO: call strava api, get user's time for the correct segment
-  // TODO: update challenge with the effort time (and other details, if necessary)
-  // TODO: update wins, losses, and challenge count for both users
-    // Need to access the correct friend from user's friends array
+module.exports.complete = function (challenge, effortTime, callback) {
+  // Refactor code to pass the challenger/challengee role of user when API is called
+  // to save us this extra request to the database
+  Challenge.find({ _id: challenge.id }, function (err, challenges) {
+    if (!challenges.length) {
+      console.error('No challenges found');
+    }
+  })
+  .then(function (result) {
+    var userRole = challenge.challengerId === result.userId ? 'challenger' : 'challengee';
+    if (userRole === 'challenger') {
+      Challenge.update({ _id: challenge.id }, { challengerTime: effortTime }, function (err, res) {
+        if (err) {
+          callback('Error updating challenge with user effort: ' + err);
+        } else {
+          callback(null, 'Updated challenge with user effort: ' + res);
+        }
+      });
+    } else if (userRole === 'challengee') {
+      Challenge.update({ _id: challenge.id }, { challengeeTime: effortTime }, function (err, res) {
+        if (err) {
+          callback('Error updating challenge with user effort: ' + err);
+        } else {
+          callback(null, 'Updated challenge with user effort: ' + res);
+        }
+      });
+    }
+  // Updates challenge with user's effort; checks if user is challenger or challengee
+  });
+  // Checks if the challenge has a winner; waits 5 seconds to allow for effort to be saved to DB
+  setTimeout(checkForWinner(challenge.id), 5000);
 };
 
 module.exports.getChallenges = function (user, status, callback) {
-  Challenge.find()
-    .and([{ 
-      $or: [{ challengerId: user }, { challengeeId: user }],
-      $and: [{ status: status }]
-    }])
-    .exec(function (err, challenges) {
-      if (err) {
-        callback(err);
-      } else {
-        callback(null, challenges);
-      }
-    });
+  Challenge
+  .find()
+  .and([{ 
+    $or: [{ challengerId: user }, { challengeeId: user }],
+    $and: [{ status: status }]
+  }])
+  .exec(function (err, challenges) {
+    if (err) {
+      callback(err);
+    } else {
+      callback(null, challenges);
+    }
+  });
+};
+
+function checkForWinner (challengeId) {
+  // TODO: check challenge to see if both users have completed the challenge
+    // and then do some stuff based on that
+    // TODO: update wins, losses, and challenge count for both users
 };

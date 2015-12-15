@@ -102,20 +102,24 @@ module.exports = function(app, express) {
     .post(function (req, res) {
       var challenge = req.body;
       Challenges.create(challenge);
-      // TODO: What do we do with user after challenge has been created?
+      // TODO: What response do we need to send back to the frontend?
       res.end('challenge created', req.body);
     });
 
   // Completes a challenge for the user (call this route when "Complete Challenge" is clicked)
-  apiRouter.route('/challenges/complete/:segment_id&:user_id')
+  apiRouter.route('/challenges/complete')
     .post(function (req, res) {
-      console.log('segment id', req.params.segment_id);
-      console.log('user id', req.params.user_id);
-      // Call strava.getSegmentEffort
-      // If we found correct effort, call strava.completeChallenge with the effort info
+      var challenge = req.body;
 
-      // TODO: What response do we need to send back to the frontend?
-      res.end('challenge completed');
+      strava.getSegmentEffort(challenge, function (err, effort) {
+        if (err) {
+          console.error('Error retrieving segment effort:', err);
+          res.end('Challenge not updated.');
+        } else {
+          // TODO: What response do we need to send back to the frontend?
+          res.end('challenge has been updated with your effort');
+        }
+      });
     });
 
   // specific athlete route
