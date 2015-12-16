@@ -122,7 +122,7 @@ function getFriendsFromDb (id, callback) {
 }
 
 function getFriendsFromStrava (id,token) {
-  strava.athlete.listFriends({ token: token }, function (err, friends) {
+  strava.athlete.listFriends({ access_token: token }, function (err, friends) {
     if (err) {
       console.error('Error retrieving friends', err);
     }
@@ -155,7 +155,7 @@ function getUserSegmentsFromDb (id, callback) {
 }
 
 function getSegmentsFromStrava (userId, token) {
-  strava.athlete.listActivities({ token: token }, function (err, activities) {
+  strava.athlete.listActivities({ access_token: token }, function (err, activities) {
     if (err) {
       console.error('Error retrieving activities', err);
     }
