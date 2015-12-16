@@ -15,8 +15,8 @@ function registerAthlete(stravaCode, callback) {
       var athlete = payload.athlete;
       athlete.token = payload.access_token;
       Users.registerAthlete(athlete, callback);
-      setTimeout(getFriendsFromStrava(athlete.id), 5000);
-      setTimeout(getSegmentsFromStrava(athlete.id), 5000);
+      setTimeout(getFriendsFromStrava(athlete.id, athlete.token), 5000);
+      setTimeout(getSegmentsFromStrava(athlete.id, athlete.token), 5000);
     }
   });
 }
@@ -121,8 +121,8 @@ function getFriendsFromDb (id, callback) {
   });
 }
 
-function getFriendsFromStrava (id) {
-  strava.athlete.listFriends({ id: id }, function (err, friends) {
+function getFriendsFromStrava (id,token) {
+  strava.athlete.listFriends({ token: token }, function (err, friends) {
     if (err) {
       console.error('Error retrieving friends', err);
     }
@@ -141,7 +141,6 @@ function getFriendsFromStrava (id) {
     Users.saveFriends(id, friends);
   });
 }
-/////////////////////////////////////////////
 function getUserSegmentsFromDb (id, callback) {
   Users.find({ _id: id }, function (err, users) {
     if (err) {
@@ -155,8 +154,8 @@ function getUserSegmentsFromDb (id, callback) {
   });
 }
 
-function getSegmentsFromStrava (userId) {
-  strava.athlete.listActivities({ id: userId }, function (err, activities) {
+function getSegmentsFromStrava (userId, token) {
+  strava.athlete.listActivities({ token: token }, function (err, activities) {
     if (err) {
       console.error('Error retrieving activities', err);
     }
