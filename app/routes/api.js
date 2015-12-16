@@ -138,7 +138,13 @@ module.exports = function(app, express) {
   // segments route
   apiRouter.route('/segments')
     .get(function(req, res) {
-      res.json({ message: 'this returns all segments!' });   
+      strava.getAllSegments(function (err, segments) {
+        if (err) {
+          console.error('Error retrieving all segments:', err);
+        } else {
+          res.json(segments);
+        }
+      });
     });
 
   // specific segment route
