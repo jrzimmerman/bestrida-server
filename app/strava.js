@@ -60,6 +60,17 @@ function getSegment(segmentId, callback) {
   });
 }
 
+function getAllSegments(callback) {
+  Segments.find({}, function (err, segments) {
+    if (err) {
+      callback(err);
+    }
+    if (segments.length) {
+      callback(null, segments);
+    }
+  });
+}
+
 function getEffort(effortId, callback) {
   strava.segmentEfforts.get( {id: effortId}, function(err, effort) {
     if (err) {
@@ -192,6 +203,7 @@ module.exports = {
   getOAuthRequestAccessUrl: getOAuthRequestAccessUrl,
   getAthlete: getAthlete,
   getSegment: getSegment,
+  getAllSegments: getAllSegments,
   getEffort: getEffort,
   getAllUsers: getAllUsers,
   getUser: getUser,
