@@ -9,6 +9,7 @@ var userSchema = mongoose.Schema({
   photo:     { type: String },
   email:     { type: String },
   friends:   { type: [mongoose.Schema.Types.Mixed], default: [] },
+  segments:  { type: [mongoose.Schema.Types.Mixed], default: [] },
   wins:      { type: Number, default: 0 },
   losses:    { type: Number, default: 0 }
 });
@@ -44,6 +45,36 @@ module.exports.saveFriends = function (user, friends) {
   });
 };
 
+module.exports.saveSegments = function (user, segments) {
+  User.findOneAndUpdate({ _id: user }, {$push: { segments: segments }},
+    function (err, res) {
+    if (err) {
+      console.error('Error saving segments:', err);
+    } else {
+      console.log('Saved segments:', res);
+    }
+  });
+};
+
+module.exports.incrementSegmentCount = function (userId, segmentId) {
+  User.where({ _id: userId, "segments.id": segmentId })
+  .update({ 
+    $inc: { 
+      'segments.$.count': 1
+    }
+  },
+  function (err, res) {
+    if (err) {
+      console.error('Error incrementing segment count:', err);
+    } else {
+      console.log('User ID: ', userId);
+      console.log('Segment ID: ', segmentId);
+      console.log('Incremented segment count:', res);
+
+    }
+  });
+};
+
 // Increment wins and challenge count on the user's friend object
 module.exports.incrementWins = function (userId, friendId) {
   User.where({ _id: userId, "friends.id": friendId })
@@ -59,6 +90,7 @@ module.exports.incrementWins = function (userId, friendId) {
       console.error('Error incrementing wins:', err);
     } else {
       console.log('Incremented wins:', res);
+
     }
   });
 };
@@ -83,7 +115,6 @@ module.exports.incrementLosses = function (userId, friendId) {
 };
 
 // Helper functions
-
 function saveAthlete (user, callback) {
   // TODO: create a default photo and save the path to defaultPhoto var
   var defaultPhoto = '/some/file/path.jpg';
