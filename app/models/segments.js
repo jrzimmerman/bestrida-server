@@ -9,9 +9,9 @@ var segmentSchema = mongoose.Schema({
   startLatLng: { type: [mongoose.Schema.Types.Mixed], default: [], required: true },
   endLatLng: { type: [mongoose.Schema.Types.Mixed], default: [], required: true },
   climbCategory: {type: Number, required: true },
-  city: { type: String, required: true },
-  state: { type: String, required: true },
-  country: { type: String, required: true },
+  city: { type: String },
+  state: { type: String },
+  country: { type: String },
   totalElevationGain: {type: Number, required: true }
 });
 
@@ -61,7 +61,7 @@ module.exports.create = function (segmentId, name, activityType, distance,
 //   });
 // };
 
-module.exports.saveSegment = function (segment, callback) {
+module.exports.saveSegment = function (segment) {
   var newSegment = new Segment({
     _id: segment.id,
     name: segment.name,
@@ -80,10 +80,8 @@ module.exports.saveSegment = function (segment, callback) {
   newSegment.save(function (err, segment) {
     if (err) {
       console.error('Error saving segment:', err);
-      callback(err);
     } else {
       console.log('Segment saved!', segment);
-      callback(null, segment);
     }
   });
 };
