@@ -1,4 +1,5 @@
 var mongoose = require('../db');
+var Users = require('./users');
 
 var challengeSchema = mongoose.Schema({ 
   segmentId: { type: Number, required: true },
@@ -42,7 +43,7 @@ module.exports.decline = function () {
   //       challenges feed as declined
 };
 
-module.exports.complete = function (challenge, effortTime, callback) {
+module.exports.complete = function (challenge, effort, callback) {
   // Refactor code to pass the challenger/challengee role of user when API is called
   // to save us this extra request to the database
   Challenge.find({ _id: challenge.id }, function (err, challenges) {
@@ -51,9 +52,9 @@ module.exports.complete = function (challenge, effortTime, callback) {
     }
   })
   .then(function (result) {
-    var userRole = challenge.challengerId === result.userId ? 'challenger' : 'challengee';
+    var userRole = challenge.challengerId === effort.athlete.id ? 'challenger' : 'challengee';
     if (userRole === 'challenger') {
-      Challenge.update({ _id: challenge.id }, { challengerTime: effortTime }, function (err, res) {
+      Challenge.update({ _id: challenge.id }, { challengerTime: effort.elapsed_time }, function (err, res) {
         if (err) {
           callback('Error updating challenge with user effort: ' + err);
         } else {
@@ -61,15 +62,16 @@ module.exports.complete = function (challenge, effortTime, callback) {
         }
       });
     } else if (userRole === 'challengee') {
-      Challenge.update({ _id: challenge.id }, { challengeeTime: effortTime }, function (err, res) {
+      Challenge.update({ _id: challenge.id }, { challengeeTime: effort.elapsed_time }, function (err, res) {
         if (err) {
           callback('Error updating challenge with user effort: ' + err);
         } else {
           callback(null, 'Updated challenge with user effort: ' + res);
         }
       });
+    } else {
+      console.error('userRole var was not set correctly in challenges.js line 55');
     }
-  // Updates challenge with user's effort; checks if user is challenger or challengee
   });
   // Checks if the challenge has a winner; waits 5 seconds to allow for effort to be saved to DB
   setTimeout(checkForWinner(challenge.id), 5000);
@@ -92,7 +94,33 @@ module.exports.getChallenges = function (user, status, callback) {
 };
 
 function checkForWinner (challengeId) {
-  // TODO: check challenge to see if both users have completed the challenge
-    // and then do some stuff based on that
-    // TODO: update wins, losses, and challenge count for both users
+  Challenge
+  .find({ _id: challengeId })
+  .then(function (challenges) {
+    var challenge = challenges[0],
+        winner;
+    // If challenge is complete
+    if (challenge.challengerTime && challenge.challengeeTime) {
+      if (challenge.challengerTime === challenge.challengeeTime) {
+        // TODO: Handle a tie
+      } else {
+        winner = challenge.challengerTime < challenge.challengeeTime ? 'challenger' : 'challengee';
+      }
+      // Update wins or losses and challenge count for both users
+      if (winner === 'challenger') {
+        Users.incrementWins(challenge.challengerId, challenge.challengeeId);
+        Users.incrementLosses(challenge.challengeeId, challenge.challengerId);
+      } else if (winner === 'challengee') {
+        Users.incrementWins(challenge.challengeeId, challenge.challengerId);
+        Users.incrementLosses(challenge.challengerId, challenge.challengeeId);
+      }
+      Challenge.update({ _id: challengeId }, { status: 'complete' }, function (err, raw) {
+        if (err) {
+          console.error('Error updating challenge status to \'Complete\'');
+        }
+        console.log('Challenge has been completed by both users:', raw);
+      });
+    }
+    // Updates challenge status to 'Complete'
+  });
 };

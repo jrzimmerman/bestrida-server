@@ -110,7 +110,8 @@ module.exports = function(app, express) {
   apiRouter.route('/challenges/complete')
     .post(function (req, res) {
       var challenge = req.body;
-
+      // Users.incrementWins(2711071, 1); // *** DEV ***
+      // Users.incrementLosses(2711071, 1027935); // *** DEV ***
       strava.getSegmentEffort(challenge, function (err, effort) {
         if (err) {
           console.error('Error retrieving segment effort:', err);

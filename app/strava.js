@@ -130,10 +130,11 @@ function getFriendsFromStrava (id) {
         id: friend.id,
         username: friend.username, 
         firstname: friend.firstname, 
-        lastname: friend.lastname, 
+        lastname: friend.lastname,
         photo: friend.profile,
         challengeCount: 0,
-        record: [0, 0]
+        wins: 0,
+        losses: 0
       };
     });
     Users.saveFriends(id, friends);
@@ -152,13 +153,13 @@ function getSegmentEffort (challenge, callback) {
       challenge.end = challenges[0].expires;
 
       strava.segments.listEfforts({
-        id: challenge.segmentId,
-        // id: 10864730,    // *** DEV ***
+        // id: challenge.segmentId,
+        id: 10864730,    // *** DEV ***
         athlete_id: challenge.userId,
-        start_date_local: challenge.start,
-        // start_date_local: '2015-12-09T00:00:00.000Z',    // *** DEV ***
-        end_date_local: challenge.end
-        // end_date_local: '2015-12-09T23:23:59.999Z'    // **** DEV ****
+        // start_date_local: challenge.start,
+        start_date_local: '2015-12-09T00:00:00.000Z',    // *** DEV ***
+        // end_date_local: challenge.end
+        end_date_local: '2015-12-09T23:23:59.999Z'    // **** DEV ****
       }, function (err, efforts) {
         if (err) {
           console.error('Error getting segment efforts:', err);
@@ -167,7 +168,7 @@ function getSegmentEffort (challenge, callback) {
           callback(null, 'No effort found');
         } else {
           // Strava returns the best effort first if there are multiple efforts
-          Challenges.complete(challenge, efforts[0].elapsed_time, callback);
+          Challenges.complete(challenge, efforts[0], callback);
         }
       });
     }
