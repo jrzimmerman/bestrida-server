@@ -123,4 +123,4 @@ function checkForWinner (challengeId) {
     }
     // Updates challenge status to 'Complete'
   });
-};
+}
