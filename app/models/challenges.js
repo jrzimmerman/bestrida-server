@@ -22,8 +22,8 @@ module.exports.create = function (challenge) {
     segmentId: challenge.segmentId,
     segmentName: challenge.segmentName,
     challengerId: challenge.challengerId,
-    challengeeId: challenge.challengeeId
-    // TODO: Handle due date
+    challengeeId: challenge.challengeeId,
+    expires: new Date(challenge.completionDate).toISOString()
   });
   newChallenge.save(function (err, res) {
     if (err) {
