@@ -119,6 +119,24 @@ module.exports = function(app, express) {
       res.end('challenge created', req.body);
     });
 
+  // Creates a new challenge
+  apiRouter.route('/challenges/accept')
+    .post(function (req, res) {
+      var challenge = req.body;
+      Challenges.accept(challenge);
+      // TODO: What response do we need to send back to the frontend?
+      res.end('challenge created', req.body);
+    });
+
+  // Creates a new challenge
+  apiRouter.route('/challenges/decline')
+    .post(function (req, res) {
+      var challenge = req.body;
+      Challenges.decline(challenge);
+      // TODO: What response do we need to send back to the frontend?
+      res.end('challenge created', req.body);
+    });
+
   // Completes a challenge for the user (call this route when "Complete Challenge" is clicked)
   apiRouter.route('/challenges/complete')
     .post(function (req, res) {
