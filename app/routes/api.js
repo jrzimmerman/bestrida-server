@@ -84,16 +84,29 @@ module.exports = function(app, express) {
       });
     });
 
+  // pending challenges for a specific user
+  apiRouter.route('/challenges/pending/:user_id')
+    .get(function(req, res) {
+      Challenges.getChallenges(req.params.user_id, 'pending',
+        function (err, challenges) {
+          if (err) {
+            console.error('Error retrieving challenges:', err);
+          } else {
+            res.json(challenges);
+          }
+      });
+    });
+
   // get completed challenges for a specific user
   apiRouter.route('/challenges/completed/:user_id')
     .get(function(req, res) {
-      var userId = parseInt(req.params.user_id);
-      Challenges.getChallenges(userId, 'complete', function (err, challenges) {
-        if (err) {
-          console.error('Error retrieving challenges:', err);
-        } else {
-          res.json(challenges);
-        }
+      Challenges.getChallenges(req.params.user_id, 'complete',
+        function (err, challenges) {
+          if (err) {
+            console.error('Error retrieving challenges:', err);
+          } else {
+            res.json(challenges);
+          }
       });
     });
 
