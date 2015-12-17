@@ -24,7 +24,7 @@ module.exports.create = function (challenge) {
     segmentId: challenge.segmentId,
     segmentName: challenge.segmentName,
     challengerId: challenge.challengerId,
-    challengeName: challenge.challengerName,
+    challengerName: challenge.challengerName,
     challengeeId: challenge.challengeeId,
     challengeeName: challenge.challengeeName,
     expires: new Date(challenge.completionDate).toISOString()
