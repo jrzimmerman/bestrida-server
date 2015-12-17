@@ -43,11 +43,8 @@ function getSegment(segmentId, callback) {
   Segments.find({ _id: segmentId }, function (err, segment) {
     if (err) {
       callback(err);
-    } 
-    if(!segment) {
-      callback(null, "Segment not found!");
-    }// if not found send API request
-    if (!segment[0]) {
+    } // if not found send API request
+    if (!segment || !segment[0]) {
       strava.segments.get( {id: segmentId}, function(err, segment) {
         if (err) {
           console.log("Received error from segment.get service:\n" + util.stringify(err));
@@ -102,10 +99,7 @@ function getUser(id, callback) {
     if (err) {
       callback(err);
     }
-    if (!user) {
-      callback(null, 'No user!');
-    }
-    if (!user[0]) {
+    if (!user || !user[0]) {
       callback(null, 'User ' + id + ' not found!');
     } else if (user[0]) {
       callback(null, user[0]);
