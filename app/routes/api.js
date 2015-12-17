@@ -119,22 +119,30 @@ module.exports = function(app, express) {
       res.end('challenge created', req.body);
     });
 
-  // Creates a new challenge
+  // Accepts a pending challenge
   apiRouter.route('/challenges/accept')
     .post(function (req, res) {
       var challenge = req.body;
-      Challenges.accept(challenge);
-      // TODO: What response do we need to send back to the frontend?
-      res.end('challenge created', req.body);
+      Challenges.accept(req.body, function (err, raw) {
+        if (err) {
+          console.error('Error accepting challenge:', err);
+        } else {
+          res.end(JSON.stringify(raw));
+        }
+      });
     });
 
-  // Creates a new challenge
+  // Declines a pending challenge
   apiRouter.route('/challenges/decline')
     .post(function (req, res) {
       var challenge = req.body;
-      Challenges.decline(challenge);
-      // TODO: What response do we need to send back to the frontend?
-      res.end('challenge created', req.body);
+      Challenges.decline(challenge, function (err, raw) {
+        if (err) {
+          console.error('Error accepting challenge:', err);
+        } else {
+          res.end(raw);
+        }
+      });
     });
 
   // Completes a challenge for the user (call this route when "Complete Challenge" is clicked)
@@ -148,7 +156,6 @@ module.exports = function(app, express) {
           console.error('Error retrieving segment effort:', err);
           res.end('Challenge not updated.');
         } else {
-          // TODO: What response do we need to send back to the frontend?
           res.end('challenge has been updated with your effort');
         }
       });

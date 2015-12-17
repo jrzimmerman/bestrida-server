@@ -242,13 +242,14 @@ function getSegmentEffort (challenge, callback) {
       challenge.end = challenges[0].expires;
 
       strava.segments.listEfforts({
-        // id: challenge.segmentId,
-        id: 10864730,    // *** DEV ***
+        id: challenge.segmentId,
+        // *** DEV *** the dev code is pulling from one of justin's rides
+        // id: 10864730,    // *** DEV ***
         athlete_id: challenge.userId,
-        // start_date_local: challenge.start,
-        start_date_local: '2015-12-09T00:00:00.000Z',    // *** DEV ***
-        // end_date_local: challenge.end
-        end_date_local: '2015-12-09T23:23:59.999Z'    // **** DEV ****
+        start_date_local: challenge.start,
+        // start_date_local: '2015-12-09T00:00:00.000Z',    // *** DEV ***
+        end_date_local: challenge.end
+        // end_date_local: '2015-12-09T23:23:59.999Z'    // **** DEV ****
       }, function (err, efforts) {
         if (err) {
           console.error('Error getting segment efforts:', err);

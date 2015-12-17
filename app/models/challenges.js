@@ -34,13 +34,25 @@ module.exports.create = function (challenge) {
   });
 };
 
-module.exports.accept = function () {
-  // TODO: add challenge to Active Challenges tab
+module.exports.accept = function (challenge, callback) {
+  Challenge.update({ _id: challenge.id }, { status: 'active' }, function (err, raw) {
+    if (err) {
+      callback(err);
+    } else {
+      callback(null, JSON.stringify(raw));
+    }
+  });
 };
 
-module.exports.decline = function () {
-  // TODO: update challenge status as declined so that both users can see it in
-  //       challenges feed as declined
+module.exports.decline = function (challenge, callback) {
+  Challenge.find({ _id: challenge.id })
+  .remove(function(err, raw) {
+    if (err) {
+      callback(err);
+    } else {
+      callback(null, JSON.stringify(raw));
+    }
+  });
 };
 
 module.exports.complete = function (challenge, effort, callback) {
