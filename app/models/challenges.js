@@ -4,15 +4,29 @@ var Users = require('./users');
 var challengeSchema = mongoose.Schema({ 
   segmentId: { type: Number, required: true },
   segmentName: { type: String, required: true },
+  segmentDistance: { type: Number },
+  segmentAverageGrade: { type: Number },
+  segmentMaxGrade: { type: Number },
+  segmentElevationHigh: { type: Number },
+  segmentElevationLow: { type: Number },
+  segmentClimbCategory: { type: Number },
   challengerId: { type: Number, required: true },
-  challengerName: {type: String },
-  challengeeName: {type: String },
+  challengerName: { type: String },
+  challengeeName: { type: String },
   challengeeId: { type: Number, required: true },
-  challengerTime: Number,
-  challengeeTime: Number,
+  challengerTime: { type: Number },
+  challengeeTime: { type: Number },
+  challengerAvgCadence: { type: Number },
+  challengeeAvgCadence: { type: Number },
+  challengerAvgWatts: { type: Number },
+  challengeeAvgWatts: { type: Number },
+  challengerAvgHeartrate: { type: Number },
+  challengeeAvgHeartrate: { type: Number },
+  challengerMaxHeartRate: { type: Number },
+  challengeeMaxHeartRate: { type: Number },
   status: { type: String, default: 'pending' },
   created: { type: Date, default: Date.now },
-  expires: { type: Date }
+  expires: { type: Date },
 });
 
 var Challenge = mongoose.model('Challenge', challengeSchema);
@@ -60,8 +74,8 @@ module.exports.decline = function (challenge, callback) {
 };
 
 module.exports.complete = function (challenge, effort, callback) {
-  // Refactor code to pass the challenger/challengee role of user when API is called
-  // to save us this extra request to the database
+  // Can refactor code to pass the challenger/challengee role of user when
+  // API is called to save us this extra request to the database
   Challenge.find({ _id: challenge.id }, function (err, challenges) {
     if (!challenges.length) {
       console.error('No challenges found');
@@ -70,7 +84,20 @@ module.exports.complete = function (challenge, effort, callback) {
   .then(function (result) {
     var userRole = challenge.challengerId === effort.athlete.id ? 'challenger' : 'challengee';
     if (userRole === 'challenger') {
-      Challenge.update({ _id: challenge.id }, { challengerTime: effort.elapsed_time }, function (err, res) {
+      Challenge.update({ _id: challenge.id },
+        { 
+          challengerTime: effort.elapsed_time,
+          challengerAvgCadence: effort.average_cadence,
+          challengerAvgWatts: effort.average_watts,
+          challengerAvgHeartrate: effort.average_heartrate,
+          challengerMaxHeartRate: effort.max_heartrate,
+          segmentDistance: effort.segment.distance,
+          segmentAverageGrade: effort.segment.average_grade,
+          segmentMaxGrade: effort.segment.maximum_grade,
+          segmentElevationHigh: effort.segment.elevation_high,
+          segmentElevationLow: effort.segment.elevation_low,
+          segmentClimbCategory: effort.segment.climb_category
+        }, function (err, res) {
         if (err) {
           callback('Error updating challenge with user effort: ' + err);
         } else {
@@ -78,7 +105,20 @@ module.exports.complete = function (challenge, effort, callback) {
         }
       });
     } else if (userRole === 'challengee') {
-      Challenge.update({ _id: challenge.id }, { challengeeTime: effort.elapsed_time }, function (err, res) {
+      Challenge.update({ _id: challenge.id }, 
+        { 
+          challengeeTime: effort.elapsed_time,
+          challengeeAvgCadence: effort.average_cadence,
+          challengeeAvgWatts: effort.average_watts,
+          challengeeAvgHeartrate: effort.average_heartrate,
+          challengeeMaxHeartRate: effort.max_heartrate,
+          segmentDistance: effort.segment.distance,
+          segmentAverageGrade: effort.segment.average_grade,
+          segmentMaxGrade: effort.segment.maximum_grade,
+          segmentElevationHigh: effort.segment.elevation_high,
+          segmentElevationLow: effort.segment.elevation_low,
+          segmentClimbCategory: effort.segment.climb_category
+        }, function (err, res) {
         if (err) {
           callback('Error updating challenge with user effort: ' + err);
         } else {
