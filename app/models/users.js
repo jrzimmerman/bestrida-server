@@ -1,4 +1,5 @@
 var mongoose = require('../db');
+var strava = require('../strava');
 
 var userSchema = mongoose.Schema({ 
   _id:       { type: Number, required: true },
@@ -28,6 +29,7 @@ module.exports.registerAthlete = function (user, callback) {
     } else {
       // Else if user doesn't exist in db, save them to db
       saveAthlete(user, callback);
+      setTimeout(strava.getFriendsFromStrava(user.id, user.token), 5000);
     }
   }, function (err) {
     console.error('Error retrieving user:', err);
