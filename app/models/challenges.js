@@ -5,6 +5,8 @@ var challengeSchema = mongoose.Schema({
   segmentId: { type: Number, required: true },
   segmentName: { type: String, required: true },
   challengerId: { type: Number, required: true },
+  challengerName: {type: String },
+  challengeeName: {type: String },
   challengeeId: { type: Number, required: true },
   challengerTime: Number,
   challengeeTime: Number,
@@ -22,7 +24,9 @@ module.exports.create = function (challenge) {
     segmentId: challenge.segmentId,
     segmentName: challenge.segmentName,
     challengerId: challenge.challengerId,
+    challengeName: challenge.challengerName,
     challengeeId: challenge.challengeeId,
+    challengeeName: challenge.challengeeName,
     expires: new Date(challenge.completionDate).toISOString()
   });
   newChallenge.save(function (err, res) {
