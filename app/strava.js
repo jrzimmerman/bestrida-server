@@ -15,7 +15,6 @@ function registerAthlete(stravaCode, callback) {
       var athlete = payload.athlete;
       athlete.token = payload.access_token;
       Users.registerAthlete(athlete, callback);
-      setTimeout(getFriendsFromStrava(athlete.id, athlete.token), 5000);
       setTimeout(getSegmentsFromStrava(athlete.id, athlete.token), 5000);
     }
   });
@@ -121,7 +120,7 @@ function getFriendsFromDb (id, callback) {
   });
 }
 
-function getFriendsFromStrava (id,token) {
+function getFriendsFromStrava (id, token) {
   strava.athlete.listFriends({ access_token: token }, function (err, friends) {
     if (err) {
       console.error('Error retrieving friends', err);
