@@ -169,60 +169,62 @@ function getSegmentsFromStrava (userId, token) {
         if (err) {
           console.error('Error retrieving activities', err);
         }
-        oneActivity.segment_efforts.forEach(function(segment) {
-          // nested loop, consider alternatives
-          // check if segment id is in segments table
-          var oneSegment = segment;
-          console.log("oneSegment: ", oneSegment.segment.id);
-          // check to see if oneSegment is in database
-          Segments.find({ _id: oneSegment.segment.id }, function (err, segmentDB) {
-            if (err) {
-              console.log("Received error: ",err);
-            } // if segment not found in DB send API request
-            if (!segmentDB[0]) {
-              strava.segments.get( {id: oneSegment.segment.id}, function(err, segmentCall) {
-                if (err) {
-                  console.log("Received error from segment.get service:\n" + util.stringify(err));
-                  console.log(err);
-                } else { // not found in segment collection grab segment from Strava
-                  console.log("Received segment data:\n" + util.stringify(segmentCall));
-                  Segments.saveSegment(segmentCall);
-                  //check if segment in user's segment obj
-                  Users.where({_id: userId, "segments.id": segmentCall.id})
-                  .exec(function(err, res) {
-                    console.log(res);
-                    if(!res[0]) {
-                      var userSegment = {
-                          id: segmentCall.id,
-                          name: segmentCall.name,
-                          count: 1
-                        };
-                      Users.saveSegments(userId, userSegment);
-                    } else {
-                      Users.incrementSegmentCount(userId, segmentCall.segment.id);
-                    }
-                  });
-                }
-              });
-            } else {
-              // if segement is found in segment collection
-              // check if also stored in users table
-              Users.where({_id: userId, "segments.id": oneSegment.segment.id })
-              .exec(function(err, res) {
-                if(!res[0]) {
-                  var userSegment = {
-                          id: oneSegment.segment.id,
-                          name: oneSegment.segment.name,
-                          count: 1
-                        };
-                  Users.saveSegments(userId, userSegment);
-                } else {
-                  Users.incrementSegmentCount(userId, segment.segment.id);
-                }
-              });
-            }
+        if (oneActivity.segment_efforts.length) {
+          oneActivity.segment_efforts.forEach(function(segment) {
+            // nested loop, consider alternatives
+            // check if segment id is in segments table
+            var oneSegment = segment;
+            console.log("oneSegment: ", oneSegment.segment.id);
+            // check to see if oneSegment is in database
+            Segments.find({ _id: oneSegment.segment.id }, function (err, segmentDB) {
+              if (err) {
+                console.log("Received error: ",err);
+              } // if segment not found in DB send API request
+              if (!segmentDB[0]) {
+                strava.segments.get( {id: oneSegment.segment.id}, function(err, segmentCall) {
+                  if (err) {
+                    console.log("Received error from segment.get service:\n" + util.stringify(err));
+                    console.log(err);
+                  } else { // not found in segment collection grab segment from Strava
+                    console.log("Received segment data:\n" + util.stringify(segmentCall));
+                    Segments.saveSegment(segmentCall);
+                    //check if segment in user's segment obj
+                    Users.where({_id: userId, "segments.id": segmentCall.id})
+                    .exec(function(err, res) {
+                      console.log(res);
+                      if(!res[0]) {
+                        var userSegment = {
+                            id: segmentCall.id,
+                            name: segmentCall.name,
+                            count: 1
+                          };
+                        Users.saveSegments(userId, userSegment);
+                      } else {
+                        Users.incrementSegmentCount(userId, segmentCall.segment.id);
+                      }
+                    });
+                  }
+                });
+              } else {
+                // if segement is found in segment collection
+                // check if also stored in users table
+                Users.where({_id: userId, "segments.id": oneSegment.segment.id })
+                .exec(function(err, res) {
+                  if(!res[0]) {
+                    var userSegment = {
+                            id: oneSegment.segment.id,
+                            name: oneSegment.segment.name,
+                            count: 1
+                          };
+                    Users.saveSegments(userId, userSegment);
+                  } else {
+                    Users.incrementSegmentCount(userId, segment.segment.id);
+                  }
+                });
+              }
+            });
           });
-        });
+        }
       });
       
     });
