@@ -120,26 +120,6 @@ function getFriendsFromDb (id, callback) {
   });
 }
 
-function getFriendsFromStrava (id, token) {
-  strava.athlete.listFriends({ access_token: token }, function (err, friends) {
-    if (err) {
-      console.error('Error retrieving friends', err);
-    }
-    friends = friends.map(function(friend) {
-      return {
-        id: friend.id,
-        username: friend.username, 
-        firstname: friend.firstname, 
-        lastname: friend.lastname,
-        photo: friend.profile,
-        challengeCount: 0,
-        wins: 0,
-        losses: 0
-      };
-    });
-    Users.saveFriends(id, friends);
-  });
-}
 function getUserSegmentsFromDb (id, callback) {
   Users.find({ _id: id }, function (err, users) {
     if (err) {
