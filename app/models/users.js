@@ -1,5 +1,5 @@
 var mongoose = require('../db');
-var strava = require('../strava');
+var strava = require('strava-v3');
 
 var userSchema = mongoose.Schema({ 
   _id:       { type: Number, required: true },
@@ -29,7 +29,8 @@ module.exports.registerAthlete = function (user, callback) {
     } else {
       // Else if user doesn't exist in db, save them to db
       saveAthlete(user, callback);
-      setTimeout(strava.getFriendsFromStrava(user.id, user.token), 5000);
+      // console.log('invoking getFriendsFromStrava', typeof strava.getFriendsFromStrava);
+      setTimeout(getFriendsFromStrava(user.id, user.token), 5000);
     }
   }, function (err) {
     console.error('Error retrieving user:', err);
@@ -159,4 +160,25 @@ function refreshAthlete (user, callback) {
       console.log('Successfully refreshed token:', res);
       callback(null, user.token);
     });
+}
+
+function getFriendsFromStrava (id, token) {
+  strava.athlete.listFriends({ access_token: token }, function (err, friends) {
+    if (err) {
+      console.error('Error retrieving friends', err);
+    }
+    friends = friends.map(function(friend) {
+      return {
+        id: friend.id,
+        username: friend.username, 
+        firstname: friend.firstname, 
+        lastname: friend.lastname,
+        photo: friend.profile,
+        challengeCount: 0,
+        wins: 0,
+        losses: 0
+      };
+    });
+    User.saveFriends(id, friends);
+  });
 }
