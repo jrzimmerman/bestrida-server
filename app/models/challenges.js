@@ -159,7 +159,7 @@ module.exports.getChallenges = function (user, status, callback) {
       $or: [
         { challengerId: user, challengerCompleted: false, status: status },
         { challengeeId: user, challengeeCompleted: false, status: status }
-      ],
+      ]
     }])
     .exec(function (err, challenges) {
       if (err) {
@@ -169,7 +169,13 @@ module.exports.getChallenges = function (user, status, callback) {
       }
     });
   } else if (status === 'pending') {
-    Challenge.find({ challengeeId: user, status: 'pending' })
+    Challenge.find()
+    .and([{ 
+      $or: [
+        { challengeeId: user, status: 'pending' },
+        { challengerId: user, status: 'pending' }
+      ]
+    }])
     .exec(function (err, challenges) {
       if (err) {
         callback(err);
