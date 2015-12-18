@@ -178,7 +178,9 @@ function checkForWinner (challengeId) {
     var challenge = challenges[0],
         winner;
     // If challenge is complete
+    console.log('***', challenge.challengerTime, challenge.challengeeTime);
     if (challenge.challengerTime && challenge.challengeeTime) {
+      console.log('hi');
       if (challenge.challengerTime === challenge.challengeeTime) {
         // TODO: Handle a tie
       } else {

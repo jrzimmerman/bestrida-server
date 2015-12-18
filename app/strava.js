@@ -243,26 +243,45 @@ function getSegmentEffort (challenge, callback) {
       challenge.start = challenges[0].created;
       challenge.end = challenges[0].expires;
 
-      strava.segments.listEfforts({
-        id: challenge.segmentId,
-        // *** DEV *** the dev code is pulling from one of justin's rides
-        // id: 10864730,    // *** DEV ***
-        athlete_id: challenge.userId,
-        start_date_local: challenge.start,
-        // start_date_local: '2015-12-09T00:00:00.000Z',    // *** DEV ***
-        end_date_local: challenge.end
-        // end_date_local: '2015-12-09T23:23:59.999Z'    // **** DEV ****
-      }, function (err, efforts) {
-        if (err) {
-          console.error('Error getting segment efforts:', err);
+      // strava.segments.listEfforts({
+      //   id: challenge.segmentId,
+      //   // *** DEV *** the dev code is pulling from one of justin's rides
+      //   // id: 10864730,    // *** DEV ***
+      //   athlete_id: challenge.userId,
+      //   start_date_local: challenge.start,
+      //   // start_date_local: '2015-12-09T00:00:00.000Z',    // *** DEV ***
+      //   end_date_local: challenge.end
+      //   // end_date_local: '2015-12-09T23:23:59.999Z'    // **** DEV ****
+      // }, function (err, efforts) {
+      //   if (err) {
+      //     console.error('Error getting segment efforts:', err);
+      //   }
+      //   if (!efforts) {
+      //     callback(null, 'No effort found');
+      //   } else {
+      //     // Strava returns the best effort first if there are multiple efforts
+      //     Challenges.complete(challenge, efforts[0], callback);
+      //   }
+      // });
+      var x = {
+        elapsed_time: 500,
+        average_cadence: 500,
+        average_watts: 500,
+        average_heartrate: 1,
+        max_heartrate: 1,
+        segment: {
+          distance: 1,
+          average_grade: 1,
+          maximum_grade: 1,
+          elevation_high: 1,
+          elevation_low: 1,
+          climb_category: 1
+        },
+        athlete: {
+          id: 6274388
         }
-        if (!efforts) {
-          callback(null, 'No effort found');
-        } else {
-          // Strava returns the best effort first if there are multiple efforts
-          Challenges.complete(challenge, efforts[0], callback);
-        }
-      });
+      };
+      Challenges.complete(challenge, x, callback);
 
       //////////////////////      DEV       ///////////////////////
       // Challenges.complete(challenge,
