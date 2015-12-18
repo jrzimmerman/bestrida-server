@@ -242,7 +242,12 @@ function getSegmentEffort (challenge, callback) {
       challenge.segmentId = challenges[0].segmentId;
       challenge.start = challenges[0].created;
       challenge.end = challenges[0].expires;
+      challenge.challengerId = challenges[0].challengerId;
+      challenge.challengeeId = challenges[0].challengeeId;
 
+      /////////////////////////////////////////////
+      // PRODUCTION-READY CODE
+      //
       // strava.segments.listEfforts({
       //   id: challenge.segmentId,
       //   // *** DEV *** the dev code is pulling from one of justin's rides
@@ -263,10 +268,17 @@ function getSegmentEffort (challenge, callback) {
       //     Challenges.complete(challenge, efforts[0], callback);
       //   }
       // });
-      var x = {
-        elapsed_time: 500,
-        average_cadence: 500,
-        average_watts: 500,
+      //
+      /////////////////////////////////////////////
+
+
+      /////////////////////////////////////////////
+      // FOR DEV PURPOSES ONLY
+      /////////////////////////////////////////////
+      var mockEffort = {
+        elapsed_time: 1,
+        average_cadence: 1,
+        average_watts: 1,
         average_heartrate: 1,
         max_heartrate: 1,
         segment: {
@@ -281,30 +293,10 @@ function getSegmentEffort (challenge, callback) {
           id: challenge.userId
         }
       };
-      Challenges.complete(challenge, x, callback);
-
-      //////////////////////      DEV       ///////////////////////
-      // Challenges.complete(challenge,
-      //   { 
-      //     athlete: {
-      //       id: 6274388
-      //     },
-      //     elapsed_time: 1,
-      //     average_cadence: 1,
-      //     average_watts: 1,
-      //     average_heartrate: 1,
-      //     max_heartrate: 1,
-      //     segment: {
-      //       distance: 1,
-      //       average_grade: 1,
-      //       maximum_grade: 1,
-      //       elevation_high: 1,
-      //       elevation_low: 1,
-      //       climb_category: 1
-      //     }
-      //   },
-      //   callback);
-      //////////////////////    END DEV     ///////////////////////
+      Challenges.complete(challenge, mockEffort, callback);
+      /////////////////////////////////////////////
+      // END OF DEV CODE
+      /////////////////////////////////////////////
     }
   });
 }

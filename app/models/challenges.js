@@ -84,10 +84,8 @@ module.exports.complete = function (challenge, effort, callback) {
     }
   })
   .then(function (result) {
-    console.log('athlete is', effort.athlete.id);
     var userRole = challenge.challengerId === effort.athlete.id ? 'challenger' : 'challengee';
     if (userRole === 'challenger') {
-      console.log('user is challenger');
       Challenge.update({ _id: challenge.id },
         { 
           challengerTime: effort.elapsed_time,
@@ -110,7 +108,6 @@ module.exports.complete = function (challenge, effort, callback) {
         }
       });
     } else if (userRole === 'challengee') {
-      console.log('user is challengee');
       Challenge.update({ _id: challenge.id }, 
         { 
           challengeeTime: effort.elapsed_time,
@@ -169,6 +166,17 @@ module.exports.getChallenges = function (user, status, callback) {
         callback(err);
       } else {
         callback(null, challenges);
+      }
+    });
+  } else if (status === 'pending') {
+    Challenge.find({ challengeeId: user, status: 'pending' })
+    .exec(function (err, challenges) {
+      if (err) {
+        callback(err);
+      } else {
+        if (challenges.length) {
+          callback(null, challenges);
+        }
       }
     });
   }
