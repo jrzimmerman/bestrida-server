@@ -169,7 +169,7 @@ function getSegmentsFromStrava (userId, token) {
         if (err) {
           console.error('Error retrieving activities', err);
         }
-        if (oneActivity.segment_efforts.length) {
+        if (oneActivity.hasOwnProperty('segment_efforts')) {
           oneActivity.segment_efforts.forEach(function(segment) {
             // nested loop, consider alternatives
             // check if segment id is in segments table
