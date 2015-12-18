@@ -278,7 +278,7 @@ function getSegmentEffort (challenge, callback) {
           climb_category: 1
         },
         athlete: {
-          id: 6274388
+          id: challenge.userId
         }
       };
       Challenges.complete(challenge, x, callback);
