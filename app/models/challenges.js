@@ -11,11 +11,13 @@ var challengeSchema = mongoose.Schema({
   segmentElevationLow: { type: Number },
   segmentClimbCategory: { type: Number },
   challengerId: { type: Number, required: true },
+  challengeeId: { type: Number, required: true },
   challengerName: { type: String },
   challengeeName: { type: String },
-  challengeeId: { type: Number, required: true },
   challengerTime: { type: Number },
   challengeeTime: { type: Number },
+  challengerCompleted: { type: Boolean, default: false },
+  challengeeCompleted: { type: Boolean, default: false },
   challengerAvgCadence: { type: Number },
   challengeeAvgCadence: { type: Number },
   challengerAvgWatts: { type: Number },
@@ -87,6 +89,7 @@ module.exports.complete = function (challenge, effort, callback) {
       Challenge.update({ _id: challenge.id },
         { 
           challengerTime: effort.elapsed_time,
+          challengerCompleted: true,
           challengerAvgCadence: effort.average_cadence,
           challengerAvgWatts: effort.average_watts,
           challengerAvgHeartrate: effort.average_heartrate,
@@ -108,6 +111,7 @@ module.exports.complete = function (challenge, effort, callback) {
       Challenge.update({ _id: challenge.id }, 
         { 
           challengeeTime: effort.elapsed_time,
+          challengeeCompleted: true,
           challengeeAvgCadence: effort.average_cadence,
           challengeeAvgWatts: effort.average_watts,
           challengeeAvgHeartrate: effort.average_heartrate,
@@ -125,8 +129,6 @@ module.exports.complete = function (challenge, effort, callback) {
           callback(null, 'Updated challenge with user effort: ' + res);
         }
       });
-    } else {
-      console.error('userRole var was not set correctly in challenges.js line 55');
     }
   });
   // Checks if the challenge has a winner; waits 5 seconds to allow for effort to be saved to DB
@@ -134,19 +136,39 @@ module.exports.complete = function (challenge, effort, callback) {
 };
 
 module.exports.getChallenges = function (user, status, callback) {
-  Challenge
-  .find()
-  .and([{ 
-    $or: [{ challengerId: user }, { challengeeId: user }],
-    $and: [{ status: status }]
-  }])
-  .exec(function (err, challenges) {
-    if (err) {
-      callback(err);
-    } else {
-      callback(null, challenges);
-    }
-  });
+  if (status === 'complete') {
+    Challenge
+    .find()
+    .and([{ 
+      $or: [
+        { challengerId: user, challengerCompleted: true },
+        { challengeeId: user, challengeeCompleted: true }
+      ],
+    }])
+    .exec(function (err, challenges) {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, challenges);
+      }
+    });
+  } else if (status === 'active') {
+    Challenge
+    .find()
+    .and([{ 
+      $or: [
+        { challengerId: user, challengerCompleted: false, status: status },
+        { challengeeId: user, challengeeCompleted: false, status: status }
+      ],
+    }])
+    .exec(function (err, challenges) {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, challenges);
+      }
+    });
+  }
 };
 
 function checkForWinner (challengeId) {
@@ -170,6 +192,7 @@ function checkForWinner (challengeId) {
         Users.incrementWins(challenge.challengeeId, challenge.challengerId);
         Users.incrementLosses(challenge.challengerId, challenge.challengeeId);
       }
+      // Updates challenge status to 'Complete'
       Challenge.update({ _id: challengeId }, { status: 'complete' }, function (err, raw) {
         if (err) {
           console.error('Error updating challenge status to \'Complete\'');
@@ -177,6 +200,5 @@ function checkForWinner (challengeId) {
         console.log('Challenge has been completed by both users:', raw);
       });
     }
-    // Updates challenge status to 'Complete'
   });
 }
