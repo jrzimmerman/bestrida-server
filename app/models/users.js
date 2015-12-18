@@ -29,7 +29,6 @@ module.exports.registerAthlete = function (user, callback) {
     } else {
       // Else if user doesn't exist in db, save them to db
       saveAthlete(user, callback);
-      // console.log('invoking getFriendsFromStrava', typeof strava.getFriendsFromStrava);
       setTimeout(getFriendsFromStrava(user.id, user.token), 5000);
     }
   }, function (err) {
@@ -167,18 +166,20 @@ function getFriendsFromStrava (id, token) {
     if (err) {
       console.error('Error retrieving friends', err);
     }
-    friends = friends.map(function(friend) {
-      return {
-        id: friend.id,
-        username: friend.username, 
-        firstname: friend.firstname, 
-        lastname: friend.lastname,
-        photo: friend.profile,
-        challengeCount: 0,
-        wins: 0,
-        losses: 0
-      };
-    });
-    User.saveFriends(id, friends);
+    if (friends.length) {
+      friends = friends.map(function(friend) {
+        return {
+          id: friend.id,
+          username: friend.username, 
+          firstname: friend.firstname, 
+          lastname: friend.lastname,
+          photo: friend.profile,
+          challengeCount: 0,
+          wins: 0,
+          losses: 0
+        };
+      });
+      User.saveFriends(id, friends);
+    }
   });
 }
