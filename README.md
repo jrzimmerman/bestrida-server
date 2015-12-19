@@ -33,12 +33,38 @@
 
 ### Installing Dependencies
 
-From within the root directory:
+From within the root directory (client side):
+
+Step 1. Install Ionic framework and libraries
+```sh
+npm install -g ionic
+```
+Step 2. Install client side dependencies
+```sh
+bower install
+```
+Step 3. Install iOS platform for Ionic
+```sh
+ionic platform add ios
+```
+Step 4. Install Cordova plugin for the in-app browser 
+```sh
+cordova plugin add https://git-wip-us.apache.org/repos/asf/cordova-plugin-inappbrowser.git
+```
+Step 5. To run app in browser, use the following command
+```sh
+ionic serve -l
+```
+Step 6. To run app in an iOS emulator (requires Mac OSX), use the following command
+```sh
+ionic emulate ios
+```
+
+
+From within the root directory (server side):
 
 ```sh
-sudo npm install -g bower
 npm install
-bower install
 ```
 
 ### Roadmap
