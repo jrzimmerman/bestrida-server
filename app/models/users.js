@@ -173,6 +173,7 @@ function getFriendsFromStrava (id, token) {
           username: friend.username, 
           firstname: friend.firstname, 
           lastname: friend.lastname,
+          fullName: friend.firstname + ' ' + friend.lastname,
           photo: friend.profile,
           challengeCount: 0,
           wins: 0,

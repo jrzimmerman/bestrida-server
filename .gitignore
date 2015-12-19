@@ -1,5 +1,6 @@
 ### node etc ###
 data/strava_config
+app/mockdata.js
 
 # Logs
 logs
