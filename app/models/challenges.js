@@ -129,10 +129,10 @@ module.exports.complete = function (challenge, effort, callback) {
           callback(null, 'Updated challenge with user effort: ' + res);
         }
       });
+      setTimeout(checkForWinner(challenge.id), 5000);
     }
   });
   // Checks if the challenge has a winner; waits 5 seconds to allow for effort to be saved to DB
-  setTimeout(checkForWinner(challenge.id), 5000);
 };
 
 module.exports.getChallenges = function (user, status, callback) {
@@ -195,9 +195,7 @@ function checkForWinner (challengeId) {
     var challenge = challenges[0],
         winner;
     // If challenge is complete
-    console.log('***', challenge.challengerTime, challenge.challengeeTime);
     if (challenge.challengerTime && challenge.challengeeTime) {
-      console.log('hi');
       if (challenge.challengerTime === challenge.challengeeTime) {
         // TODO: Handle a tie
       } else {
