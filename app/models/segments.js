@@ -111,28 +111,3 @@ module.exports.saveSegment = function (segment) {
 //       callback(null, res);
 //     });
 // }
-
-
-
-
-// If we need findOrCreate method, can use this code but wouldn't have access to mongoose Model methods
-// module.exports = {
-//   findOrCreate: function (segmentId, segmentName, activityType) {
-//     Segment.findOrCreate(
-//       {
-//         _id: segmentId
-//       },
-//       {
-//         segmentName: segmentName,
-//         activityType: activityType
-//       },
-//       function (err, segment, created) {
-//         // 'created' will be true if a new segment was created
-//         if (err) {
-//           console.error(err);
-//         }
-//         return segment;
-//       }
-//     );
-//   }
-// };

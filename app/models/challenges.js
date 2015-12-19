@@ -4,31 +4,35 @@ var Users = require('./users');
 var challengeSchema = mongoose.Schema({ 
   segmentId: { type: Number, required: true },
   segmentName: { type: String, required: true },
-  segmentDistance: { type: Number },
-  segmentAverageGrade: { type: Number },
-  segmentMaxGrade: { type: Number },
-  segmentElevationHigh: { type: Number },
-  segmentElevationLow: { type: Number },
-  segmentClimbCategory: { type: Number },
+  segmentDistance: Number,
+  segmentAverageGrade: Number,
+  segmentMaxGrade: Number,
+  segmentElevationHigh: Number,
+  segmentElevationLow: Number,
+  segmentClimbCategory: Number,
   challengerId: { type: Number, required: true },
   challengeeId: { type: Number, required: true },
-  challengerName: { type: String },
-  challengeeName: { type: String },
-  challengerTime: { type: Number },
-  challengeeTime: { type: Number },
+  challengerName: String,
+  challengeeName: String,
+  challengerTime: Number,
+  challengeeTime: Number,
   challengerCompleted: { type: Boolean, default: false },
   challengeeCompleted: { type: Boolean, default: false },
-  challengerAvgCadence: { type: Number },
-  challengeeAvgCadence: { type: Number },
-  challengerAvgWatts: { type: Number },
-  challengeeAvgWatts: { type: Number },
-  challengerAvgHeartrate: { type: Number },
-  challengeeAvgHeartrate: { type: Number },
-  challengerMaxHeartRate: { type: Number },
-  challengeeMaxHeartRate: { type: Number },
+  challengerAvgCadence: Number,
+  challengeeAvgCadence: Number,
+  challengerAvgWatts: Number,
+  challengeeAvgWatts: Number,
+  challengerAvgHeartrate: Number,
+  challengeeAvgHeartrate: Number,
+  challengerMaxHeartRate: Number,
+  challengeeMaxHeartRate: Number,
   status: { type: String, default: 'pending' },
   created: { type: Date, default: Date.now },
-  expires: { type: Date },
+  expires: Date,
+  winnerId: Number,
+  winnerName: String,
+  loserId: Number,
+  loserName: String
 });
 
 var Challenge = mongoose.model('Challenge', challengeSchema);
@@ -104,7 +108,7 @@ module.exports.complete = function (challenge, effort, callback) {
         if (err) {
           callback('Error updating challenge with user effort: ' + err);
         } else {
-          callback(null, 'Updated challenge with user effort: ' + res);
+          // callback(null, 'Updated challenge with user effort: ' + res);
         }
       });
     } else if (userRole === 'challengee') {
@@ -126,11 +130,11 @@ module.exports.complete = function (challenge, effort, callback) {
         if (err) {
           callback('Error updating challenge with user effort: ' + err);
         } else {
-          callback(null, 'Updated challenge with user effort: ' + res);
+          // callback(null, 'Updated challenge with user effort: ' + res);
         }
       });
-      setTimeout(checkForWinner(challenge.id), 5000);
     }
+    setTimeout(checkForWinner(challenge.id, callback), 5000);
   });
   // Checks if the challenge has a winner; waits 5 seconds to allow for effort to be saved to DB
 };
@@ -188,7 +192,7 @@ module.exports.getChallenges = function (user, status, callback) {
   }
 };
 
-function checkForWinner (challengeId) {
+function checkForWinner (challengeId, callback) {
   Challenge
   .find({ _id: challengeId })
   .then(function (challenges) {
@@ -198,6 +202,7 @@ function checkForWinner (challengeId) {
     if (challenge.challengerTime && challenge.challengeeTime) {
       if (challenge.challengerTime === challenge.challengeeTime) {
         // TODO: Handle a tie
+        callback(null, 'tie');
       } else {
         winner = challenge.challengerTime < challenge.challengeeTime ? 'challenger' : 'challengee';
       }
@@ -205,17 +210,40 @@ function checkForWinner (challengeId) {
       if (winner === 'challenger') {
         Users.incrementWins(challenge.challengerId, challenge.challengeeId);
         Users.incrementLosses(challenge.challengeeId, challenge.challengerId);
+        updateChallengeWinnerAndLoser(challengeId, challenge.challengerId,
+          challenge.challengerName, challenge.challengeeId, challenge.challengeeName, callback);
       } else if (winner === 'challengee') {
         Users.incrementWins(challenge.challengeeId, challenge.challengerId);
         Users.incrementLosses(challenge.challengerId, challenge.challengeeId);
+        updateChallengeWinnerAndLoser(challengeId, challenge.challengeeId, 
+          challenge.challengeeName, challenge.challengerId, challenge.challengerName, callback);
       }
       // Updates challenge status to 'Complete'
       Challenge.update({ _id: challengeId }, { status: 'complete' }, function (err, raw) {
         if (err) {
           console.error('Error updating challenge status to \'Complete\'');
         }
-        console.log('Challenge has been completed by both users:', raw);
       });
+      // callback(null, 'effort has been updated, winner has been calculated');
+    } else {
+      callback(null, 'Effort has been updated, waiting for other user to complete');
     }
   });
+}
+
+function updateChallengeWinnerAndLoser (challengeId, winnerId, winnerName, loserId, loserName, cb) {
+  Challenge.update({ _id: challengeId},
+    {
+      winnerId: winnerId,
+      winnerName: winnerName,
+      loserId: loserId,
+      loserName: loserName
+    },
+    function (err, raw) {
+      if (err) {
+        console.error('Error updating challenge winner/loser:', err);
+      } else {
+        cb(null, 'Challenge updated with winner and loser');
+      }
+    });
 }

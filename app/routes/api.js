@@ -154,7 +154,7 @@ module.exports = function(app, express) {
           console.error('Error retrieving segment effort:', err);
           res.end('Challenge not updated.');
         } else {
-          res.end('challenge has been updated with your effort');
+          res.end(effort);
         }
       });
     });
