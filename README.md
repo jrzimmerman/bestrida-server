@@ -30,6 +30,10 @@
 ### Requirements
 
 - Node 4.x.x
+- Bower
+- Grunt
+- Ionic framework (install instructions below)
+- Cordova, and associated plugins (install instructions below)
 
 ### Installing Dependencies
 
