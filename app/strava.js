@@ -256,7 +256,7 @@ function getSegmentEffort (challenge, callback) {
       // FOR DEV PURPOSES ONLY
       /////////////////////////////////////////////
       var mockEffort = {
-        elapsed_time: 1,
+        elapsed_time: Math.floor(Math.random() * 1000),
         average_cadence: 1,
         average_watts: 1,
         average_heartrate: 1,
