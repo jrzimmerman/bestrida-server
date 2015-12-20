@@ -1,15 +1,17 @@
 var mongoose = require('../db');
 var Users = require('./users');
+var Segments = require('./segments');
 
 var challengeSchema = mongoose.Schema({ 
   segmentId: { type: Number, required: true },
   segmentName: { type: String, required: true },
   segmentDistance: Number,
   segmentAverageGrade: Number,
-  segmentMaxGrade: Number,
-  segmentElevationHigh: Number,
-  segmentElevationLow: Number,
+  segmentElevationGain: Number,
   segmentClimbCategory: Number,
+  segmentCity: String,
+  segmentState: String,
+  segmentCountry: String,
   challengerId: { type: Number, required: true },
   challengeeId: { type: Number, required: true },
   challengerName: String,
@@ -54,9 +56,34 @@ module.exports.create = function (challenge) {
       console.error('Error creating challenge:', err);
     } else {
       console.log('Challenge created:', res);
+      saveSegmentToChallenge(res.id, challenge.segmentId);
     }
   });
 };
+
+function saveSegmentToChallenge (challengeId, segmentId) {
+  Segments.find({ _id: segmentId }, function (err, res) {
+    if (err) console.error('error', err);
+    if (res.length) {
+      var segment = res[0];
+      Challenge.update({ _id: challengeId },
+        {
+          segmentDistance: segment.distance,
+          segmentAverageGrade: segment.averageGrade,
+          segmentElevationGain: segment.totalElevationGain,
+          segmentClimbCategory: segment.climbCategory,
+          segmentCity: segment.city,
+          segmentState: segment.state,
+          segmentCountry: segment.country
+        },
+        function (err, raw) {
+          if (err) console.error(err);
+          console.log('Updated challenge with segment details:', raw);
+        });
+    }
+  });
+
+}
 
 module.exports.accept = function (challenge, callback) {
   Challenge.update({ _id: challenge.id }, { status: 'active' }, function (err, raw) {
