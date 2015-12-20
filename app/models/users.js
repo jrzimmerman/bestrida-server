@@ -118,8 +118,7 @@ module.exports.incrementLosses = function (userId, friendId) {
 
 // Helper functions
 function saveAthlete (user, callback) {
-  // TODO: create a default photo and save the path to defaultPhoto var
-  var defaultPhoto = '/some/file/path.jpg';
+  var defaultPhoto = '/img/default_profile_photo.png';
   var newUser = new User({
     _id: user.id,
     firstname: user.firstname,
