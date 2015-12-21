@@ -48,13 +48,10 @@ module.exports.saveFriends = function (user, friends) {
 };
 
 module.exports.saveSegments = function (user, segments) {
-  User.findOneAndUpdate({ _id: user }, {$push: { segments: segments }},
-    function (err, res) {
-    if (err) {
-      console.error('Error saving segments:', err);
-    } else {
-      console.log('Saved segments:', res);
-    }
+  User.update({ _id: user }, { $addToSet: { segments: segments } },
+  function (err, res) {
+    if (err) console.error('Error saving segments:', err);
+    else console.log('Saved segments:', res.nModified ? 'Modified' : 'Not modified');
   });
 };
 
@@ -69,10 +66,7 @@ module.exports.incrementSegmentCount = function (userId, segmentId) {
     if (err) {
       console.error('Error incrementing segment count:', err);
     } else {
-      console.log('User ID: ', userId);
-      console.log('Segment ID: ', segmentId);
-      console.log('Incremented segment count:', res);
-
+      console.log('Incremented segment count:', res.nModified ? 'Modified' : 'Not modified');
     }
   });
 };
