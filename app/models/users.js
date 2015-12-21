@@ -118,14 +118,16 @@ module.exports.incrementLosses = function (userId, friendId) {
 
 // Helper functions
 function saveAthlete (user, callback) {
-  var defaultPhoto = '/img/default_profile_photo.png';
+  if (user.profile === "avatar/athlete/large.png") {
+    user.profile = '/img/default_profile_photo.png';
+  }
   var newUser = new User({
     _id: user.id,
     firstname: user.firstname,
     lastname: user.lastname,
     fullName: user.firstname + ' ' + user.lastname,
     token: user.token,
-    photo: user.profile || defaultPhoto,
+    photo: user.profile,
     email: user.email
   });
   newUser.save(function (err, savedUser) {
