@@ -12,8 +12,10 @@ function registerAthlete(stravaCode, callback) {
       callback(err);
     } else {
       // Save athlete information to the database.
+      console.log(payload);
       var athlete = payload.athlete;
       athlete.token = payload.access_token;
+      callback(null, payload);
       Users.registerAthlete(athlete, callback);
       setTimeout(getSegmentsFromStrava(athlete.id, athlete.token), 5000);
     }

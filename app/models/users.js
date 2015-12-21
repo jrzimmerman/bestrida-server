@@ -127,10 +127,10 @@ function saveAthlete (user, callback) {
   newUser.save(function (err, savedUser) {
     if (err) {
       console.error('Error saving user:', err);
-      callback(err);
+      // callback(err);
     } else {
       console.log('User saved!', user);
-      callback(null, user);
+      // callback(null, user);
     }
   });
 }
@@ -149,10 +149,10 @@ function refreshAthlete (user, callback) {
     function (err, res) {
       if (err) {
         console.error('Error refreshing token:', err);
-        callback(err);
+        // callback(err);
       }
       console.log('Successfully refreshed token:', res);
-      callback(null, user.token);
+      // callback(null, user.token);
     });
 }
 
