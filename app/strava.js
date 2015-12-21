@@ -151,33 +151,43 @@ function getSegmentsFromStrava (userId, token) {
         }
         if (oneActivity.hasOwnProperty('segment_efforts')) {
           oneActivity.segment_efforts.forEach(function(segment) {
-            // nested loop, consider alternatives
-            // check if segment id is in segments table
+            // Nested loop, consider alternatives
             var oneSegment = segment;
-            console.log("oneSegment: ", oneSegment.segment.id);
-            // check to see if oneSegment is in database
+
+            // Check to see if oneSegment is in database
             Segments.find({ _id: oneSegment.segment.id }, function (err, segmentDB) {
               if (err) {
                 console.log("Received error: ",err);
-              } // if segment not found in DB send API request
+              } 
+              // If segment not found in DB send API request to Strava
               if (!segmentDB[0]) {
                 strava.segments.get( {id: oneSegment.segment.id}, function(err, segmentCall) {
                   if (err) {
                     console.log("Received error from segment.get service:\n" + util.stringify(err));
-                    console.log(err);
-                  } else { // not found in segment collection grab segment from Strava
-                    console.log("Received segment data:\n" + util.stringify(segmentCall));
+                  // If segment not found in segment collection, grab segment from Strava
+                  } else {
                     Segments.saveSegment(segmentCall);
-                    //check if segment in user's segment obj
+                    // Check if segment in user's segment obj
                     Users.where({_id: userId, "segments.id": segmentCall.id})
                     .exec(function(err, res) {
-                      console.log(res);
                       if(!res[0]) {
                         var userSegment = {
-                            id: segmentCall.id,
+                            _id: segmentCall.id,
                             name: segmentCall.name,
                             count: 1
                           };
+                        // May need to add a timeout to Users.saveSegments below to account
+                        // for the time it takes to save a segment to a user on the database
+                        // Occasionally it will create duplicate segments because the first
+                        // segment is still in the process of being saved to DB and so it does
+                        // not show up in DB yet, so when we query the DB to find it, it should
+                        // be incrementing the segment count but because it hasn't saved yet, it
+                        // saves a duplicate copy
+
+                        // Ideally we would process the segments completely prior to saving them,
+                        // i.e. incrementing counts, etc. and then save the entire segments array
+                        // to the user. This would solve the issue we're having with the time it
+                        // takes to save to the database
                         Users.saveSegments(userId, userSegment);
                       } else {
                         Users.incrementSegmentCount(userId, segmentCall.segment.id);
@@ -186,16 +196,16 @@ function getSegmentsFromStrava (userId, token) {
                   }
                 });
               } else {
-                // if segement is found in segment collection
-                // check if also stored in users table
+                // If segement is found in segment collection,
+                // check if also stored in users' segments property
                 Users.where({_id: userId, "segments.id": oneSegment.segment.id })
                 .exec(function(err, res) {
                   if(!res[0]) {
                     var userSegment = {
-                            id: oneSegment.segment.id,
-                            name: oneSegment.segment.name,
-                            count: 1
-                          };
+                      id: oneSegment.segment.id,
+                      name: oneSegment.segment.name,
+                      count: 1
+                    };
                     Users.saveSegments(userId, userSegment);
                   } else {
                     Users.incrementSegmentCount(userId, segment.segment.id);
@@ -206,7 +216,6 @@ function getSegmentsFromStrava (userId, token) {
           });
         }
       });
-      
     });
   });
 }
