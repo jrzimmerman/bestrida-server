@@ -29,20 +29,33 @@ module.exports.registerAthlete = function (user, callback) {
     } else {
       // Else if user doesn't exist in db, save them to db
       saveAthlete(user, callback);
-      setTimeout(getFriendsFromStrava(user.id, user.token), 5000);
     }
   }, function (err) {
     console.error('Error retrieving user:', err);
   });
 };
 
-module.exports.saveFriends = function (user, friends) {
-  User.update({ _id: user }, { friends: friends },
-    function (err, res) {
+module.exports.getFriendsFromStrava = function (id, token) {
+  console.log('calling strava for friends');
+  strava.athlete.listFriends({ access_token: token }, function (err, friends) {
     if (err) {
-      console.error('Error saving friends:', err);
-    } else {
-      console.log('Saved friends:', res);
+      console.error('Error retrieving friends', err);
+    }
+    if (friends.length) {
+      friends = friends.map(function(friend) {
+        return {
+          id: friend.id,
+          username: friend.username, 
+          firstname: friend.firstname, 
+          lastname: friend.lastname,
+          fullName: friend.firstname + ' ' + friend.lastname,
+          photo: friend.profile,
+          challengeCount: 0,
+          wins: 0,
+          losses: 0
+        };
+      });
+      saveFriends(id, friends);
     }
   });
 };
@@ -51,7 +64,6 @@ module.exports.saveSegments = function (user, segments) {
   User.update({ _id: user }, { $addToSet: { segments: segments } },
   function (err, res) {
     if (err) console.error('Error saving segments:', err);
-    else console.log('Saved segments:', res.nModified ? 'Modified' : 'Not modified');
   });
 };
 
@@ -65,8 +77,6 @@ module.exports.incrementSegmentCount = function (userId, segmentId) {
   function (err, res) {
     if (err) {
       console.error('Error incrementing segment count:', err);
-    } else {
-      console.log('Incremented segment count:', res.nModified ? 'Modified' : 'Not modified');
     }
   });
 };
@@ -127,10 +137,8 @@ function saveAthlete (user, callback) {
   newUser.save(function (err, savedUser) {
     if (err) {
       console.error('Error saving user:', err);
-      // callback(err);
     } else {
       console.log('User saved!', user);
-      // callback(null, user);
     }
   });
 }
@@ -149,33 +157,35 @@ function refreshAthlete (user, callback) {
     function (err, res) {
       if (err) {
         console.error('Error refreshing token:', err);
-        // callback(err);
       }
-      console.log('Successfully refreshed token:', res);
-      // callback(null, user.token);
+      console.log('Successfully refreshed token:', res.nModified);
     });
 }
 
-function getFriendsFromStrava (id, token) {
-  strava.athlete.listFriends({ access_token: token }, function (err, friends) {
-    if (err) {
-      console.error('Error retrieving friends', err);
+function saveFriends (user, stravaFriends) {
+  User.find({ _id: user }).select('friends')
+  .exec(function(err, res) {
+    var friends = res[0].friends;
+    var newFriends = [];
+    var friendsObj = {};
+
+    // Create a friend object for constant time lookup
+    for (var i = 0; i < friends.length; i++) {
+      friendsObj[friends[i].id] = 1;
     }
-    if (friends.length) {
-      friends = friends.map(function(friend) {
-        return {
-          id: friend.id,
-          username: friend.username, 
-          firstname: friend.firstname, 
-          lastname: friend.lastname,
-          fullName: friend.firstname + ' ' + friend.lastname,
-          photo: friend.profile,
-          challengeCount: 0,
-          wins: 0,
-          losses: 0
-        };
-      });
-      User.saveFriends(id, friends);
+
+    // If we find a new friend on Strava, push to newFriends array to be added later
+    for (var j = 0; j < stravaFriends.length; j++) {
+      if (!friendsObj[stravaFriends[j].id]) {
+        newFriends.push(stravaFriends[j]);
+      }
     }
+
+    // Push newFriends array to user's current friends
+    User.update({ _id: user }, { $push: { friends: { $each: newFriends }}}, { upsert: true },
+    function (err, raw) {
+      if (err) console.error('Ruh roh!', err);
+      console.log('Updated friends:', raw.nModified);
+    });
   });
 }
