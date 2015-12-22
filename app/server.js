@@ -82,10 +82,7 @@ app.get('/auth/strava/callback',
       var userToken = req.query.code; //remember the user should save this, db needs do nothing with it
       var month = 43829;
       var server_token = jwt.sign({id: userId}, process.env.SECRET || "secret", { expiresIn: month });
-      res.redirect('/?oauth_token=' + server_token + '&userId=' + userId);
-      setTimeout(function(){
-        res.sendfile(path.resolve('./../public/loggedIn.html'));
-      },5000);
+      res.redirect('loggedIn.html/?oauth_token=' + server_token + '&userId=' + userId);
   });
 
 // Simple route middleware to ensure user is authenticated.
@@ -125,9 +122,9 @@ var apiRoutes = require('./routes/api')(app, express);
 app.use('/api', apiRoutes);
 
 // routing all non-api requests to frontend
-app.get('*', function(req, res) {
-  res.sendFile(path.join(__dirname + './../public/index.html'));
-});
+// app.get('*', function(req, res) {
+//   res.sendFile(path.join(__dirname + './../public/index.html'));
+// });
 
 
 app.listen(process.env.PORT || 8000);
