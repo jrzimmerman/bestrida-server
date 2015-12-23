@@ -222,7 +222,6 @@ function getSegmentsFromStrava (userId, token) {
   });
 }
 
-
 function getSegmentEffort (challenge, callback) {
   Challenges.find({ _id: challenge.id }, function (err, challenges) {
     if (err) {
@@ -236,57 +235,49 @@ function getSegmentEffort (challenge, callback) {
       challenge.challengerId = challenges[0].challengerId;
       challenge.challengeeId = challenges[0].challengeeId;
 
-      /////////////////////////////////////////////
-      // PRODUCTION-READY CODE
-      //
-      // strava.segments.listEfforts({
-      //   id: challenge.segmentId,
-      //   // *** DEV *** the dev code is pulling from one of justin's rides
-      //   // id: 10864730,    // *** DEV ***
-      //   athlete_id: challenge.userId,
-      //   start_date_local: challenge.start,
-      //   // start_date_local: '2015-12-09T00:00:00.000Z',    // *** DEV ***
-      //   end_date_local: challenge.end
-      //   // end_date_local: '2015-12-09T23:23:59.999Z'    // **** DEV ****
-      // }, function (err, efforts) {
-      //   if (err) {
-      //     console.error('Error getting segment efforts:', err);
-      //   }
-      //   if (!efforts) {
-      //     callback(null, 'No effort found');
-      //   } else {
-      //     // Strava returns the best effort first if there are multiple efforts
-      //     Challenges.complete(challenge, efforts[0], callback);
-      //   }
-      // });
-      //
-      /////////////////////////////////////////////
-
-
-      /////////////////////////////////////////////
-      // FOR DEV PURPOSES ONLY
-      /////////////////////////////////////////////
-      var mockEffort = {
-        elapsed_time: Math.floor(Math.random() * 1000),
-        average_cadence: 1,
-        average_watts: 1,
-        average_heartrate: 1,
-        max_heartrate: 1,
-        segment: {
-          distance: 1,
-          average_grade: 1,
-          maximum_grade: 1,
-          elevation_high: 1,
-          elevation_low: 1,
-          climb_category: 1
-        },
-        athlete: {
-          id: challenge.userId
+      strava.segments.listEfforts({
+        id: challenge.segmentId,
+        athlete_id: challenge.userId,
+        start_date_local: challenge.start,
+        end_date_local: challenge.end
+      }, function (err, efforts) {
+        if (err) {
+          console.error('Error getting segment efforts:', err);
         }
-      };
-      Challenges.complete(challenge, mockEffort, callback);
+        if (!efforts) {
+          callback(null, 'No effort found');
+        } else {
+          // Strava returns the best effort first if there are multiple efforts
+          Challenges.complete(challenge, efforts[0], callback);
+        }
+      });
+
       /////////////////////////////////////////////
-      // END OF DEV CODE
+      //          FOR DEV PURPOSES ONLY
+      //
+      //
+      // var mockEffort = {
+      //   elapsed_time: Math.floor(Math.random() * 1000),
+      //   average_cadence: 1,
+      //   average_watts: 1,
+      //   average_heartrate: 1,
+      //   max_heartrate: 1,
+      //   segment: {
+      //     distance: 1,
+      //     average_grade: 1,
+      //     maximum_grade: 1,
+      //     elevation_high: 1,
+      //     elevation_low: 1,
+      //     climb_category: 1
+      //   },
+      //   athlete: {
+      //     id: challenge.userId
+      //   }
+      // };
+      // Challenges.complete(challenge, mockEffort, callback);
+      //
+      //
+      //             END OF DEV CODE
       /////////////////////////////////////////////
     }
   });
