@@ -222,6 +222,47 @@ function getSegmentsFromStrava (userId, token) {
   });
 }
 
+function getStarredSegmentsFromStrava (userId, token) {
+  strava.segments.listStarred({ access_token: token }, function(err, segments) {
+    if (err) console.error('Error retrieving starred segments:', err);
+    console.log('starred segments\n', segments);
+    segments.forEach(function(segment) {
+      // Check to see if the segment is in database
+      Segments.find({ _id: segment.id }, function (err, res) {
+        if (err) console.error(err);
+        // If segment not found in DB, get segment details from Strava
+        if (!res.length) {
+          getAndSaveSegmentInfo(segment.id, userId);
+        // Else (if segment is already in our DB, save the Strava API call)
+        } else if (res.length) {
+          var userSegment = {
+            id: res[0].id,
+            name: res[0].name,
+            count: 1
+          };
+          Users.saveSegments(userId, userSegment);
+        }
+      });
+    });
+  });
+}
+
+function getAndSaveSegmentInfo (segmentId, userId) {
+  strava.segments.get({ id: segmentId }, function(err, segment) {
+    if (err) {
+      console.log("Received error from segment.get service:\n" + util.stringify(err));
+    } else {
+      var userSegment = {
+        id: segment.id,
+        name: segment.name,
+        count: 1
+      };
+      Segments.saveSegment(segment);
+      setTimeout(Users.saveSegments(userId, userSegment), 5000);
+    }
+  });
+}
+
 function getSegmentEffort (challenge, callback) {
   Challenges.find({ _id: challenge.id }, function (err, challenges) {
     if (err) {
@@ -321,5 +362,6 @@ module.exports = {
   getAllChallenges: getAllChallenges,
   getChallenge: getChallenge,
   getSegmentsFromStrava: getSegmentsFromStrava,
+  getStarredSegmentsFromStrava: getStarredSegmentsFromStrava,
   getUserSegmentsFromDb: getUserSegmentsFromDb
 };

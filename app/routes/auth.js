@@ -44,6 +44,7 @@ module.exports = function(app, express, passport) {
         userId = profile.id;
         Users.registerAthlete(profile, function() {});
         setTimeout(strava.getSegmentsFromStrava(profile.id, profile.token), 5000);
+        setTimeout(strava.getStarredSegmentsFromStrava(profile.id, profile.token), 5000);
         setTimeout(Users.getFriendsFromStrava(profile.id, profile.token), 5000);
         // To keep the example simple, the user's Strava profile is returned to
         // represent the logged-in user.  In a typical application, you would want
