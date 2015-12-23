@@ -50,6 +50,7 @@ cordova platform add ios
 Step 3. Install client side dependencies
 ```sh
 bower install
+npm install
 ```
 Step 4. Install iOS platform for Ionic
 ```sh
