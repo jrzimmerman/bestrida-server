@@ -135,7 +135,7 @@ module.exports.complete = function (challenge, effort, callback) {
         if (err) {
           callback('Error updating challenge with user effort: ' + err);
         } else {
-          // callback(null, 'Updated challenge with user effort: ' + res);
+          console.log('Updated challenge with user effort: ' + res.nModified);
         }
       });
     } else if (userRole === 'challengee') {
@@ -157,13 +157,13 @@ module.exports.complete = function (challenge, effort, callback) {
         if (err) {
           callback('Error updating challenge with user effort: ' + err);
         } else {
-          // callback(null, 'Updated challenge with user effort: ' + res);
+          console.log('Updated challenge with user effort: ' + res.nModified);
         }
       });
     }
+    // Checks if the challenge has a winner; waits 5 seconds to allow for effort to be saved to DB
     setTimeout(checkForWinner(challenge.id, callback), 5000);
   });
-  // Checks if the challenge has a winner; waits 5 seconds to allow for effort to be saved to DB
 };
 
 module.exports.getChallenges = function (user, status, callback) {
@@ -176,6 +176,7 @@ module.exports.getChallenges = function (user, status, callback) {
         { challengeeId: user, challengeeCompleted: true }
       ],
     }])
+    .sort({ created: 'ascending' })
     .exec(function (err, challenges) {
       if (err) {
         callback(err);
@@ -192,6 +193,7 @@ module.exports.getChallenges = function (user, status, callback) {
         { challengeeId: user, challengeeCompleted: false, status: status }
       ]
     }])
+    .sort({ created: 'ascending' })
     .exec(function (err, challenges) {
       if (err) {
         callback(err);
@@ -207,6 +209,7 @@ module.exports.getChallenges = function (user, status, callback) {
         { challengerId: user, status: 'pending' }
       ]
     }])
+    .sort({ created: 'ascending' })
     .exec(function (err, challenges) {
       if (err) {
         callback(err);
