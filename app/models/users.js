@@ -20,6 +20,10 @@ var User = mongoose.model('User', userSchema);
 module.exports = User;
 
 module.exports.registerAthlete = function (user, callback) {
+  var token = user.token;
+  user = user._json;
+  user.token = token;
+
   // Check if user exists in db
   User.find({ _id: user.id })
   .then(function (usersArray) {
