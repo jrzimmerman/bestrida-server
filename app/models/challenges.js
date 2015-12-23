@@ -176,7 +176,7 @@ module.exports.getChallenges = function (user, status, callback) {
         { challengeeId: user, challengeeCompleted: true }
       ],
     }])
-    .sort({ created: 'ascending' })
+    .sort({ expires: 'ascending' })
     .exec(function (err, challenges) {
       if (err) {
         callback(err);
@@ -193,7 +193,7 @@ module.exports.getChallenges = function (user, status, callback) {
         { challengeeId: user, challengeeCompleted: false, status: status }
       ]
     }])
-    .sort({ created: 'ascending' })
+    .sort({ expires: 'ascending' })
     .exec(function (err, challenges) {
       if (err) {
         callback(err);
@@ -209,7 +209,7 @@ module.exports.getChallenges = function (user, status, callback) {
         { challengerId: user, status: 'pending' }
       ]
     }])
-    .sort({ created: 'ascending' })
+    .sort({ expires: 'ascending' })
     .exec(function (err, challenges) {
       if (err) {
         callback(err);
