@@ -271,8 +271,8 @@ function getSegmentEffort (challenge, callback) {
       callback('No challenge found');
     } else if (challenges.length) {
       challenge.segmentId = challenges[0].segmentId;
-      challenge.start = challenges[0].created;
-      challenge.end = challenges[0].expires;
+      challenge.start = new Date(challenges[0].created).toISOString();
+      challenge.end = new Date(challenges[0].expires).toISOString();
       challenge.challengerId = challenges[0].challengerId;
       challenge.challengeeId = challenges[0].challengeeId;
 
@@ -288,6 +288,7 @@ function getSegmentEffort (challenge, callback) {
         if (!efforts) {
           callback(null, 'No effort found');
         } else {
+          console.log('efforts\n', efforts);
           // Strava returns the best effort first if there are multiple efforts
           Challenges.complete(challenge, efforts[0], callback);
         }
