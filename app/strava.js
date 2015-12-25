@@ -146,6 +146,7 @@ function getSegmentsFromStrava (userId, token) {
         name: activity.name,
       };
     });
+    console.log('# of recent activities:', activities.length);
     activities.forEach(function(activity) {
       strava.activities.get({id: activity.id}, function(err, oneActivity) {
         if (err) {
@@ -204,7 +205,7 @@ function getSegmentsFromStrava (userId, token) {
                 .exec(function(err, res) {
                   if(!res[0]) {
                     var userSegment = {
-                      id: oneSegment.segment.id,
+                      _id: oneSegment.segment.id,
                       name: oneSegment.segment.name,
                       count: 1
                     };
@@ -225,24 +226,52 @@ function getSegmentsFromStrava (userId, token) {
 function getStarredSegmentsFromStrava (userId, token) {
   strava.segments.listStarred({ access_token: token }, function(err, segments) {
     if (err) console.error('Error retrieving starred segments:', err);
-    console.log('starred segments\n', segments);
-    segments.forEach(function(segment) {
-      // Check to see if the segment is in database
-      Segments.find({ _id: segment.id }, function (err, res) {
-        if (err) console.error(err);
-        // If segment not found in DB, get segment details from Strava
-        if (!res.length) {
-          getAndSaveSegmentInfo(segment.id, userId);
-        // Else (if segment is already in our DB, save the Strava API call)
-        } else if (res.length) {
-          var userSegment = {
-            id: res[0].id,
-            name: res[0].name,
-            count: 1
-          };
-          Users.saveSegments(userId, userSegment);
-        }
+    
+    // Retrieve a user's current segments to see segments are already saved
+    Users.find({ _id: userId }).select('segments')
+    .then(function(currentSegments) {
+      // Store user's current segment id's in userSegments object for constant-time lookup
+      userSegments = {};
+      // Save the id of each of the user's current segments into the object
+      currentSegments[0].segments.forEach(function (seg) { userSegments[seg._id] = true; });
+
+      // Iterate over segments retrieved from Strava
+      segments.forEach(function(segment) {
+        // Check to see if the segment is in database
+        Segments.find({ _id: segment.id }, function (err, res) {
+          if (err) console.error(err);
+          // If segment not found in DB, get segment details from Strava and save to DB
+          if (!res.length) {
+            getAndSaveSegmentInfo(segment.id, userId);
+          // Else (if segment is already in our DB, don't make Strava API call)
+          } else if (res.length) {
+            if (!userSegments[res[0].id]) {
+              var userSegment = {
+                _id: res[0].id,
+                name: res[0].name,
+                count: 1
+              };
+              Users.saveSegments(userId, userSegment);
+            }
+          }
+        });
       });
+    });
+  });
+  setTimeout(sortSegments(userId), 7000);
+}
+
+function sortSegments (userId) {
+  Users.find({ _id: userId }).select('segments')
+  .then(function(segments) {
+    segments = segments[0].segments;
+    var sortedSegments = segments.sort(function(x, y) {
+      return y.count - x.count;
+    });
+    // Update user with the sorted segments array
+    Users.update({ _id: userId }, { segments: sortedSegments }, function (err, raw) {
+      if (err) console.error(err);
+      console.log(raw.nModified === 1 ? 'User segments were sorted' : 'No changes made to users\' segments ordering');
     });
   });
 }
@@ -253,7 +282,7 @@ function getAndSaveSegmentInfo (segmentId, userId) {
       console.log("Received error from segment.get service:\n" + util.stringify(err));
     } else {
       var userSegment = {
-        id: segment.id,
+        _id: segment.id,
         name: segment.name,
         count: 1
       };

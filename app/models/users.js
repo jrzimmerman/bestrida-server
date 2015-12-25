@@ -40,7 +40,6 @@ module.exports.registerAthlete = function (user, callback) {
 };
 
 module.exports.getFriendsFromStrava = function (id, token) {
-  console.log('calling strava for friends');
   strava.athlete.listFriends({ access_token: token }, function (err, friends) {
     if (err) {
       console.error('Error retrieving friends', err);
@@ -64,8 +63,8 @@ module.exports.getFriendsFromStrava = function (id, token) {
   });
 };
 
-module.exports.saveSegments = function (user, segments) {
-  User.update({ _id: user }, { $addToSet: { segments: segments } },
+module.exports.saveSegments = function (user, segment) {
+  User.update({ _id: user }, { $addToSet: { segments: segment }},
   function (err, res) {
     if (err) console.error('Error saving segments:', err);
     console.log('Saved segments:', res.nModified === 1 ? 'Added segment' : 'Nothing added');
@@ -75,9 +74,8 @@ module.exports.saveSegments = function (user, segments) {
 module.exports.incrementSegmentCount = function (userId, segmentId) {
   User.where({ _id: userId, "segments.id": segmentId })
   .update({ 
-    $inc: { 
-      'segments.$.count': 1
-    }
+    $inc: { 'segments.$.count': 1 },
+    $sort: { 'segments.$.count': '-1' }
   },
   function (err, res) {
     if (err) {
@@ -85,6 +83,17 @@ module.exports.incrementSegmentCount = function (userId, segmentId) {
     }
     console.log('Incremented segment count:', res.nModified === 1 ? 'Incremented by 1' : 'Nothing incremented');
   });
+  User.update({ _id: user }, 
+      { $push: 
+        { segments: 
+          { $each: segments, 
+            $sort: { count: -1 } 
+          }}}, 
+      { upsert: true },
+    function (err, raw) {
+      if (err) console.error('Ruh roh!', err);
+      console.log('Updated segments:', raw.nModified);
+    });
 };
 
 // Increment wins and challenge count on the user's friend object
@@ -150,6 +159,9 @@ function saveAthlete (user, callback) {
 }
 
 function refreshAthlete (user, callback) {
+  if (user.profile === "avatar/athlete/large.png") {
+    user.profile = '/img/default_profile_photo.png';
+  }
   User.update(
     { _id: user.id },
     {
@@ -188,7 +200,13 @@ function saveFriends (user, stravaFriends) {
     }
 
     // Push newFriends array to user's current friends
-    User.update({ _id: user }, { $push: { friends: { $each: newFriends }}}, { upsert: true },
+    User.update({ _id: user }, 
+      { $push: 
+        { friends: 
+          { $each: newFriends, 
+            $sort: { challengeCount: -1 } 
+          }}}, 
+      { upsert: true },
     function (err, raw) {
       if (err) console.error('Ruh roh!', err);
       console.log('Updated friends:', raw.nModified);
