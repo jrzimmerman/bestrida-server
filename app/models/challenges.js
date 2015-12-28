@@ -1,6 +1,7 @@
 var mongoose = require('../db');
 var Users = require('./users');
 var Segments = require('./segments');
+var strava = require('../strava');
 
 var challengeSchema = mongoose.Schema({ 
   segmentId: { type: Number, required: true },
@@ -31,6 +32,7 @@ var challengeSchema = mongoose.Schema({
   status: { type: String, default: 'pending' },
   created: Date,
   expires: Date,
+  expired: { type: Boolean, default: false },
   winnerId: Number,
   winnerName: String,
   loserId: Number,
@@ -112,6 +114,74 @@ module.exports.decline = function (challenge, callback) {
     }
   });
 };
+
+function updateChallengeResult(challenge) {
+  Challenge.find({_id: challenge.id}, function(err, res){
+    if(res.length) {
+      var challenge = res[0];
+      if(challenge.challengeeCompleted) {
+        Challenge.update({ _id: challenge.id }, {
+          winnerId : challenge.challengeeId,
+          winnerName : challenge.challengerName,
+          loserId : challenge.challengerId,
+          loserName : challenge.challengerName,
+          expired : true
+        });
+      } if(challenge.challengerCompleted) {
+          Challenge.update({ _id: challenge.id }, {
+          winnerId : challenge.challengerId,
+          winnerName : challenge.challengerName,
+          loserId : challenge.challengeeId,
+          loserName : challenge.challengeeName,
+          expired : true
+        });
+      }
+    }
+    
+  });
+}
+
+module.exports.cronComplete = function() {
+  // var cutoff = new Date();
+  // cutoff.setDate(cutoff.getDate()-5);
+  // get all challenges with filter (before todays date and expired = false)
+  console.log('inside cronComplete');
+  Challenge.find({})
+  .then(function(result){
+    // iterate over challenges
+    result.forEach(function(aChallenge) {
+      // if neither completed, delete
+      console.log('iterating!');
+      if(aChallenge.challengeeCompleted === false && aChallenge.challengerCompleted === false) {
+        Challenge.find({ _id: aChallenge.id })
+        .remove(function(err, raw) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(raw);
+          }
+        });
+      }else if(aChallenge.challengeeCompleted && aChallenge.challengerCompleted) {
+        // if both completed, run complete and set expired = true
+        strava.getSegmentEffort(aChallenge, function(err, res) {
+          if(err) {
+            console.log('err: ', err);
+          } else {
+            complete(aChallenge, res, function(err, res){
+              console.log('complete challenge: ', res);
+              aChallenge.expired = true;
+            });
+          }
+        });
+      } else if(aChallenge.challengeeCompleted || aChallenge.challengerCompleted) {
+        // if one completed, set winner and set expired = true
+        updateChallengeResult(aChallenge);
+      }
+    });
+    console.log('done iterating');
+  }); 
+};
+
 
 module.exports.complete = function (challenge, effort, callback) {
   // Can refactor code to pass the challenger/challengee role of user when
@@ -274,7 +344,8 @@ function updateChallengeWinnerAndLoser (challengeId, winnerId, winnerName, loser
       winnerId: winnerId,
       winnerName: winnerName,
       loserId: loserId,
-      loserName: loserName
+      loserName: loserName,
+      expired: true
     },
     function (err, raw) {
       if (err) {

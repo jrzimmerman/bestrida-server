@@ -7,6 +7,7 @@ var strava         = require('./strava');
 var passport       = require('passport');
 var methodOverride = require('method-override');
 var session        = require('express-session');
+var cron           = require('./cron');
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -27,6 +28,9 @@ app.use(function(req, res, next) {
 
 // log all requests to the console 
 app.use(morgan('dev'));
+
+// start cron job
+cron.job.start();
 
 // set static files location
 // used for requests that our frontend will make
