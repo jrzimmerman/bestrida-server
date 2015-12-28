@@ -29,7 +29,7 @@ var challengeSchema = mongoose.Schema({
   challengerMaxHeartRate: Number,
   challengeeMaxHeartRate: Number,
   status: { type: String, default: 'pending' },
-  created: { type: Date, default: Date.now },
+  created: Date,
   expires: Date,
   winnerId: Number,
   winnerName: String,
@@ -42,6 +42,12 @@ var Challenge = mongoose.model('Challenge', challengeSchema);
 module.exports = Challenge;
 
 module.exports.create = function (challenge) {
+
+  var createdDate = new Date();
+  createdDate.setUTCHours(0, 0, 0, 0);
+  var expiresDate = new Date(challenge.completionDate);
+  expiresDate.setUTCHours(23, 59, 59, 999);
+
   var newChallenge = new Challenge({
     segmentId: challenge.segmentId,
     segmentName: challenge.segmentName,
@@ -49,7 +55,8 @@ module.exports.create = function (challenge) {
     challengerName: challenge.challengerName,
     challengeeId: challenge.challengeeId,
     challengeeName: challenge.challengeeName,
-    expires: new Date(challenge.completionDate).toISOString()
+    created: createdDate.toISOString(),
+    expires: expiresDate.toISOString()
   });
   newChallenge.save(function (err, res) {
     if (err) {
