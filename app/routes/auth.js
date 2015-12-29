@@ -14,8 +14,8 @@ var strava = require('../strava');
 //   the user by ID when deserializing.  However, since this example does not
 //   have a database of user records, the complete Strava profile is
 //   serialized and deserialized.
-var STRAVA_CLIENT_ID = process.env.STRAVA_CLIENT_ID || 9169;
-var STRAVA_CLIENT_SECRET = process.env.STRAVA_CLIENT_SECRET || "4773775dd54148bf0b7c14a2d94e8c81e55e1d96";
+var STRAVA_CLIENT_ID = process.env.STRAVA_CLIENT_ID;
+var STRAVA_CLIENT_SECRET = process.env.STRAVA_CLIENT_SECRET;
 
 passport.serializeUser(function(user, done) {
   done(null, user);
