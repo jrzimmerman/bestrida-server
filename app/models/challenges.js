@@ -115,73 +115,69 @@ module.exports.decline = function (challenge, callback) {
   });
 };
 
-function updateChallengeResult(challenge) {
-  Challenge.find({_id: challenge.id}, function(err, res){
-    if(res.length) {
-      var challenge = res[0];
-      if(challenge.challengeeCompleted) {
-        Challenge.update({ _id: challenge.id }, {
-          winnerId : challenge.challengeeId,
-          winnerName : challenge.challengerName,
-          loserId : challenge.challengerId,
-          loserName : challenge.challengerName,
-          expired : true
-        });
-      } if(challenge.challengerCompleted) {
-          Challenge.update({ _id: challenge.id }, {
-          winnerId : challenge.challengerId,
-          winnerName : challenge.challengerName,
-          loserId : challenge.challengeeId,
-          loserName : challenge.challengeeName,
-          expired : true
-        });
-      }
-    }
-    
-  });
-}
-
 module.exports.cronComplete = function() {
-  // var cutoff = new Date();
-  // cutoff.setDate(cutoff.getDate()-5);
-  // get all challenges with filter (before todays date and expired = false)
-  console.log('inside cronComplete');
-  Challenge.find({})
+  var cutoff = new Date();
+  var buffer = 0.5; // Buffer, in number of days, to account for different timezones
+                    // Temporary solution, should probably use moment.js library here
+  cutoff.setTime(cutoff.getTime() - buffer * 86400000);
+
+  Challenge.find({ expired: false, expires: { $lt: cutoff }})
   .then(function(result){
-    // iterate over challenges
-    result.forEach(function(aChallenge) {
-      // if neither completed, delete
-      console.log('iterating!');
-      if(aChallenge.challengeeCompleted === false && aChallenge.challengerCompleted === false) {
+    console.log(result.length, 'expired but not-yet-marked-as-expired challenges were found');
+
+    result.forEach(function(aChallenge, i) {
+      var onlyOneUserCompletedChallenge = (aChallenge.challengeeCompleted && !aChallenge.challengerCompleted) ||
+                                          (!aChallenge.challengeeCompleted && aChallenge.challengerCompleted);
+
+      // If neither completed challenge, delete challenge
+      if (!aChallenge.challengeeCompleted && !aChallenge.challengerCompleted) {
         Challenge.find({ _id: aChallenge.id })
-        .remove(function(err, raw) {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log(raw);
-          }
-        });
-      }else if(aChallenge.challengeeCompleted && aChallenge.challengerCompleted) {
-        // if both completed, run complete and set expired = true
-        strava.getSegmentEffort(aChallenge, function(err, res) {
-          if(err) {
-            console.log('err: ', err);
-          } else {
-            complete(aChallenge, res, function(err, res){
-              console.log('complete challenge: ', res);
-              aChallenge.expired = true;
-            });
-          }
-        });
-      } else if(aChallenge.challengeeCompleted || aChallenge.challengerCompleted) {
-        // if one completed, set winner and set expired = true
+        .remove(function(err, raw) { if (err) console.log(err); });
+
+      // Else if only one user completed challenge, set default winner
+      } else if (onlyOneUserCompletedChallenge) {
         updateChallengeResult(aChallenge);
       }
     });
-    console.log('done iterating');
   }); 
 };
 
+function updateChallengeResult(challenge) {
+  Challenge.find({_id: challenge._id}, function(err, res){
+    if (res.length) {
+      var challenge = res[0];
+      // If challengee is the only user who completed challenge
+      if (challenge.challengeeCompleted) {
+        Challenge.update({ _id: challenge._id }, {
+          winnerId: challenge.challengeeId,
+          winnerName: challenge.challengeeName,
+          loserId: challenge.challengerId,
+          loserName: challenge.challengerName,
+          expired: true,
+          challengerCompleted: true,
+          status: 'complete'
+        }, function (err, raw) {
+          if (err) console.log(err);
+          else console.log('Default winner was declared for challenge', challenge._id);
+        });
+      // If challenger is the only user who completed challenge
+      } else if (challenge.challengerCompleted) {
+          Challenge.update({ _id: challenge._id }, {
+          winnerId: challenge.challengerId,
+          winnerName: challenge.challengerName,
+          loserId: challenge.challengeeId,
+          loserName: challenge.challengeeName,
+          expired: true,
+          challengeeCompleted: true,
+          status: 'complete'
+        }, function (err, raw) {
+          if (err) console.log(err);
+          else console.log('Default winner was declared for challenge', challenge._id);
+        });
+      }
+    }
+  });
+}
 
 module.exports.complete = function (challenge, effort, callback) {
   // Can refactor code to pass the challenger/challengee role of user when
