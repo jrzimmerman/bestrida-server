@@ -74,8 +74,7 @@ module.exports.saveSegments = function (user, segment) {
 module.exports.incrementSegmentCount = function (userId, segmentId) {
   User.where({ _id: userId, "segments.id": segmentId })
   .update({ 
-    $inc: { 'segments.$.count': 1 },
-    $sort: { 'segments.$.count': '-1' }
+    $inc: { 'segments.$.count': 1 }
   },
   function (err, res) {
     if (err) {
@@ -83,17 +82,6 @@ module.exports.incrementSegmentCount = function (userId, segmentId) {
     }
     console.log('Incremented segment count:', res.nModified === 1 ? 'Incremented by 1' : 'Nothing incremented');
   });
-  User.update({ _id: user }, 
-      { $push: 
-        { segments: 
-          { $each: segments, 
-            $sort: { count: -1 } 
-          }}}, 
-      { upsert: true },
-    function (err, raw) {
-      if (err) console.error('Ruh roh!', err);
-      console.log('Updated segments:', raw.nModified);
-    });
 };
 
 // Increment wins and challenge count on the user's friend object
