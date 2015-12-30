@@ -235,7 +235,9 @@ module.exports.complete = function (challenge, effort, callback) {
       });
     }
     // Checks if the challenge has a winner; waits 5 seconds to allow for effort to be saved to DB
-    setTimeout(checkForWinner(challenge.id, callback), 5000);
+    setTimeout(function(){
+      checkForWinner(challenge.id, callback);
+    }, 2000);
   });
 };
 

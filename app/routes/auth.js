@@ -43,9 +43,13 @@ module.exports = function(app, express, passport) {
       process.nextTick(function () {
         userId = profile.id;
         Users.registerAthlete(profile, function() {});
-        setTimeout(strava.getSegmentsFromStrava(profile.id, profile.token), 5000);
-        setTimeout(strava.getStarredSegmentsFromStrava(profile.id, profile.token), 9000);
-        setTimeout(Users.getFriendsFromStrava(profile.id, profile.token), 5000);
+        setTimeout(function() {
+          strava.getSegmentsFromStrava(profile.id, profile.token);
+          Users.getFriendsFromStrava(profile.id, profile.token);
+        }, 1000);
+        setTimeout(function() {
+          strava.getStarredSegmentsFromStrava(profile.id, profile.token);
+        }, 2500);
         // To keep the example simple, the user's Strava profile is returned to
         // represent the logged-in user.  In a typical application, you would want
         // to associate the Strava account with a user record in your database,

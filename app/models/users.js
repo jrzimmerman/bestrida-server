@@ -67,7 +67,7 @@ module.exports.saveSegments = function (user, segment) {
   User.update({ _id: user }, { $addToSet: { segments: segment }},
   function (err, res) {
     if (err) console.error('Error saving segments:', err);
-    console.log('Saved segments:', res.nModified === 1 ? 'Added segment' : 'Nothing added');
+    console.log('Saved segments result:', res.nModified === 1 ? 'Added' : 'Nothing added');
   });
 };
 
@@ -80,7 +80,7 @@ module.exports.incrementSegmentCount = function (userId, segmentId) {
     if (err) {
       console.error('Error incrementing segment count:', err);
     }
-    console.log('Incremented segment count:', res.nModified === 1 ? 'Incremented by 1' : 'Nothing incremented');
+    console.log('Incremented segment count by', res.nModified);
   });
 };
 
