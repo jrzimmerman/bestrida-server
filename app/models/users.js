@@ -52,7 +52,7 @@ module.exports.getFriendsFromStrava = function (id, token) {
           firstname: friend.firstname, 
           lastname: friend.lastname,
           fullName: friend.firstname + ' ' + friend.lastname,
-          photo: friend.profile === "avatar/athlete/large.png" ? 'img/default_profile_photo.png' : friend.profile,
+          photo: friend.profile === "avatar/athlete/large.png" ? 'http://www.bestrida.co/assets/img/strava_profile_pic.png' : friend.profile,
           challengeCount: 0,
           wins: 0,
           losses: 0
