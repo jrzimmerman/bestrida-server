@@ -158,7 +158,6 @@ function getSegmentsFromStrava (userId, token) {
           oneActivity.segment_efforts.forEach(function(segment) {
             // Nested loop, consider alternatives
             var oneSegment = segment;
-
             // Check to see if oneSegment is in database
             Segments.find({ _id: oneSegment.segment.id }, function (err, segmentDB) {
               if (err) {
@@ -171,16 +170,18 @@ function getSegmentsFromStrava (userId, token) {
                     console.log("Received error from segment.get service:\n" + util.stringify(err));
                   // If segment not found in segment collection, grab segment from Strava
                   } else {
+                    console.log('Retrieved segment', segmentCall.name, 'from Strava, saving to DB');
                     Segments.saveSegment(segmentCall);
                     // Check if segment in user's segment obj
                     Users.where({_id: userId, "segments.id": segmentCall.id})
                     .exec(function(err, res) {
                       if(!res[0]) {
+                        console.log('User doesnt have segment, going to save it');
                         var userSegment = {
-                            _id: segmentCall.id,
-                            name: segmentCall.name,
-                            count: 1
-                          };
+                          _id: segmentCall.id,
+                          name: segmentCall.name,
+                          count: 1
+                        };
                         // May need to add a timeout to Users.saveSegments below to account
                         // for the time it takes to save a segment to a user on the database
                         // Occasionally it will create duplicate segments because the first
@@ -205,7 +206,9 @@ function getSegmentsFromStrava (userId, token) {
                 // check if also stored in users' segments property
                 Users.where({_id: userId, "segments.id": oneSegment.segment.id })
                 .exec(function(err, res) {
+                  if (err) console.error(err);
                   if(!res[0]) {
+                    console.log('Segment not found for the user, going to save it');
                     var userSegment = {
                       _id: oneSegment.segment.id,
                       name: oneSegment.segment.name,
