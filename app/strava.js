@@ -116,7 +116,7 @@ function getFriendsFromDb (id, callback) {
     if (err) {
       callback(err);
     }
-    if (!users.length) {
+    if (!users) {
       callback(null, 'User ' + id + ' not found');
     } else if (users.length) {
       callback(null, users[0].friends);
