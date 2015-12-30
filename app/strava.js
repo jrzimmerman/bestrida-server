@@ -16,8 +16,10 @@ function registerAthlete(stravaCode, callback) {
       athlete.token = payload.access_token;
       callback(null, payload);
       Users.registerAthlete(athlete, callback);
-      setTimeout(getSegmentsFromStrava(athlete.id, athlete.token), 5000);
-      setTimeout(Users.getFriendsFromStrava(athlete.id, athlete.token), 5000);
+      setTimeout(function() {
+        getSegmentsFromStrava(athlete.id, athlete.token);
+        Users.getFriendsFromStrava(athlete.id, athlete.token);
+      }, 2000);
     }
   });
 }
@@ -146,7 +148,7 @@ function getSegmentsFromStrava (userId, token) {
         name: activity.name,
       };
     });
-    console.log('# of recent activities:', activities.length);
+    console.log('User', userId, 'has', activities.length, 'recent activities.');
     activities.forEach(function(activity) {
       strava.activities.get({id: activity.id}, function(err, oneActivity) {
         if (err) {
@@ -226,7 +228,7 @@ function getSegmentsFromStrava (userId, token) {
 function getStarredSegmentsFromStrava (userId, token) {
   strava.segments.listStarred({ access_token: token }, function(err, segments) {
     if (err) console.error('Error retrieving starred segments:', err);
-    
+    console.log('User', userId, 'has', segments.length, 'starred segments.');
     // Retrieve a user's current segments to see segments are already saved
     Users.find({ _id: userId }).select('segments')
     .then(function(currentSegments) {
@@ -258,7 +260,9 @@ function getStarredSegmentsFromStrava (userId, token) {
       });
     });
   });
-  setTimeout(sortSegments(userId), 7000);
+  setTimeout(function() {
+    sortSegments(userId);
+  }, 3000);
 }
 
 function sortSegments (userId) {
@@ -287,7 +291,9 @@ function getAndSaveSegmentInfo (segmentId, userId) {
         count: 1
       };
       Segments.saveSegment(segment);
-      setTimeout(Users.saveSegments(userId, userSegment), 5000);
+      setTimeout(function() {
+        Users.saveSegments(userId, userSegment)
+      }, 1000);
     }
   });
 }
