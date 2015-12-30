@@ -64,6 +64,7 @@ module.exports.getFriendsFromStrava = function (id, token) {
 };
 
 module.exports.saveSegments = function (user, segment) {
+  console.log('Saving', segment.name, 'for user', user);
   User.update({ _id: user }, { $addToSet: { segments: segment }},
   function (err, res) {
     if (err) console.error('Error saving segments:', err);
