@@ -123,7 +123,7 @@ module.exports.cronComplete = function() {
 
   Challenge.find({ expired: false, expires: { $lt: cutoff }})
   .then(function(result){
-    console.log(result.length, 'expired but not-yet-marked-as-expired challenges were found');
+    console.log(result.length, 'expired challenges were found');
 
     result.forEach(function(aChallenge, i) {
       var onlyOneUserCompletedChallenge = (aChallenge.challengeeCompleted && !aChallenge.challengerCompleted) ||
@@ -216,10 +216,10 @@ module.exports.complete = function (challenge, effort, callback) {
         { 
           challengeeTime: effort.elapsed_time,
           challengeeCompleted: true,
-          challengeeAvgCadence: effort.average_cadence,
-          challengeeAvgWatts: effort.average_watts,
-          challengeeAvgHeartrate: effort.average_heartrate,
-          challengeeMaxHeartRate: effort.max_heartrate,
+          challengeeAvgCadence: effort.average_cadence || 0,
+          challengeeAvgWatts: effort.average_watts || 0,
+          challengeeAvgHeartrate: effort.average_heartrate || 0,
+          challengeeMaxHeartRate: effort.max_heartrate || 0,
           segmentDistance: effort.segment.distance,
           segmentAverageGrade: effort.segment.average_grade,
           segmentMaxGrade: effort.segment.maximum_grade,
