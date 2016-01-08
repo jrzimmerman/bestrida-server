@@ -40,27 +40,6 @@ module.exports.create = function (segmentId, name, activityType, distance,
   newSegment.save();
 };
 
-
-
-////////////////////////////////////////////////////
-///
-////////////////////////////////////////////////////
-// module.exports.registerSegment = function (segment, callback) {
-//   // Check if segment exists in db
-//   Segment.find({ _id: segment.id })
-//   .then(function (segmentsArray) {
-//     // If segment exists, just refresh token
-//     if (segmentsArray[0]){
-//       refreshSegment(segment, callback);
-//     } else {
-//       // Else if segment doesn't exist in db, save them to db
-//       saveSegment(segment, callback);
-//     }
-//   }, function (err) {
-//     console.error('Error retrieving segment:', err);
-//   });
-// };
-
 module.exports.saveSegment = function (segment) {
   var newSegment = new Segment({
     _id: segment.id,
@@ -85,29 +64,3 @@ module.exports.saveSegment = function (segment) {
     }
   });
 };
-
-// function refreshSegment (segment, callback) {
-//   Segment.update(
-//     { _id: segment.id },
-//     {
-//       name: segment.name,
-//       activityType: segment.activityType,
-//       distance: segment.distance,
-//       averageGrade: segment.averageGrade,
-//       startLatLng: segment.startLatLng,
-//       endLatLng: segemnt.endLatLng,
-//       climbCategory: segment.climbCategory,
-//       city: segment.city,
-//       state: segment.state,
-//       country: segment.country,
-//       totalElevationGain: segment.totalElevationGain
-//     },
-//     function (err, res) {
-//       if (err) {
-//         console.error('Error refreshing segment:', err);
-//         callback(err);
-//       }
-//       console.log('Successfully refreshed segment:', res);
-//       callback(null, res);
-//     });
-// }

@@ -1,7 +1,7 @@
 var CronJob = require('cron').CronJob;
 var Challenges = require('./models/challenges');
 
-job = new CronJob({
+var job = new CronJob({
   cronTime: '0 0 * * * *',
   onTick: function() {
     console.log('starting cron job');
