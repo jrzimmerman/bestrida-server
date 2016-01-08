@@ -2,17 +2,17 @@ var mongoose = require('../db');
 var strava = require('strava-v3');
 
 var userSchema = mongoose.Schema({ 
-  _id:       { type: Number, required: true },
+  _id: { type: Number, required: true },
   firstname: { type: String, required: true },
-  lastname:  { type: String, required: true },
-  fullName:  { type: String, required: true },
-  token:     { type: String },
-  photo:     { type: String },
-  email:     { type: String },
-  friends:   { type: [mongoose.Schema.Types.Mixed], default: [] },
-  segments:  { type: [mongoose.Schema.Types.Mixed], default: [] },
-  wins:      { type: Number, default: 0 },
-  losses:    { type: Number, default: 0 }
+  lastname: { type: String, required: true },
+  fullName: { type: String, required: true },
+  token: String,
+  photo: String,
+  email: String,
+  friends: { type: [mongoose.Schema.Types.Mixed], default: [] },
+  segments: { type: [mongoose.Schema.Types.Mixed], default: [] },
+  wins: { type: Number, default: 0 },
+  losses: { type: Number, default: 0 }
 });
 
 var User = mongoose.model('User', userSchema);
