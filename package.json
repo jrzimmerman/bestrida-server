@@ -25,7 +25,6 @@
   },
   "homepage": "https://github.com/Bestrida/bestrida#readme",
   "dependencies": {
-    "bluebird": "^3.0.6",
     "body-parser": "^1.14.1",
     "casperjs": "^1.1.0-beta3",
     "cron": "^1.1.0",
