@@ -44,10 +44,4 @@ app.use('/api', apiRoutes);
 var authRoutes = require('./routes/auth')(app, express, passport);
 app.use('/auth', authRoutes);
 
-// routing all non-api requests to frontend
-// app.get('*', function(req, res) {
-//   res.sendFile(path.join(__dirname + './../public/index.html'));
-// });
-
-
 app.listen(process.env.PORT || 8000);

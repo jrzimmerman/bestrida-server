@@ -5,7 +5,6 @@ var Challenges = require('./models/challenges');
 var Segments = require('./models/segments');
 
 function registerAthlete(stravaCode, callback) {
-  console.log('Registering athlete with code ' + stravaCode);
   // Exchange the temporary code for an access token.
   strava.oauth.getToken(stravaCode, function(err, payload) {
     if (err) {
@@ -16,16 +15,16 @@ function registerAthlete(stravaCode, callback) {
       athlete.token = payload.access_token;
       callback(null, payload);
       Users.registerAthlete(athlete, callback);
-      setTimeout(getSegmentsFromStrava(athlete.id, athlete.token), 5000);
-      setTimeout(Users.getFriendsFromStrava(athlete.id, athlete.token), 5000);
+      setTimeout(function() {
+        getSegmentsFromStrava(athlete.id, athlete.token);
+        Users.getFriendsFromStrava(athlete.id, athlete.token);
+      }, 2000);
     }
   });
 }
 
 function getOAuthRequestAccessUrl() {
-  console.log('Generating OAuth request access URL');
   var accessUrl = strava.oauth.getRequestAccessURL({});
-  console.log("Access URL: " + accessUrl);
   return accessUrl;
 }
 
@@ -35,7 +34,6 @@ function getAthlete(athleteId, callback) {
       console.log("Received error from athlete.get service:\n" + util.stringify(err));
       callback(err);
     } else {
-      console.log("Received athlete data:\n" + util.stringify(athlete));
       callback(null, athlete);
     }
   });
@@ -45,17 +43,18 @@ function getSegment(segmentId, callback) {
   Segments.find({ _id: segmentId }, function (err, segment) {
     if (err) {
       callback(err);
-    } // if not found send API request
+    }
+    // if not found send API request
     if (!segment || !segment[0]) {
       strava.segments.get( {id: segmentId}, function(err, segment) {
         if (err) {
           console.log("Received error from segment.get service:\n" + util.stringify(err));
           callback(err);
         } else {
-          console.log("Received segment data:\n" + util.stringify(segment));
           Segments.saveSegment(segment, callback);
         }
-      }); // if found
+      });
+    // if found in DB
     } else if (segment[0]) {
       callback(null, segment[0]);
     }
@@ -76,10 +75,8 @@ function getAllSegments(callback) {
 function getEffort(effortId, callback) {
   strava.segmentEfforts.get( {id: effortId}, function(err, effort) {
     if (err) {
-      console.log("Received error from effort.get service:\n" + util.stringify(err));
       callback(err);
     } else {
-      console.log("Received effort data:\n" + util.stringify(effort));
       callback(null, effort);
     }
   });
@@ -114,7 +111,7 @@ function getFriendsFromDb (id, callback) {
     if (err) {
       callback(err);
     }
-    if (!users.length) {
+    if (!users) {
       callback(null, 'User ' + id + ' not found');
     } else if (users.length) {
       callback(null, users[0].friends);
@@ -146,7 +143,6 @@ function getSegmentsFromStrava (userId, token) {
         name: activity.name,
       };
     });
-    console.log('# of recent activities:', activities.length);
     activities.forEach(function(activity) {
       strava.activities.get({id: activity.id}, function(err, oneActivity) {
         if (err) {
@@ -156,7 +152,6 @@ function getSegmentsFromStrava (userId, token) {
           oneActivity.segment_efforts.forEach(function(segment) {
             // Nested loop, consider alternatives
             var oneSegment = segment;
-
             // Check to see if oneSegment is in database
             Segments.find({ _id: oneSegment.segment.id }, function (err, segmentDB) {
               if (err) {
@@ -175,22 +170,10 @@ function getSegmentsFromStrava (userId, token) {
                     .exec(function(err, res) {
                       if(!res[0]) {
                         var userSegment = {
-                            _id: segmentCall.id,
-                            name: segmentCall.name,
-                            count: 1
-                          };
-                        // May need to add a timeout to Users.saveSegments below to account
-                        // for the time it takes to save a segment to a user on the database
-                        // Occasionally it will create duplicate segments because the first
-                        // segment is still in the process of being saved to DB and so it does
-                        // not show up in DB yet, so when we query the DB to find it, it should
-                        // be incrementing the segment count but because it hasn't saved yet, it
-                        // saves a duplicate copy
-
-                        // Ideally we would process the segments completely prior to saving them,
-                        // i.e. incrementing counts, etc. and then save the entire segments array
-                        // to the user. This would solve the issue we're having with the time it
-                        // takes to save to the database
+                          _id: segmentCall.id,
+                          name: segmentCall.name,
+                          count: 1
+                        };
                         Users.saveSegments(userId, userSegment);
                       } else {
                         Users.incrementSegmentCount(userId, segmentCall.segment.id);
@@ -203,6 +186,7 @@ function getSegmentsFromStrava (userId, token) {
                 // check if also stored in users' segments property
                 Users.where({_id: userId, "segments.id": oneSegment.segment.id })
                 .exec(function(err, res) {
+                  if (err) console.error(err);
                   if(!res[0]) {
                     var userSegment = {
                       _id: oneSegment.segment.id,
@@ -226,7 +210,6 @@ function getSegmentsFromStrava (userId, token) {
 function getStarredSegmentsFromStrava (userId, token) {
   strava.segments.listStarred({ access_token: token }, function(err, segments) {
     if (err) console.error('Error retrieving starred segments:', err);
-    
     // Retrieve a user's current segments to see segments are already saved
     Users.find({ _id: userId }).select('segments')
     .then(function(currentSegments) {
@@ -240,7 +223,6 @@ function getStarredSegmentsFromStrava (userId, token) {
         // Check to see if the segment is in database
         Segments.find({ _id: segment.id }, function (err, res) {
           if (err) console.error(err);
-          // If segment not found in DB, get segment details from Strava and save to DB
           if (!res.length) {
             getAndSaveSegmentInfo(segment.id, userId);
           // Else (if segment is already in our DB, don't make Strava API call)
@@ -258,7 +240,9 @@ function getStarredSegmentsFromStrava (userId, token) {
       });
     });
   });
-  setTimeout(sortSegments(userId), 7000);
+  setTimeout(function() {
+    sortSegments(userId);
+  }, 3000);
 }
 
 function sortSegments (userId) {
@@ -268,7 +252,6 @@ function sortSegments (userId) {
     var sortedSegments = segments.sort(function(x, y) {
       return y.count - x.count;
     });
-    // Update user with the sorted segments array
     Users.update({ _id: userId }, { segments: sortedSegments }, function (err, raw) {
       if (err) console.error(err);
       console.log(raw.nModified === 1 ? 'User segments were sorted' : 'No changes made to users\' segments ordering');
@@ -287,7 +270,9 @@ function getAndSaveSegmentInfo (segmentId, userId) {
         count: 1
       };
       Segments.saveSegment(segment);
-      setTimeout(Users.saveSegments(userId, userSegment), 5000);
+      setTimeout(function() {
+        Users.saveSegments(userId, userSegment)
+      }, 1000);
     }
   });
 }
@@ -317,39 +302,10 @@ function getSegmentEffort (challenge, callback) {
         if (!efforts) {
           callback(null, 'No effort found');
         } else {
-          console.log('efforts\n', efforts);
           // Strava returns the best effort first if there are multiple efforts
           Challenges.complete(challenge, efforts[0], callback);
         }
       });
-
-      /////////////////////////////////////////////
-      //          FOR DEV PURPOSES ONLY
-      //
-      //
-      // var mockEffort = {
-      //   elapsed_time: Math.floor(Math.random() * 1000),
-      //   average_cadence: 1,
-      //   average_watts: 1,
-      //   average_heartrate: 1,
-      //   max_heartrate: 1,
-      //   segment: {
-      //     distance: 1,
-      //     average_grade: 1,
-      //     maximum_grade: 1,
-      //     elevation_high: 1,
-      //     elevation_low: 1,
-      //     climb_category: 1
-      //   },
-      //   athlete: {
-      //     id: challenge.userId
-      //   }
-      // };
-      // Challenges.complete(challenge, mockEffort, callback);
-      //
-      //
-      //             END OF DEV CODE
-      /////////////////////////////////////////////
     }
   });
 }

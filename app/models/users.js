@@ -2,17 +2,17 @@ var mongoose = require('../db');
 var strava = require('strava-v3');
 
 var userSchema = mongoose.Schema({ 
-  _id:       { type: Number, required: true },
+  _id: { type: Number, required: true },
   firstname: { type: String, required: true },
-  lastname:  { type: String, required: true },
-  fullName:  { type: String, required: true },
-  token:     { type: String },
-  photo:     { type: String },
-  email:     { type: String },
-  friends:   { type: [mongoose.Schema.Types.Mixed], default: [] },
-  segments:  { type: [mongoose.Schema.Types.Mixed], default: [] },
-  wins:      { type: Number, default: 0 },
-  losses:    { type: Number, default: 0 }
+  lastname: { type: String, required: true },
+  fullName: { type: String, required: true },
+  token: String,
+  photo: String,
+  email: String,
+  friends: { type: [mongoose.Schema.Types.Mixed], default: [] },
+  segments: { type: [mongoose.Schema.Types.Mixed], default: [] },
+  wins: { type: Number, default: 0 },
+  losses: { type: Number, default: 0 }
 });
 
 var User = mongoose.model('User', userSchema);
@@ -64,10 +64,11 @@ module.exports.getFriendsFromStrava = function (id, token) {
 };
 
 module.exports.saveSegments = function (user, segment) {
+  console.log('Saving', segment.name, 'for user', user);
   User.update({ _id: user }, { $addToSet: { segments: segment }},
   function (err, res) {
     if (err) console.error('Error saving segments:', err);
-    console.log('Saved segments:', res.nModified === 1 ? 'Added segment' : 'Nothing added');
+    console.log('Saved segments result:', res.nModified === 1 ? 'Added' : 'Nothing added');
   });
 };
 
@@ -80,7 +81,7 @@ module.exports.incrementSegmentCount = function (userId, segmentId) {
     if (err) {
       console.error('Error incrementing segment count:', err);
     }
-    console.log('Incremented segment count:', res.nModified === 1 ? 'Incremented by 1' : 'Nothing incremented');
+    console.log('Incremented segment count by', res.nModified);
   });
 };
 

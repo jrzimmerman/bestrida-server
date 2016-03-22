@@ -1,9 +1,9 @@
 var passport = require('passport');
 var StravaStrategy = require('passport-strava-oauth2').Strategy;
 var jwt = require('jsonwebtoken');
-var methodOverride = require('method-override'),
-    session        = require('express-session'),
-    expressJwt     = require('express-jwt');
+var methodOverride = require('method-override');
+var session = require('express-session');
+var expressJwt = require('express-jwt');
 var Users = require('../models/users');
 var strava = require('../strava');
 
@@ -43,9 +43,13 @@ module.exports = function(app, express, passport) {
       process.nextTick(function () {
         userId = profile.id;
         Users.registerAthlete(profile, function() {});
-        setTimeout(strava.getSegmentsFromStrava(profile.id, profile.token), 5000);
-        setTimeout(strava.getStarredSegmentsFromStrava(profile.id, profile.token), 9000);
-        setTimeout(Users.getFriendsFromStrava(profile.id, profile.token), 5000);
+        setTimeout(function() {
+          strava.getSegmentsFromStrava(profile.id, profile.token);
+          Users.getFriendsFromStrava(profile.id, profile.token);
+        }, 1000);
+        setTimeout(function() {
+          strava.getStarredSegmentsFromStrava(profile.id, profile.token);
+        }, 5000);
         // To keep the example simple, the user's Strava profile is returned to
         // represent the logged-in user.  In a typical application, you would want
         // to associate the Strava account with a user record in your database,
@@ -64,19 +68,19 @@ module.exports = function(app, express, passport) {
   //   redirecting the user to strava.com.  After authorization, Strava
   //   will redirect the user back to this application at /auth/strava/callback
   authRouter.route('/strava')
-    .get(function(req, res) {
-      // The request will be redirected to Strava for authentication, so this
-      // function will not be called.
-    });
+  .get(function(req, res) {
+    // The request will be redirected to Strava for authentication, so this
+    // function will not be called.
+  });
 
   authRouter.route('/strava/callback')
-    .get(function(req, res) {
-      var userToken = req.query.code; //remember the user should save this, db needs do nothing with it
-      var month = 43829;
-      var server_token = jwt.sign({id: userId}, process.env.SECRET || "secret", { expiresIn: month });
+  .get(function(req, res) {
+    var userToken = req.query.code; //remember the user should save this, db needs do nothing with it
+    var month = 43829;
+    var server_token = jwt.sign({id: userId}, process.env.SECRET || "secret", { expiresIn: month });
 
-      res.redirect('../../loggedIn.html?oauth_token=' + server_token + '&userId=' + userId);
-    });
+    res.redirect('../../loggedIn.html?oauth_token=' + server_token + '&userId=' + userId);
+  });
 
   return authRouter;
 };

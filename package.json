@@ -25,7 +25,6 @@
   },
   "homepage": "https://github.com/Bestrida/bestrida#readme",
   "dependencies": {
-    "bluebird": "^3.0.6",
     "body-parser": "^1.14.1",
     "casperjs": "^1.1.0-beta3",
     "cron": "^1.1.0",
@@ -37,6 +36,7 @@
     "mongodb": "^2.1.0",
     "mongoose": "^4.2.9",
     "morgan": "^1.6.1",
+    "nodemailer": "^1.11.0",
     "passport": "^0.3.2",
     "passport-strava-oauth2": "^0.1.3",
     "strava-v3": "^1.8.1"
