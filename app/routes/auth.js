@@ -1,5 +1,5 @@
 var passport = require('passport');
-var StravaStrategy = require('passport-strava-oauth2').Strategy;
+var StravaStrategy = require('passport-strava').Strategy;
 var jwt = require('jsonwebtoken');
 var methodOverride = require('method-override');
 var session = require('express-session');
