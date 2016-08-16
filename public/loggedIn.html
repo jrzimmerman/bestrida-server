@@ -14,7 +14,7 @@
       document.addEventListener("DOMContentLoaded", function(event) {
         var token = event.target.URL.match('oauth_token=(.*)&userId')[1];
         var userId = event.target.URL.match('&userId=(.*)')[1];
-        window.location.replace("bestrida://?oauth_token="+token+"?userId="+userId);
+        window.location.replace("bestrida://?oauth_token="+token+"&userId="+userId);
       });
     </script>
   </body>
