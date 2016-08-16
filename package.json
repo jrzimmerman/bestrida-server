@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/Bestrida/bestrida-server#readme",
   "dependencies": {
+    "bluebird": "^3.4.1",
     "body-parser": "^1.14.1",
     "casperjs": "^1.1.0-beta3",
     "cookie-session": "^2.0.0-alpha.1",

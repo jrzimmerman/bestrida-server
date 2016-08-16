@@ -7,12 +7,15 @@
   </head>
   <body>
     <div class="main">
-      <p>
-      Welcome to Bestrida! Please tap this button to proceed.<br><br>
-    
-      <button class="button-custom" type="button" 
-          onclick="top.open('','_self',''); top.close();">Click here!</button>
-      </p>
+      <h2>Welcome to Bestrida!</h2>
+      <p>Please click 'Done' in the upper left corner to continue.</p>
     </div>
+    <script type="text/javascript">
+      document.addEventListener("DOMContentLoaded", function(event) {
+        var token = event.target.URL.match('oauth_token=(.*)&userId')[1];
+        var userId = event.target.URL.match('&userId=(.*)')[1];
+        window.location.replace("bestrida://?oauth_token="+token+"?userId="+userId);
+      });
+    </script>
   </body>
 </html>
