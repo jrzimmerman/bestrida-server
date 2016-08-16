@@ -1,11 +1,13 @@
 var passport = require('passport');
 var StravaStrategy = require('passport-strava').Strategy;
 var jwt = require('jsonwebtoken');
-var methodOverride = require('method-override');
-var session = require('express-session');
 var expressJwt = require('express-jwt');
 var Users = require('../models/users');
 var strava = require('../strava');
+
+module.exports = function(app, express, passport) {
+var STRAVA_CLIENT_ID = process.env.STRAVA_CLIENT_ID;
+var STRAVA_CLIENT_SECRET = process.env.STRAVA_CLIENT_SECRET;
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -14,9 +16,6 @@ var strava = require('../strava');
 //   the user by ID when deserializing.  However, since this example does not
 //   have a database of user records, the complete Strava profile is
 //   serialized and deserialized.
-var STRAVA_CLIENT_ID = process.env.STRAVA_CLIENT_ID;
-var STRAVA_CLIENT_SECRET = process.env.STRAVA_CLIENT_SECRET;
-
 passport.serializeUser(function(user, done) {
   done(null, user);
 });
@@ -25,39 +24,34 @@ passport.deserializeUser(function(obj, done) {
   done(null, obj);
 });
 
-var userId;
-
 // Use the StravaStrategy within Passport.
 //   Strategies in Passport require a `verify` function, which accept
 //   credentials (in this case, an accessToken, refreshToken, and Strava
 //   profile), and invoke a callback with a user object.
-
-module.exports = function(app, express, passport) {
-  passport.use(new StravaStrategy({
-      clientID: STRAVA_CLIENT_ID,
-      clientSecret: STRAVA_CLIENT_SECRET,
-      callbackURL: "/auth/strava/callback"
-    },
-    function(accessToken, refreshToken, profile, done) {
-      // asynchronous verification, for effect...
-      process.nextTick(function () {
-        userId = profile.id;
-        Users.registerAthlete(profile, function() {});
-        setTimeout(function() {
-          strava.getSegmentsFromStrava(profile.id, profile.token);
-          Users.getFriendsFromStrava(profile.id, profile.token);
-        }, 1000);
-        setTimeout(function() {
-          strava.getStarredSegmentsFromStrava(profile.id, profile.token);
-        }, 5000);
-        // To keep the example simple, the user's Strava profile is returned to
-        // represent the logged-in user.  In a typical application, you would want
-        // to associate the Strava account with a user record in your database,
-        // and return that user instead.
-        return done(null, profile);
-      });
-    }
-  ));
+passport.use(new StravaStrategy({
+    clientID: STRAVA_CLIENT_ID,
+    clientSecret: STRAVA_CLIENT_SECRET,
+    callbackURL: "/auth/strava/callback"
+  },
+  function(accessToken, refreshToken, profile, done) {
+  // asynchronous verification, for effect...
+  process.nextTick(function () {
+      userId = profile.id;
+      Users.registerAthlete(profile, function() {});
+      setTimeout(function() {
+        strava.getSegmentsFromStrava(profile.id, profile.token);
+        Users.getFriendsFromStrava(profile.id, profile.token);
+      }, 1000);
+      setTimeout(function() {
+        strava.getStarredSegmentsFromStrava(profile.id, profile.token);
+      }, 5000);
+      // To keep the example simple, the user's Strava profile is returned to
+      // represent the logged-in user.  In a typical application, you would want
+      // to associate the Strava account with a user record in your database,
+      // and return that user instead.
+      return done(null, profile);
+    });
+  }));
 
   var authRouter = express.Router();
 
