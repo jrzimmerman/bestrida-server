@@ -1,5 +1,5 @@
 var passport = require('passport');
-var StravaStrategy = require('passport-strava').Strategy;
+var StravaStrategy = require('passport-strava-oauth2').Strategy;
 var jwt = require('jsonwebtoken');
 var expressJwt = require('express-jwt');
 var Users = require('../models/users');
