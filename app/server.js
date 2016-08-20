@@ -1,4 +1,3 @@
-'use strict'
 require('dotenv').config();
 var express        = require('express');
 var app            = express();
@@ -11,6 +10,7 @@ var passport       = require('passport');
 var session        = require('cookie-session');
 var cron           = require('./cron');
 
+// passport configuration
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(session({
@@ -18,8 +18,8 @@ app.use(session({
   maxAge: 360*5,
 }));
 
-app.use(morgan('tiny'));
-app.use(methodOverride('_method'));
+// method override is used to simulate put and delete methods when not available
+app.use(methodOverride());
 
 // use body parser so we can grab information from POST requests
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -32,6 +32,9 @@ app.use(function(req, res, next) {
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
   next();
 });
+
+// log all requests to console
+app.use(morgan('dev'));
 
 // start cron job
 cron.job.start();
