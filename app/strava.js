@@ -3,6 +3,7 @@ var util = require('./util');
 var Users = require('./models/users');
 var Challenges = require('./models/challenges');
 var Segments = require('./models/segments');
+var Efforts = require('./models/efforts');
 
 function registerAthlete(stravaCode, callback) {
   // Exchange the temporary code for an access token.
@@ -68,6 +69,17 @@ function getAllSegments(callback) {
     }
     if (segments.length) {
       callback(null, segments);
+    }
+  });
+}
+
+function getAllEfforts(callback) {
+  Efforts.find({}, function (err, efforts) {
+    if (err) {
+      callback(err);
+    }
+    if (efforts.length) {
+      callback(null, efforts);
     }
   });
 }
@@ -156,7 +168,7 @@ function getSegmentsFromStrava (userId, token) {
             Segments.find({ _id: oneSegment.segment.id }, function (err, segmentDB) {
               if (err) {
                 console.log("Received error: ",err);
-              } 
+              }
               // If segment not found in DB send API request to Strava
               if (!segmentDB[0]) {
                 strava.segments.get( {id: oneSegment.segment.id}, function(err, segmentCall) {
@@ -341,6 +353,7 @@ module.exports = {
   getSegment: getSegment,
   getAllSegments: getAllSegments,
   getEffort: getEffort,
+  getAllEfforts: getAllEfforts,
   getAllUsers: getAllUsers,
   getUser: getUser,
   getFriendsFromDb: getFriendsFromDb,

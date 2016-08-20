@@ -1,6 +1,6 @@
 var mongoose = require('../db');
 
-var segmentSchema = mongoose.Schema({ 
+var segmentSchema = mongoose.Schema({
   _id: { type: Number, required: true },
   name: { type: String, required: true },
   activityType: { type: String, required: true },

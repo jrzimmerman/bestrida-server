@@ -114,7 +114,7 @@ module.exports = function(app, express) {
   .post(function (req, res) {
     var challenge = req.body;
     Challenges.create(challenge);
-    res.end('Challenge created:', req.body);
+    res.end('Challenge created: ', req.body);
   });
 
   // Accepts a pending challenge
@@ -123,7 +123,7 @@ module.exports = function(app, express) {
     var challenge = req.body;
     Challenges.accept(req.body, function (err, raw) {
       if (err) {
-        console.error('Error accepting challenge:', err);
+        console.error('Error accepting challenge: ', err);
       } else {
         res.end(JSON.stringify(raw));
       }
@@ -136,7 +136,7 @@ module.exports = function(app, express) {
     var challenge = req.body;
     Challenges.decline(challenge, function (err, raw) {
       if (err) {
-        console.error('Error accepting challenge:', err);
+        console.error('Error accepting challenge: ', err);
       } else {
         res.end(raw);
       }
@@ -149,7 +149,7 @@ module.exports = function(app, express) {
     var challenge = req.body;
     strava.getSegmentEffort(challenge, function (err, effort) {
       if (err) {
-        console.error('Error retrieving segment effort:', err);
+        console.error('Error retrieving segment effort: ', err);
         res.end('Challenge not updated.');
       } else {
         res.end(effort);
@@ -175,7 +175,7 @@ module.exports = function(app, express) {
   .get(function(req, res) {
     strava.getAllSegments(function (err, segments) {
       if (err) {
-        console.error('Error retrieving all segments:', err);
+        console.error('Error retrieving all segments: ', err);
       } else {
         res.json(segments);
       }
@@ -198,7 +198,13 @@ module.exports = function(app, express) {
   // Gets all efforts
   apiRouter.route('/efforts')
   .get(function(req, res) {
-    res.json({ message: 'this returns all efforts!' });   
+    strava.getAllEfforts(function (err, efforts) {
+      if (err) {
+        console.error('Error retrieving all efforts: ', err);
+      } else {
+        res.json(efforts);
+      }
+    });
   });
 
   // Gets a specific effort
