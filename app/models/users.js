@@ -1,7 +1,7 @@
 var mongoose = require('../db');
 var strava = require('strava-v3');
 
-var userSchema = mongoose.Schema({ 
+var userSchema = mongoose.Schema({
   _id: { type: Number, required: true },
   firstname: { type: String, required: true },
   lastname: { type: String, required: true },
@@ -48,11 +48,11 @@ module.exports.getFriendsFromStrava = function (id, token) {
       friends = friends.map(function(friend) {
         return {
           id: friend.id,
-          username: friend.username, 
-          firstname: friend.firstname, 
+          username: friend.username,
+          firstname: friend.firstname,
           lastname: friend.lastname,
           fullName: friend.firstname + ' ' + friend.lastname,
-          photo: friend.profile === "avatar/athlete/large.png" ? 'http://bestrida.herokuapp.com/assets/img/strava_profile_pic.png' : friend.profile,
+          photo: friend.profile,
           challengeCount: 0,
           wins: 0,
           losses: 0
@@ -74,7 +74,7 @@ module.exports.saveSegments = function (user, segment) {
 
 module.exports.incrementSegmentCount = function (userId, segmentId) {
   User.where({ _id: userId, "segments.id": segmentId })
-  .update({ 
+  .update({
     $inc: { 'segments.$.count': 1 }
   },
   function (err, res) {
@@ -88,8 +88,8 @@ module.exports.incrementSegmentCount = function (userId, segmentId) {
 // Increment wins and challenge count on the user's friend object
 module.exports.incrementWins = function (userId, friendId) {
   User.where({ _id: userId, "friends.id": friendId })
-  .update({ 
-    $inc: { 
+  .update({
+    $inc: {
       'friends.$.challengeCount': 1,
       'friends.$.wins': 1,
       wins: 1
@@ -126,9 +126,6 @@ module.exports.incrementLosses = function (userId, friendId) {
 
 // Helper functions
 function saveAthlete (user, callback) {
-  if (user.profile === "avatar/athlete/large.png") {
-    user.profile = '/img/default_profile_photo.png';
-  }
   var newUser = new User({
     _id: user.id,
     firstname: user.firstname,
@@ -148,9 +145,6 @@ function saveAthlete (user, callback) {
 }
 
 function refreshAthlete (user, callback) {
-  if (user.profile === "avatar/athlete/large.png") {
-    user.profile = '/img/default_profile_photo.png';
-  }
   User.update(
     { _id: user.id },
     {
@@ -189,15 +183,15 @@ function saveFriends (user, stravaFriends) {
     }
 
     // Push newFriends array to user's current friends
-    User.update({ _id: user }, 
-      { $push: 
-        { friends: 
-          { $each: newFriends, 
-            $sort: { challengeCount: -1 } 
-          }}}, 
+    User.update({ _id: user },
+      { $push:
+        { friends:
+          { $each: newFriends,
+            $sort: { challengeCount: -1 }
+          }}},
       { upsert: true },
     function (err, raw) {
-      if (err) console.error('Ruh roh!', err);
+      if (err) console.error('Error updating friends: ', err);
       console.log('Updated friends:', raw.nModified);
     });
   });

@@ -1,6 +1,6 @@
 var mongoose = require('../db');
 
-var effortSchema = mongoose.Schema({ 
+var effortSchema = mongoose.Schema({
   _id: { type: Number, required: true },
   segmentId: { type: Number, required: true },
   stravaId: { type: Number, required: true },

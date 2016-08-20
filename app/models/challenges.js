@@ -3,7 +3,7 @@ var Users = require('./users');
 var Segments = require('./segments');
 var strava = require('../strava');
 
-var challengeSchema = mongoose.Schema({ 
+var challengeSchema = mongoose.Schema({
   segmentId: { type: Number, required: true },
   segmentName: { type: String, required: true },
   segmentDistance: Number,
@@ -17,6 +17,8 @@ var challengeSchema = mongoose.Schema({
   challengeeId: { type: Number, required: true },
   challengerName: String,
   challengeeName: String,
+  challengerPhoto: String,
+  challengeePhoto: String,
   challengerTime: Number,
   challengeeTime: Number,
   challengerCompleted: { type: Boolean, default: false },
@@ -54,8 +56,10 @@ module.exports.create = function (challenge) {
     segmentName: challenge.segmentName,
     challengerId: challenge.challengerId,
     challengerName: challenge.challengerName,
+    challengerPhoto: challenge.challengerPhoto,
     challengeeId: challenge.challengeeId,
     challengeeName: challenge.challengeeName,
+    challengeePhoto: challenge.challengeePhoto,
     created: createdDate.toISOString(),
     expires: expiresDate.toISOString()
   });
@@ -113,7 +117,7 @@ module.exports.cronComplete = function() {
         updateChallengeResult(aChallenge);
       }
     });
-  }); 
+  });
 };
 
 module.exports.complete = function (challenge, effort, callback) {
@@ -128,7 +132,7 @@ module.exports.complete = function (challenge, effort, callback) {
     var userRole = challenge.challengerId === effort.athlete.id ? 'challenger' : 'challengee';
     if (userRole === 'challenger') {
       Challenge.update({ _id: challenge.id },
-        { 
+        {
           challengerTime: effort.elapsed_time,
           challengerCompleted: true,
           challengerAvgCadence: effort.average_cadence || 0,
@@ -149,8 +153,8 @@ module.exports.complete = function (challenge, effort, callback) {
         }
       });
     } else if (userRole === 'challengee') {
-      Challenge.update({ _id: challenge.id }, 
-        { 
+      Challenge.update({ _id: challenge.id },
+        {
           challengeeTime: effort.elapsed_time,
           challengeeCompleted: true,
           challengeeAvgCadence: effort.average_cadence || 0,
@@ -182,7 +186,7 @@ module.exports.getChallenges = function (user, status, callback) {
   if (status === 'complete') {
     Challenge
     .find()
-    .and([{ 
+    .and([{
       $or: [
         { challengerId: user, challengerCompleted: true },
         { challengeeId: user, challengeeCompleted: true }
@@ -199,7 +203,7 @@ module.exports.getChallenges = function (user, status, callback) {
   } else if (status === 'active') {
     Challenge
     .find()
-    .and([{ 
+    .and([{
       $or: [
         { challengerId: user, challengerCompleted: false, status: status },
         { challengeeId: user, challengeeCompleted: false, status: status }
@@ -215,7 +219,7 @@ module.exports.getChallenges = function (user, status, callback) {
     });
   } else if (status === 'pending') {
     Challenge.find()
-    .and([{ 
+    .and([{
       $or: [
         { challengeeId: user, status: 'pending' },
         { challengerId: user, status: 'pending' }
@@ -323,7 +327,7 @@ function checkForWinner (challengeId, callback) {
       } else if (winner === 'challengee') {
         Users.incrementWins(challenge.challengeeId, challenge.challengerId);
         Users.incrementLosses(challenge.challengerId, challenge.challengeeId);
-        updateChallengeWinnerAndLoser(challengeId, challenge.challengeeId, 
+        updateChallengeWinnerAndLoser(challengeId, challenge.challengeeId,
           challenge.challengeeName, challenge.challengerId, challenge.challengerName, callback);
       }
       // Updates challenge status to 'Complete'
