@@ -156,10 +156,9 @@ function refreshAthlete (user, callback) {
       email: user.email
     },
     function (err, res) {
-      if (err) {
-        console.error('Error refreshing token:', err);
-      }
-      console.log('Successfully refreshed token:', res.nModified);
+      if (err) console.error('Error refreshing token:', err);
+      console.log('User found: ', !!res.n);
+      console.log('User updated: ', !!res.nModified);
     });
 }
 
@@ -190,9 +189,10 @@ function saveFriends (user, stravaFriends) {
             $sort: { challengeCount: -1 }
           }}},
       { upsert: true },
-    function (err, raw) {
+    function (err, res) {
       if (err) console.error('Error updating friends: ', err);
-      console.log('Updated friends:', raw.nModified);
+      console.log('Friends array found: ', !!res.n);
+      console.log('Friends array updated: ', !!res.nModified);
     });
   });
 }

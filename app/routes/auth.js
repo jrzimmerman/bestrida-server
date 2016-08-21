@@ -1,5 +1,4 @@
 var StravaStrategy = require('passport-strava-oauth2').Strategy;
-var jwt = require('jsonwebtoken');
 var Users = require('../models/users');
 var strava = require('../strava');
 
@@ -34,7 +33,6 @@ passport.use(new StravaStrategy({
   function(accessToken, refreshToken, profile, done) {
   // asynchronous verification, for effect...
   process.nextTick(function () {
-      userId = profile.id;
       Users.registerAthlete(profile, function() {});
       setTimeout(function() {
         strava.getSegmentsFromStrava(profile.id, profile.token);
@@ -60,29 +58,18 @@ passport.use(new StravaStrategy({
   //   redirecting the user to strava.com.  After authorization, Strava
   //   will redirect the user back to this application at /auth/strava/callback
   authRouter.route('/strava')
-  .get(function(req, res) {
+  .get(function() {
     // The request will be redirected to Strava for authentication, so this
     // function will not be called.
   });
 
   authRouter.route('/strava/callback')
   .get(function(req, res) {
-    var userToken = req.query.code; //remember the user should save this, db needs do nothing with it
-    var month = 43829;
-    var server_token = jwt.sign({id: userId}, process.env.SECRET || "secret", { expiresIn: month });
+    var userToken = req.user.token;
+    var userId = req.user.id;
 
-    res.redirect('../../loggedIn.html?oauth_token=' + server_token + '&userId=' + userId);
+    res.redirect('../../loggedIn.html?oauth_token=' + userToken + '&userId=' + userId);
   });
 
   return authRouter;
 };
-
-// Simple route middleware to ensure user is authenticated.
-//   Use this route middleware on any resource that needs to be protected.  If
-//   the request is authenticated (typically via a persistent login session),
-//   the request will proceed.  Otherwise, the user will be redirected to the
-//   login page.
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) { return next(); }
-  res.redirect('/login');
-}
