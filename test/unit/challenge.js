@@ -1,6 +1,5 @@
 /* eslint-disable */
-var chai = require('chai');
-var expect = chai.expect
+var expect = chai.expect;
 
 describe('challenges', function() {
   it('should be true', function() {

@@ -1,9 +1,8 @@
 /* eslint-disable */
-var chai = require('chai');
-var assert = chai.assert;
+var expect = chai.expect;
 
 describe('users', function() {
   it('should be true', function() {
-    assert(true);
+    expect(true).to.equal(true);
   });
 });
