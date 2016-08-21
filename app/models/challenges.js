@@ -1,7 +1,6 @@
 var mongoose = require('../db');
 var Users = require('./users');
 var Segments = require('./segments');
-var strava = require('../strava');
 
 var challengeSchema = mongoose.Schema({
   segmentId: { type: Number, required: true },
@@ -103,7 +102,7 @@ module.exports.cronComplete = function() {
   .then(function(result){
     console.log(result.length, 'expired challenges were found');
 
-    result.forEach(function(aChallenge, i) {
+    result.forEach(function(aChallenge) {
       var onlyOneUserCompletedChallenge = (aChallenge.challengeeCompleted && !aChallenge.challengerCompleted) ||
                                           (!aChallenge.challengeeCompleted && aChallenge.challengerCompleted);
 
@@ -128,7 +127,7 @@ module.exports.complete = function (challenge, effort, callback) {
       console.error('No challenges found');
     }
   })
-  .then(function (result) {
+  .then(function () {
     var userRole = challenge.challengerId === effort.athlete.id ? 'challenger' : 'challengee';
     if (userRole === 'challenger') {
       Challenge.update({ _id: challenge.id },
@@ -250,13 +249,14 @@ function saveSegmentToChallenge (challengeId, segmentId) {
       var segment = res[0];
       Challenge.update({ _id: challengeId },
         {
+          segmentActivityType: segment.activityType,
           segmentDistance: segment.distance,
           segmentAverageGrade: segment.averageGrade,
-          segmentElevationGain: segment.totalElevationGain,
           segmentClimbCategory: segment.climbCategory,
           segmentCity: segment.city,
           segmentState: segment.state,
-          segmentCountry: segment.country
+          segmentCountry: segment.country,
+          segmentElevationGain: segment.totalElevationGain
         },
         function (err, raw) {
           if (err) console.error(err);

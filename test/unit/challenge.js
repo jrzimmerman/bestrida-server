@@ -1,5 +1,5 @@
-var assert = chai.assert;
-var should = chai.should();
+/* eslint-env node, mocha */
+require('chai');
 var expect = chai.expect;
 
 describe('challenges', function() {

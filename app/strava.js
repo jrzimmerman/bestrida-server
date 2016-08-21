@@ -73,17 +73,6 @@ function getAllSegments(callback) {
   });
 }
 
-function getAllEfforts(callback) {
-  Efforts.find({}, function (err, efforts) {
-    if (err) {
-      callback(err);
-    }
-    if (efforts.length) {
-      callback(null, efforts);
-    }
-  });
-}
-
 function getEffort(effortId, callback) {
   strava.segmentEfforts.get( {id: effortId}, function(err, effort) {
     if (err) {
