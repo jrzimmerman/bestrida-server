@@ -1,4 +1,4 @@
-/* globals casper, document */
+/* globals casper */
 casper.test.begin('App is setup correctly', 1, function suite(test) {
   casper.start('http://localhost:8000/', function() {
     test.assert(true);

@@ -34,7 +34,7 @@ passport.use(new StravaStrategy({
   function(accessToken, refreshToken, profile, done) {
   // asynchronous verification, for effect...
   process.nextTick(function () {
-      userId = profile.id;
+      var userId = profile.id;
       Users.registerAthlete(profile, function() {});
       setTimeout(function() {
         strava.getSegmentsFromStrava(profile.id, profile.token);

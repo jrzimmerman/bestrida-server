@@ -8,7 +8,8 @@
     "build": "grunt build",
     "start": "node dist/app/server.js",
     "dev": "nodemon dist/app/server.js",
-    "test": "grunt test"
+    "test": "grunt test",
+    "lint": "eslint app"
   },
   "repository": {
     "type": "git",
@@ -50,7 +51,6 @@
   "devDependencies": {
     "chai": "^3.4.1",
     "eslint": "^3.3.1",
-    "eslint-plugin-node": "^2.0.0",
     "grunt": "^0.4.5",
     "grunt-casperjs": "^2.1.0",
     "grunt-contrib-clean": "^0.7.0",
