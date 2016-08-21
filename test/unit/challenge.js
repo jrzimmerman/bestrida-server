@@ -1,5 +1,4 @@
-var assert = chai.assert;
-var should = chai.should();
+/* eslint-disable */
 var expect = chai.expect;
 
 describe('challenges', function() {

@@ -6,13 +6,13 @@ var segmentSchema = mongoose.Schema({
   activityType: { type: String, required: true },
   distance: { type: Number, required: true },
   averageGrade: {type: Number, required: true },
-  startLatLng: { type: [mongoose.Schema.Types.Mixed], default: [], required: true },
-  endLatLng: { type: [mongoose.Schema.Types.Mixed], default: [], required: true },
   climbCategory: {type: Number, required: true },
   city: { type: String },
   state: { type: String },
   country: { type: String },
-  totalElevationGain: {type: Number, required: true }
+  totalElevationGain: {type: Number, required: true },
+  endLatLng: { type: [mongoose.Schema.Types.Mixed], default: [] },
+  startLatLng: { type: [mongoose.Schema.Types.Mixed], default: [] }
 });
 
 
@@ -29,13 +29,13 @@ module.exports.create = function (segmentId, name, activityType, distance,
     activityType: activityType,
     distance: distance,
     averageGrade: averageGrade,
-    startLatLng: startLatLng,
-    endLatLng: endLatLng,
     climbCategory: climbCategory,
     city: city,
     state: state,
     country: country,
-    totalElevationGain: totalElevationGain
+    totalElevationGain: totalElevationGain,
+    endLatLng: endLatLng,
+    startLatLng: startLatLng
   });
   newSegment.save();
 };
@@ -47,13 +47,13 @@ module.exports.saveSegment = function (segment) {
     activityType: segment.activity_type,
     distance: segment.distance,
     averageGrade: segment.average_grade,
-    startLatLng: segment.start_latlng,
-    endLatLng: segment.end_latlng,
     climbCategory: segment.climb_category,
     city: segment.city,
     state: segment.state,
     country: segment.country,
-    totalElevationGain: segment.total_elevation_gain
+    totalElevationGain: segment.total_elevation_gain,
+    endLatLng: segment.end_latlng,
+    startLatLng: segment.start_latlng
   });
 
   newSegment.save(function (err, segment) {

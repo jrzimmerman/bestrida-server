@@ -1,10 +1,5 @@
-var bodyParser = require('body-parser');
-var Users = require('../models/users');
-var Efforts = require('../models/efforts');
-var Segments = require('../models/segments');
 var Challenges = require('../models/challenges');
 var strava = require('../strava');
-var util = require('./../util');
 
 module.exports = function(app, express) {
   var apiRouter = express.Router();
@@ -183,6 +178,9 @@ module.exports = function(app, express) {
   });
 
   // Gets a specific segment
+  // if a segment is found in DB it is returned
+  // if segment not found in DB it is
+  // requested from Stava, stored, and returned
   apiRouter.route('/segments/:segment_id')
   .get(function(req, res) {
     strava.getSegment(req.params.segment_id,
@@ -195,19 +193,7 @@ module.exports = function(app, express) {
       });
   });
 
-  // Gets all efforts
-  apiRouter.route('/efforts')
-  .get(function(req, res) {
-    strava.getAllEfforts(function (err, efforts) {
-      if (err) {
-        console.error('Error retrieving all efforts: ', err);
-      } else {
-        res.json(efforts);
-      }
-    });
-  });
-
-  // Gets a specific effort
+  // Gets a specific effort from Strava API
   apiRouter.route('/efforts/:effort_id')
   .get(function(req, res) {
     var effort_id = parseInt(req.params.effort_id);
