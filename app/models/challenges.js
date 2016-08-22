@@ -62,22 +62,13 @@ module.exports.create = function (challenge, callback) {
     challengeePhoto: challenge.challengeePhoto,
     created: createdDate.toISOString(),
     expires: expiresDate.toISOString()
-  }, function (err, res) {
-  if (err) {
-    callback('Error creating new challenge: ' + err);
-  } else {
-    console.log('Created new challenge: ' + res);
-    callback(null, 'Created new challenge: ' + res);
-  }
-});
+  });
   newChallenge.save(function (err, res) {
     if (err) {
-      console.error('Error creating challenge:', err);
       callback(err);
     } else {
-      console.log('Challenge created:', res);
       saveSegmentToChallenge(res.id, challenge.segmentId);
-      callback(err, res);
+      callback(null, res);
     }
   });
 };

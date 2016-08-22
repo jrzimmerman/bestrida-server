@@ -106,12 +106,12 @@ module.exports = function(app, express) {
 
   // Creates a new challenge
   apiRouter.route('/challenges/create')
-  .post(function (req, raw) {
+  .post(function (req, res) {
     var challenge = req.body;
     Challenges.create(challenge,
-      function (err, res) {
+      function (err, raw) {
         if (err) {
-          console.error('Error creating challenges:', err);
+          res.status(500).send('Error creating challenges: ' + err);
         } else {
           res.json(raw);
         }
@@ -123,9 +123,9 @@ module.exports = function(app, express) {
   .post(function (req, res) {
     Challenges.accept(req.body, function (err, raw) {
       if (err) {
-        console.error('Error accepting challenge: ', err);
+        res.status(500).send('Error accepting challenge: ' + err);
       } else {
-        res.send('challenge accepted: ', raw);
+        res.send('challenge accepted: ' + JSON.stringify(raw));
       }
     });
   });
@@ -136,9 +136,9 @@ module.exports = function(app, express) {
     var challenge = req.body;
     Challenges.decline(challenge, function (err, raw) {
       if (err) {
-        console.error('Error accepting challenge: ', err);
+        res.status(500).send('Error accepting challenge: ' + err)
       } else {
-        res.send(raw);
+        res.send('challenge declined: ' + JSON.stringify(raw));
       }
     });
   });
@@ -146,13 +146,11 @@ module.exports = function(app, express) {
   // Completes a challenge for the user
   apiRouter.route('/challenges/complete')
   .post(function (req, res) {
-    var challenge = req.body;
-    strava.getSegmentEffort(challenge, function (err, effort) {
+    strava.getSegmentEffort(req.body, function (err, raw) {
       if (err) {
-        console.error('Error retrieving segment effort: ', err);
-        res.send('Challenge not updated.');
+        res.status(500).send('Error retrieving segment effort: ', + err);
       } else {
-        res.send(effort);
+        res.send('challenge completed: ' + raw);
       }
     });
   });
@@ -162,10 +160,10 @@ module.exports = function(app, express) {
   .get(function(req, res) {
     strava.getAthlete(req.params.athlete_id,
       function(err,payload) {
-        if(!err) {
-          res.json(payload);
+        if(err) {
+          res.status(500).send('error getting athlete from strava: ' + err);
         } else {
-          console.log(err);
+          res.json(payload);
         }
       });
   });
@@ -175,7 +173,7 @@ module.exports = function(app, express) {
   .get(function(req, res) {
     strava.getAllSegments(function (err, segments) {
       if (err) {
-        console.error('Error retrieving all segments: ', err);
+        res.status(500).send('Error retrieving all segments: ' + err);
       } else {
         res.json(segments);
       }
@@ -191,7 +189,7 @@ module.exports = function(app, express) {
     strava.getSegment(req.params.segment_id,
       function(err,payload) {
         if(err) {
-          console.error('error getting segment: ', err);
+          res.status(500).send('error getting segment: ' + err);
         } else {
           res.json(payload);
         }
@@ -204,10 +202,10 @@ module.exports = function(app, express) {
     var effort_id = parseInt(req.params.effort_id);
     strava.getEffort(effort_id,
       function(err,payload) {
-        if(!err) {
-          res.json(payload);
+        if(err) {
+          res.status(500).send('error getting effort from stava: ' + err);
         } else {
-          console.log(err);
+          res.json(payload);
         }
       });
   });
