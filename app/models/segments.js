@@ -40,7 +40,7 @@ module.exports.create = function (segmentId, name, activityType, distance,
   newSegment.save();
 };
 
-module.exports.saveSegment = function (segment) {
+module.exports.saveSegment = function (segment, callback) {
   var newSegment = new Segment({
     _id: segment.id,
     name: segment.name,
@@ -59,8 +59,10 @@ module.exports.saveSegment = function (segment) {
   newSegment.save(function (err, segment) {
     if (err) {
       console.error('Error saving segment:', err);
+      callback(err);
     } else {
       console.log('Segment saved!', segment);
+      callback(null, segment);
     }
   });
 };

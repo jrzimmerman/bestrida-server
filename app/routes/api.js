@@ -185,10 +185,10 @@ module.exports = function(app, express) {
   .get(function(req, res) {
     strava.getSegment(req.params.segment_id,
       function(err,payload) {
-        if(!err) {
-          res.json(payload);
+        if(err) {
+          console.error('error getting segment: ', err);
         } else {
-          console.log(err);
+          res.json(payload);
         }
       });
   });

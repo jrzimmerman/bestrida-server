@@ -97,7 +97,6 @@ module.exports.cronComplete = function() {
   var cutoff = new Date();
   var buffer = 0.5; // Buffer, in number of days
   cutoff.setTime(cutoff.getTime() - buffer * 86400000);
-
   Challenge.find({ expired: false, expires: { $lt: cutoff }})
   .then(function(result){
     console.log(result.length, 'expired challenges were found');
@@ -109,7 +108,10 @@ module.exports.cronComplete = function() {
       // If neither completed challenge, delete challenge
       if (!aChallenge.challengeeCompleted && !aChallenge.challengerCompleted) {
         Challenge.find({ _id: aChallenge.id })
-        .remove(function(err, raw) { if (err) console.log(err); });
+        .remove(function(err, raw) {
+          if (err) console.log(err);
+          console.log('removed challenges: ', raw);
+        });
 
       // Else if only one user completed challenge, set default winner
       } else if (onlyOneUserCompletedChallenge) {
