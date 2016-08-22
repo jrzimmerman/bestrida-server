@@ -106,21 +106,26 @@ module.exports = function(app, express) {
 
   // Creates a new challenge
   apiRouter.route('/challenges/create')
-  .post(function (req, res) {
+  .post(function (req, raw) {
     var challenge = req.body;
-    Challenges.create(challenge);
-    res.end('Challenge created: ', req.body);
+    Challenges.create(challenge,
+      function (err, res) {
+        if (err) {
+          console.error('Error creating challenges:', err);
+        } else {
+          res.json(raw);
+        }
+    });
   });
 
   // Accepts a pending challenge
   apiRouter.route('/challenges/accept')
   .post(function (req, res) {
-    var challenge = req.body;
     Challenges.accept(req.body, function (err, raw) {
       if (err) {
         console.error('Error accepting challenge: ', err);
       } else {
-        res.end(JSON.stringify(raw));
+        res.send('challenge accepted: ', raw);
       }
     });
   });
@@ -133,7 +138,7 @@ module.exports = function(app, express) {
       if (err) {
         console.error('Error accepting challenge: ', err);
       } else {
-        res.end(raw);
+        res.send(raw);
       }
     });
   });
@@ -145,9 +150,9 @@ module.exports = function(app, express) {
     strava.getSegmentEffort(challenge, function (err, effort) {
       if (err) {
         console.error('Error retrieving segment effort: ', err);
-        res.end('Challenge not updated.');
+        res.send('Challenge not updated.');
       } else {
-        res.end(effort);
+        res.send(effort);
       }
     });
   });

@@ -6,6 +6,7 @@ var challengeSchema = mongoose.Schema({
   segmentId: { type: Number, required: true },
   segmentName: { type: String, required: true },
   segmentDistance: Number,
+  segmentActivityType: String,
   segmentAverageGrade: Number,
   segmentElevationGain: Number,
   segmentClimbCategory: Number,
@@ -44,7 +45,7 @@ var Challenge = mongoose.model('Challenge', challengeSchema);
 
 module.exports = Challenge;
 
-module.exports.create = function (challenge) {
+module.exports.create = function (challenge, callback) {
   var createdDate = new Date();
   createdDate.setUTCHours(0, 0, 0, 0);
   var expiresDate = new Date(challenge.completionDate);
@@ -61,34 +62,43 @@ module.exports.create = function (challenge) {
     challengeePhoto: challenge.challengeePhoto,
     created: createdDate.toISOString(),
     expires: expiresDate.toISOString()
-  });
+  }, function (err, res) {
+  if (err) {
+    callback('Error creating new challenge: ' + err);
+  } else {
+    console.log('Created new challenge: ' + res);
+    callback(null, 'Created new challenge: ' + res);
+  }
+});
   newChallenge.save(function (err, res) {
     if (err) {
       console.error('Error creating challenge:', err);
+      callback(err);
     } else {
       console.log('Challenge created:', res);
       saveSegmentToChallenge(res.id, challenge.segmentId);
+      callback(err, res);
     }
   });
 };
 
 module.exports.accept = function (challenge, callback) {
-  Challenge.update({ _id: challenge.id }, { status: 'active' }, function (err, raw) {
+  Challenge.update({ _id: challenge.id }, { status: 'active' }, function (err, res) {
     if (err) {
       callback(err);
     } else {
-      callback(null, JSON.stringify(raw));
+      callback(null, res);
     }
   });
 };
 
 module.exports.decline = function (challenge, callback) {
   Challenge.find({ _id: challenge.id })
-  .remove(function(err, raw) {
+  .remove(function(err, res) {
     if (err) {
       callback(err);
     } else {
-      callback(null, JSON.stringify(raw));
+      callback(null, res);
     }
   });
 };
@@ -150,7 +160,8 @@ module.exports.complete = function (challenge, effort, callback) {
         if (err) {
           callback('Error updating challenge with user effort: ' + err);
         } else {
-          console.log('Updated challenge with user effort: ' + res.nModified);
+          console.log('Updated challenge with user effort: ' + res);
+          callback(null, 'Updated challenge with user effort: ' + res);
         }
       });
     } else if (userRole === 'challengee') {
@@ -172,7 +183,8 @@ module.exports.complete = function (challenge, effort, callback) {
         if (err) {
           callback('Error updating challenge with user effort: ' + err);
         } else {
-          console.log('Updated challenge with user effort: ' + res.nModified);
+          console.log('Updated challenge with user effort: ' + res);
+          console.log('Updated challenge with user effort: ' + res);
         }
       });
     }
