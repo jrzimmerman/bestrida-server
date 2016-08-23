@@ -125,7 +125,7 @@ module.exports = function(app, express) {
       if (err) {
         res.status(500).send('Error accepting challenge: ' + err);
       } else {
-        res.send('challenge accepted: ' + JSON.stringify(raw));
+        res.end('challenge accepted: ' + !!raw.nModified);
       }
     });
   });
@@ -138,7 +138,7 @@ module.exports = function(app, express) {
       if (err) {
         res.status(500).send('Error accepting challenge: ' + err)
       } else {
-        res.send('challenge declined: ' + JSON.stringify(raw));
+        res.end('challenge declined: ' + !!raw.nModified);
       }
     });
   });
@@ -150,7 +150,7 @@ module.exports = function(app, express) {
       if (err) {
         res.status(500).send('Error retrieving segment effort: ', + err);
       } else {
-        res.send('challenge completed: ' + raw);
+        res.end('complete: ' + raw);
       }
     });
   });
