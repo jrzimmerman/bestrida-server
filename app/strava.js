@@ -8,7 +8,7 @@ function registerAthlete(stravaCode, callback) {
   // Exchange the temporary code for an access token.
   strava.oauth.getToken(stravaCode, function(err, payload) {
     if (err) {
-      callback(err);
+      callback('Error getting token from Strava: ' + err);
     } else {
       // Save athlete information to the database.
       var athlete = payload.athlete;
@@ -16,7 +16,11 @@ function registerAthlete(stravaCode, callback) {
       callback(null, payload);
       Users.registerAthlete(athlete, callback);
       setTimeout(function() {
-        getSegmentsFromStrava(athlete.id, athlete.token);
+        getSegmentsFromStrava(athlete.id, athlete.token, function(err) {
+          if (err) {
+            callback('Error getting segments from Strava: ', err)
+          }
+        });
         Users.getFriendsFromStrava(athlete.id, athlete.token);
       }, 2000);
     }
@@ -131,7 +135,7 @@ function getUserSegmentsFromDb (id, callback) {
   });
 }
 
-function getSegmentsFromStrava (userId, token) {
+function getSegmentsFromStrava (userId, token, callback) {
   strava.athlete.listActivities({ access_token: token }, function (err, activities) {
     if (err) {
       console.error('Error retrieving activities', err);
@@ -279,7 +283,7 @@ function getAndSaveSegmentInfo (segmentId, userId) {
 function getSegmentEffort (challenge, callback) {
   Challenges.find({ _id: challenge.id }, function (err, challenges) {
     if (err) {
-      callback(err);
+      callback('Error finding challenge: ' + err);
     } else if (!challenges.length) {
       callback('No challenge found');
     } else if (challenges.length) {
@@ -302,8 +306,13 @@ function getSegmentEffort (challenge, callback) {
           callback('No effort found');
         } else {
           // Strava returns the best effort first if there are multiple efforts
-          console.log(util.stringify(efforts))
-          Challenges.complete(challenge, efforts[0], callback);
+          Challenges.complete(challenge, efforts[0], function (err, res) {
+            if (err) {
+              callback('Error completing challenge: ' + err);
+            } else {
+              callback(err, 'Challenge completed: ' + res);
+            }
+          });
         }
       });
     }

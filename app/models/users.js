@@ -34,8 +34,9 @@ module.exports.registerAthlete = function (user, callback) {
       // Else if user doesn't exist in db, save them to db
       saveAthlete(user, callback);
     }
-  }, function (err) {
-    console.error('Error retrieving user:', err);
+  })
+  .catch(function(error) {
+    callback('Error registering athlete: ' + error);
   });
 };
 
@@ -66,8 +67,8 @@ module.exports.getFriendsFromStrava = function (id, token) {
 module.exports.saveSegments = function (user, segment) {
   User.update({ _id: user }, { $addToSet: { segments: segment }},
   function (err, res) {
-    if (err) console.error('Error saving segments:', err);
-    if (res.nModified === 1) console.log('Saved segments result: Added');
+    if (err) console.error('Error saving segments: ' + err);
+    if (res.nModified === 1) console.log('Segment stored in user document');
   });
 };
 
@@ -78,9 +79,10 @@ module.exports.incrementSegmentCount = function (userId, segmentId) {
   },
   function (err, res) {
     if (err) {
-      console.error('Error incrementing segment count:', err);
+      console.error('Error incrementing segment count: ' + err);
+    } else {
+      console.log('Incremented segment count: ' + !!res.nModified);
     }
-    console.log('Incremented segment count by', res.nModified);
   });
 };
 
@@ -96,10 +98,9 @@ module.exports.incrementWins = function (userId, friendId) {
   },
   function (err, res) {
     if (err) {
-      console.error('Error incrementing wins:', err);
+      console.error('Error incrementing wins: ' + err);
     } else {
-      console.log('Incremented wins:', res);
-
+      console.log('Incremented wins: ' + !!res.nModified);
     }
   });
 };
@@ -116,9 +117,9 @@ module.exports.incrementLosses = function (userId, friendId) {
   },
   function (err, res) {
     if (err) {
-      console.error('Error incrementing losses:', err);
+      console.error('Error incrementing losses: ' + err);
     } else {
-      console.log('Incremented losses:', res);
+      console.log('Incremented losses: ' + !!res.nModified);
     }
   });
 };
@@ -136,9 +137,9 @@ function saveAthlete (user, callback) {
   });
   newUser.save(function (err, savedUser) {
     if (err) {
-      console.error('Error saving user:', err);
+      callback('Error saving user: ' + err);
     } else {
-      console.log('User saved!', user);
+      callback(err, 'User saved: ' + savedUser);
     }
   });
 }
@@ -155,9 +156,12 @@ function refreshAthlete (user, callback) {
       email: user.email
     },
     function (err, res) {
-      if (err) console.error('Error refreshing token:', err);
-      console.log('User found: ', !!res.n);
-      console.log('User updated: ', !!res.nModified);
+      if (err) {
+        console.error('Error refreshing token: ' + err);
+      } else {
+        console.log('User found: ', !!res.n);
+        console.log('User updated: ', !!res.nModified);
+      }
     });
 }
 
@@ -186,12 +190,17 @@ function saveFriends (user, stravaFriends) {
         { friends:
           { $each: newFriends,
             $sort: { challengeCount: -1 }
-          }}},
+          }
+        }
+      },
       { upsert: true },
     function (err, res) {
-      if (err) console.error('Error updating friends: ', err);
-      console.log('Friends array found: ', !!res.n);
-      console.log('Friends array updated: ', !!res.nModified);
+      if (err) {
+        console.error('Error updating friends: ' + err);
+      } else {
+        console.log('Friends array found: ' + !!res.n);
+        console.log('Friends array updated: ' + !!res.nModified);
+      }
     });
   });
 }

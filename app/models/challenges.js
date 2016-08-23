@@ -126,23 +126,18 @@ module.exports.cronComplete = function() {
 
 module.exports.complete = function (challenge, effort, callback) {
   if (!challenge) {
-    callback('challenge not found: ' + challenge);
+    callback('Challenge not sent to complete challenge model');
+    return;
   }
 
   if (!effort) {
-    callback('effort not found: ' + effort);
+    callback('Effort not sent to complete challenge model');
+    return;
   }
 
   // Can refactor code to pass the challenger/challengee role of user when
   // API is called to save us this extra request to the database
-  Challenge.find({ _id: challenge.id }, function (err, challenges) {
-    if (err) {
-      callback('Error finding challenge: ' + util.stringify(err));
-    }
-    if (!challenges.length) {
-      callback('No challenges found');
-    }
-  })
+  Challenge.find({ _id: challenge.id })
   .then(function () {
     var userRole = challenge.challengerId === effort.athlete.id ? 'challenger' : 'challengee';
     if (userRole === 'challenger') {
@@ -192,8 +187,17 @@ module.exports.complete = function (challenge, effort, callback) {
     }
     // Checks if the challenge has a winner; waits 5 seconds to allow for effort to be saved to DB
     setTimeout(function(){
-      checkForWinner(challenge.id, callback);
+      checkForWinner(challenge.id, function(err, res) {
+        if (err) {
+          callback('Error checking for winnder: ' + err);
+        } else {
+          callback(err, 'Successfully checked for winner: ' + res);
+        }
+      });
     }, 2000);
+  })
+  .catch(function(error) {
+    callback(error);
   });
 };
 
@@ -212,7 +216,7 @@ module.exports.getChallenges = function (user, status, callback) {
       if (err) {
         callback(err);
       } else {
-        callback(null, challenges);
+        callback(err, challenges);
       }
     });
   } else if (status === 'active') {
@@ -229,7 +233,7 @@ module.exports.getChallenges = function (user, status, callback) {
       if (err) {
         callback(err);
       } else {
-        callback(null, challenges);
+        callback(err, challenges);
       }
     });
   } else if (status === 'pending') {
@@ -246,7 +250,7 @@ module.exports.getChallenges = function (user, status, callback) {
         callback(err);
       } else {
         if (challenges.length) {
-          callback(null, challenges);
+          callback(err, challenges);
         }
       }
     });
@@ -254,9 +258,7 @@ module.exports.getChallenges = function (user, status, callback) {
 };
 
 // Helper functions
-
-
-function saveSegmentToChallenge (challengeId, segmentId) {
+function saveSegmentToChallenge(challengeId, segmentId) {
   Segments.find({ _id: segmentId }, function (err, res) {
     if (err) {
       console.error('error', err);
@@ -328,8 +330,8 @@ function checkForWinner (challengeId, callback) {
   Challenge
   .find({ _id: challengeId })
   .then(function (challenges) {
-    var challenge = challenges[0],
-        winner;
+    var challenge = challenges[0];
+    var winner;
     // If challenge is complete
     if (challenge.challengerTime && challenge.challengeeTime) {
       if (challenge.challengerTime === challenge.challengeeTime) {
@@ -357,6 +359,9 @@ function checkForWinner (challengeId, callback) {
     } else {
       callback(null, 'Effort has been updated, waiting for other user to complete');
     }
+  })
+  .catch(function(error) {
+    callback('Error checking for winner: ' + error)
   });
 }
 
@@ -371,11 +376,11 @@ function updateChallengeWinnerAndLoser (challengeId, winnerId, winnerName, loser
       expired: true,
       completed: completeDate.toISOString()
     },
-    function (err, raw) {
+    function (err) {
       if (err) {
         cb('Error updating challenge winner/loser:' + util.stringify(err), null);
       } else {
-        cb(null, 'Challenge updated with winner and loser: ', util.stringify(raw));
+        cb(null, 'Challenge updated with winner and loser');
       }
     });
 }
