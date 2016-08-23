@@ -316,7 +316,7 @@ function getAllChallenges(callback) {
       callback(err);
     }
     if (challenges.length) {
-      callback(null, challenges);
+      callback(err, challenges);
     }
   });
 }
@@ -324,10 +324,10 @@ function getAllChallenges(callback) {
 function getChallenge(id, callback) {
   Challenges.find({ _id: id }, function (err, challenge) {
     if (err) {
-      callback(err);
+      callback('Challenge not found!');
     }
     if (!challenge[0]) {
-      callback(null, 'challenge ' + id + ' not found!');
+      callback('Challenge not found!');
     } else if (challenge[0]) {
       callback(null, challenge[0]);
     }

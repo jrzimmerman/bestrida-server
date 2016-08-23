@@ -9,7 +9,7 @@ module.exports = function(app, express) {
   .get(function(req, res) {
     strava.getAllUsers(function (err, users) {
       if (err) {
-        console.error('Error retrieving all users:', err);
+        res.status(500).send('Error retrieving all users: ' + err);
       } else {
         res.json(users);
       }
@@ -21,7 +21,7 @@ module.exports = function(app, express) {
   .get(function(req, res) {
     strava.getUser(req.params.user_id, function (err, user) {
       if (err) {
-        console.error('Error retrieving user:', err);
+        res.status(500).send('Error retrieving user: ' + err);
       } else {
         res.json(user);
       }
@@ -34,7 +34,7 @@ module.exports = function(app, express) {
     var userId = req.params.user_id;
     strava.getFriendsFromDb(userId, function (err, friends) {
       if (err) {
-        console.error('Error retrieving friends;', err);
+        res.status(500).send('Error retrieving friends: ' + err);
       } else {
         res.json(friends);
       }
@@ -46,7 +46,7 @@ module.exports = function(app, express) {
   .get(function(req, res) {
     strava.getAllChallenges(function (err, challenges) {
       if (err) {
-        console.error('Error retrieving all challenges:', err);
+        res.status(500).send('Error retrieving all challenges: ' + err);
       } else {
         res.json(challenges);
       }
@@ -58,7 +58,7 @@ module.exports = function(app, express) {
   .get(function(req, res) {
     strava.getChallenge(req.params.challenge_id, function (err, challenge) {
       if (err) {
-        console.error('Error retrieving challenge:', err);
+        res.status(500).send('Error retrieving challenge: ' + err);
       } else {
         res.json(challenge);
       }
@@ -71,7 +71,7 @@ module.exports = function(app, express) {
     Challenges.getChallenges(req.params.user_id, 'active',
       function (err, challenges) {
         if (err) {
-          console.error('Error retrieving challenges:', err);
+          res.status(500).send('Error retrieving challenges: ' + err);
         } else {
           res.json(challenges);
         }
@@ -84,7 +84,7 @@ module.exports = function(app, express) {
     Challenges.getChallenges(req.params.user_id, 'pending',
       function (err, challenges) {
         if (err) {
-          console.error('Error retrieving challenges:', err);
+          res.status(500).send('Error retrieving challenges: ' + err);
         } else {
           res.json(challenges);
         }
@@ -97,7 +97,7 @@ module.exports = function(app, express) {
     Challenges.getChallenges(req.params.user_id, 'complete',
       function (err, challenges) {
         if (err) {
-          console.error('Error retrieving challenges:', err);
+          res.status(500).send('Error retrieving challenges: ' + err);
         } else {
           res.json(challenges);
         }
@@ -148,7 +148,7 @@ module.exports = function(app, express) {
   .post(function (req, res) {
     strava.getSegmentEffort(req.body, function (err, raw) {
       if (err) {
-        res.status(500).send('Error completing challenge: ', + err);
+        res.status(500).send('Error completing challenge: ' + err);
       } else {
         res.end('complete: ' + raw);
       }
