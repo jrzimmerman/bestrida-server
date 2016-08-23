@@ -1,6 +1,6 @@
 var mongoose = require('../db');
 
-var segmentSchema = mongoose.Schema({
+var segmentSchema = new mongoose.Schema({
   _id: { type: Number, required: true },
   name: { type: String, required: true },
   activityType: { type: String, required: true },
@@ -13,7 +13,7 @@ var segmentSchema = mongoose.Schema({
   totalElevationGain: {type: Number, required: true },
   endLatLng: { type: [mongoose.Schema.Types.Mixed], default: [] },
   startLatLng: { type: [mongoose.Schema.Types.Mixed], default: [] }
-});
+}, { timestamps: {} });
 
 
 var Segment = mongoose.model('Segment', segmentSchema);

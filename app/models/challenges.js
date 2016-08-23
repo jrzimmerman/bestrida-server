@@ -3,7 +3,7 @@ var Users = require('./users');
 var Segments = require('./segments');
 var util = require('../util');
 
-var challengeSchema = mongoose.Schema({
+var challengeSchema = new mongoose.Schema({
   segmentId: { type: Number, required: true },
   segmentName: { type: String, required: true },
   segmentDistance: Number,
@@ -35,12 +35,13 @@ var challengeSchema = mongoose.Schema({
   status: { type: String, default: 'pending' },
   created: Date,
   expires: Date,
+  completed: Date,
   expired: { type: Boolean, default: false },
   winnerId: Number,
   winnerName: String,
   loserId: Number,
   loserName: String
-});
+}, { timestamps: {} });
 
 var Challenge = mongoose.model('Challenge', challengeSchema);
 
@@ -124,14 +125,22 @@ module.exports.cronComplete = function() {
 };
 
 module.exports.complete = function (challenge, effort, callback) {
+  if (!challenge) {
+    callback('challenge not found: ' + challenge);
+  }
+
+  if (!effort) {
+    callback('effort not found: ' + effort);
+  }
+
   // Can refactor code to pass the challenger/challengee role of user when
   // API is called to save us this extra request to the database
   Challenge.find({ _id: challenge.id }, function (err, challenges) {
     if (err) {
-      console.log('Error finding challenge: ' + util.stringify(err));
+      callback('Error finding challenge: ' + util.stringify(err));
     }
     if (!challenges.length) {
-      console.error('No challenges found');
+      callback('No challenges found');
     }
   })
   .then(function () {
@@ -155,7 +164,7 @@ module.exports.complete = function (challenge, effort, callback) {
         if (err) {
           callback('Error updating challenge with user effort: ' + util.stringify(err));
         } else {
-          console.log('Updated challenge with user effort: ', !!res.nModified);
+          console.log('Updated challenge with user effort: ' + !!res.nModified);
         }
       });
     } else if (userRole === 'challengee') {
@@ -177,7 +186,7 @@ module.exports.complete = function (challenge, effort, callback) {
         if (err) {
           callback('Error updating challenge with user effort: ' + util.stringify(err));
         } else {
-          console.log('Updated challenge with user effort: ' + util.stringify(res));
+          console.log('Updated challenge with user effort: ' + !!res.nModified);
         }
       });
     }
@@ -198,7 +207,7 @@ module.exports.getChallenges = function (user, status, callback) {
         { challengeeId: user, challengeeCompleted: true }
       ],
     }])
-    .sort({ expires: 'ascending' })
+    .sort({ expires: 'descending' })
     .exec(function (err, challenges) {
       if (err) {
         callback(err);
@@ -274,6 +283,7 @@ function saveSegmentToChallenge (challengeId, segmentId) {
 }
 
 function updateChallengeResult(challenge) {
+  var completeDate = new Date();
   Challenge.find({_id: challenge._id}, function(err, res){
     if (res.length) {
       var challenge = res[0];
@@ -286,7 +296,8 @@ function updateChallengeResult(challenge) {
           loserName: challenge.challengerName,
           expired: true,
           challengerCompleted: true,
-          status: 'complete'
+          status: 'complete',
+          completed: completeDate.toISOString()
         }, function (err, raw) {
           if (err) {
             console.log(err);
@@ -301,7 +312,8 @@ function updateChallengeResult(challenge) {
           loserName: challenge.challengeeName,
           expired: true,
           challengeeCompleted: true,
-          status: 'complete'
+          status: 'complete',
+          completed: completeDate.toISOString()
         }, function (err, raw) {
           if (err) {
             console.log(err);
@@ -339,7 +351,7 @@ function checkForWinner (challengeId, callback) {
       // Updates challenge status to 'Complete'
       Challenge.update({ _id: challengeId }, { status: 'complete' }, function (err, raw) {
         if (err) {
-          console.error('Error updating challenge status to \'Complete\'');
+          callback('Error updating challenge status to \'Complete\'');
         }
       });
     } else {
@@ -349,13 +361,15 @@ function checkForWinner (challengeId, callback) {
 }
 
 function updateChallengeWinnerAndLoser (challengeId, winnerId, winnerName, loserId, loserName, cb) {
+  var completeDate = new Date();
   Challenge.update({ _id: challengeId},
     {
       winnerId: winnerId,
       winnerName: winnerName,
       loserId: loserId,
       loserName: loserName,
-      expired: true
+      expired: true,
+      completed: completeDate.toISOString()
     },
     function (err, raw) {
       if (err) {

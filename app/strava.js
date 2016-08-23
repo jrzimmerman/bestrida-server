@@ -48,8 +48,7 @@ function getSegment(segmentId, callback) {
     if (!segment || !segment[0]) {
       strava.segments.get( {id: segmentId}, function(err, segment) {
         if (err) {
-          console.log("Received error from segment.get service:\n" + util.stringify(err));
-          callback(err);
+          callback("Received error from segment.get service:\n" + util.stringify(err));
         } else {
           Segments.saveSegment(segment, callback);
         }
@@ -297,12 +296,13 @@ function getSegmentEffort (challenge, callback) {
         end_date_local: challenge.end
       }, function (err, efforts) {
         if (err) {
-          console.error('Error getting segment efforts:', err);
+          callback('Error getting segment efforts:' + err);
         }
         if (!efforts) {
-          callback(null, 'No effort found');
+          callback('No effort found');
         } else {
           // Strava returns the best effort first if there are multiple efforts
+          console.log(util.stringify(efforts))
           Challenges.complete(challenge, efforts[0], callback);
         }
       });

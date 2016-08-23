@@ -1,7 +1,7 @@
 var mongoose = require('../db');
 var strava = require('strava-v3');
 
-var userSchema = mongoose.Schema({
+var userSchema = new mongoose.Schema({
   _id: { type: Number, required: true },
   firstname: { type: String, required: true },
   lastname: { type: String, required: true },
@@ -13,7 +13,7 @@ var userSchema = mongoose.Schema({
   segments: { type: [mongoose.Schema.Types.Mixed], default: [] },
   wins: { type: Number, default: 0 },
   losses: { type: Number, default: 0 }
-});
+}, { timestamps: {} });
 
 var User = mongoose.model('User', userSchema);
 

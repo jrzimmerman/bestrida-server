@@ -148,7 +148,7 @@ module.exports = function(app, express) {
   .post(function (req, res) {
     strava.getSegmentEffort(req.body, function (err, raw) {
       if (err) {
-        res.status(500).send('Error retrieving segment effort: ', + err);
+        res.status(500).send('Error completing challenge: ', + err);
       } else {
         res.end('complete: ' + raw);
       }
