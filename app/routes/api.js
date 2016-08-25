@@ -9,7 +9,7 @@ module.exports = function(app, express) {
   .get(function(req, res) {
     strava.getAllUsers(function (err, users) {
       if (err) {
-        res.status(500).send('Error retrieving all users: ' + err);
+        res.status(500).json({error: 'Error retrieving all users: ' + err});
       } else {
         res.json(users);
       }
@@ -21,7 +21,7 @@ module.exports = function(app, express) {
   .get(function(req, res) {
     strava.getUser(req.params.user_id, function (err, user) {
       if (err) {
-        res.status(500).send('Error retrieving user: ' + err);
+        res.status(500).json({error: 'Error retrieving user: ' + err});
       } else {
         res.json(user);
       }
@@ -34,7 +34,7 @@ module.exports = function(app, express) {
     var userId = req.params.user_id;
     strava.getFriendsFromDb(userId, function (err, friends) {
       if (err) {
-        res.status(500).send('Error retrieving friends: ' + err);
+        res.status(500).json({error: 'Error retrieving friends: ' + err});
       } else {
         res.json(friends);
       }
@@ -46,7 +46,7 @@ module.exports = function(app, express) {
   .get(function(req, res) {
     strava.getAllChallenges(function (err, challenges) {
       if (err) {
-        res.status(500).send('Error retrieving all challenges: ' + err);
+        res.status(500).json({error: 'Error retrieving all challenges: ' + err});
       } else {
         res.json(challenges);
       }
@@ -58,7 +58,7 @@ module.exports = function(app, express) {
   .get(function(req, res) {
     strava.getChallenge(req.params.challenge_id, function (err, challenge) {
       if (err) {
-        res.status(500).send('Error retrieving challenge: ' + err);
+        res.status(500).json({error: 'Error retrieving challenge: ' + err});
       } else {
         res.json(challenge);
       }
@@ -71,7 +71,7 @@ module.exports = function(app, express) {
     Challenges.getChallenges(req.params.user_id, 'active',
       function (err, challenges) {
         if (err) {
-          res.status(500).send('Error retrieving challenges: ' + err);
+          res.status(500).json({error: 'Error retrieving challenges: ' + err});
         } else {
           res.json(challenges);
         }
@@ -84,7 +84,7 @@ module.exports = function(app, express) {
     Challenges.getChallenges(req.params.user_id, 'pending',
       function (err, challenges) {
         if (err) {
-          res.status(500).send('Error retrieving challenges: ' + err);
+          res.status(500).json({error: 'Error retrieving challenges: ' + err});
         } else {
           res.json(challenges);
         }
@@ -111,7 +111,7 @@ module.exports = function(app, express) {
     Challenges.create(challenge,
       function (err, raw) {
         if (err) {
-          res.status(500).send('Error creating challenges: ' + err);
+          res.status(500).json({error: 'Error creating challenges: ' + err});
         } else {
           res.json(raw);
         }
@@ -123,9 +123,9 @@ module.exports = function(app, express) {
   .post(function (req, res) {
     Challenges.accept(req.body, function (err, raw) {
       if (err) {
-        res.status(500).send('Error accepting challenge: ' + err);
+        res.status(500).json({error: 'Error accepting challenge: ' + err});
       } else {
-        res.end('challenge accepted: ' + !!raw.nModified);
+        res.json({body: 'challenge accepted: ' + !!raw.nModified});
       }
     });
   });
@@ -136,9 +136,9 @@ module.exports = function(app, express) {
     var challenge = req.body;
     Challenges.decline(challenge, function (err, raw) {
       if (err) {
-        res.status(500).send('Error accepting challenge: ' + err)
+        res.status(500).json({error: 'Error accepting challenge: ' + err})
       } else {
-        res.end('challenge declined: ' + !!raw.nModified);
+        res.json({body: 'challenge declined: ' + !!raw.nModified});
       }
     });
   });
@@ -146,11 +146,12 @@ module.exports = function(app, express) {
   // Completes a challenge for the user
   apiRouter.route('/challenges/complete')
   .post(function (req, res) {
-    strava.getSegmentEffort(req.body, function (err, raw) {
+    strava.getSegmentEffort(req.body,
+      function (err, effort) {
       if (err) {
-        res.status(500).send('Error completing challenge: ' + err);
+        res.status(500).json({error: 'Error completing challenge: ' + err});
       } else {
-        res.end('complete: ' + raw);
+        res.json({challenge: 'complete: ' + effort});
       }
     });
   });
@@ -159,11 +160,11 @@ module.exports = function(app, express) {
   apiRouter.route('/athletes/:athlete_id')
   .get(function(req, res) {
     strava.getAthlete(req.params.athlete_id,
-      function(err,payload) {
+      function(err, athlete) {
         if(err) {
-          res.status(500).send('error getting athlete from strava: ' + err);
+          res.status(500).json({error: 'error getting athlete from strava: ' + err});
         } else {
-          res.json(payload);
+          res.json(athlete);
         }
       });
   });
@@ -173,7 +174,7 @@ module.exports = function(app, express) {
   .get(function(req, res) {
     strava.getAllSegments(function (err, segments) {
       if (err) {
-        res.status(500).send('Error retrieving all segments: ' + err);
+        res.status(500).json({error: 'Error retrieving all segments: ' + err});
       } else {
         res.json(segments);
       }
@@ -187,11 +188,11 @@ module.exports = function(app, express) {
   apiRouter.route('/segments/:segment_id')
   .get(function(req, res) {
     strava.getSegment(req.params.segment_id,
-      function(err,payload) {
+      function(err,segment) {
         if(err) {
-          res.status(500).send('error getting segment: ' + err);
+          res.status(500).json({error: 'error getting segment: ' + err});
         } else {
-          res.json(payload);
+          res.json(segment);
         }
       });
   });
@@ -201,11 +202,11 @@ module.exports = function(app, express) {
   .get(function(req, res) {
     var effort_id = parseInt(req.params.effort_id);
     strava.getEffort(effort_id,
-      function(err,payload) {
+      function(err,effort) {
         if(err) {
-          res.status(500).send('error getting effort from stava: ' + err);
+          res.status(500).json({error: 'error getting effort from stava: ' + err});
         } else {
-          res.json(payload);
+          res.json(effort);
         }
       });
   });
