@@ -202,58 +202,57 @@ module.exports.complete = function (challenge, effort, callback) {
 };
 
 module.exports.getChallenges = function (user, status, callback) {
+  if (!user) callback('No user defined');
+  if (!status) callback('No status defined');
   if (status === 'complete') {
     Challenge
-    .find()
-    .and([{
+    .find({
       $or: [
         { challengerId: user, challengerCompleted: true },
         { challengeeId: user, challengeeCompleted: true }
       ],
-    }])
+    })
     .sort({ expires: 'descending' })
     .exec(function (err, challenges) {
       if (err) {
-        callback(err);
+        callback('error finding completed challenges: ' + err);
       } else {
         callback(err, challenges);
       }
     });
   } else if (status === 'active') {
     Challenge
-    .find()
-    .and([{
+    .find({
       $or: [
         { challengerId: user, challengerCompleted: false, status: status },
         { challengeeId: user, challengeeCompleted: false, status: status }
       ]
-    }])
+    })
     .sort({ expires: 'ascending' })
     .exec(function (err, challenges) {
       if (err) {
-        callback(err);
+        callback('error finding active challenges: ' + err);
       } else {
         callback(err, challenges);
       }
     });
   } else if (status === 'pending') {
-    Challenge.find()
-    .and([{
+    Challenge.find({
       $or: [
         { challengeeId: user, status: 'pending' },
         { challengerId: user, status: 'pending' }
       ]
-    }])
+    })
     .sort({ expires: 'ascending' })
     .exec(function (err, challenges) {
       if (err) {
-        callback(err);
+        callback('error finding pending challenges: ' + err);
       } else {
-        if (challenges.length) {
-          callback(err, challenges);
-        }
+        callback(err, challenges);
       }
     });
+  } else {
+    callback('Error getting challenges');
   }
 };
 
@@ -261,7 +260,7 @@ module.exports.getChallenges = function (user, status, callback) {
 function saveSegmentToChallenge(challengeId, segmentId) {
   Segments.find({ _id: segmentId }, function (err, res) {
     if (err) {
-      console.error('error', err);
+      console.error('save segment error: ' + err);
     }
     if (res.length) {
       var segment = res[0];
