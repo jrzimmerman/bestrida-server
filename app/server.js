@@ -5,16 +5,11 @@ var bodyParser     = require('body-parser');
 var methodOverride = require('method-override');
 var morgan         = require('morgan');
 var passport       = require('passport');
-var session        = require('cookie-session');
 var cron           = require('./cron');
 
 // passport configuration
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(session({
-  secret: process.env.SECRET || 'secret',
-  maxAge: 360*5,
-}));
 
 // method override is used to simulate put and delete methods when not available
 app.use(methodOverride());
