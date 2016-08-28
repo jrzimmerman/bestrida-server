@@ -37,6 +37,7 @@
     "mongodb": "^2.2.5",
     "mongoose": "^4.5.8",
     "morgan": "^1.7.0",
+    "newrelic": "^1.30.0",
     "nodemailer": "^1.11.0",
     "passport": "^0.3.2",
     "passport-strava-oauth2": "^0.1.3",
