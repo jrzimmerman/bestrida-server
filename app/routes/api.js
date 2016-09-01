@@ -173,26 +173,25 @@ module.exports = function(app, express) {
   // Get an athletes segments from strava
   apiRouter.route('/athletes/:athlete_id/segments')
   .get(function(req, res) {
-    strava.getUser(req.params.athlete_id,
-      function(err, user) {
-        if(err) {
-          res.status(500).json({error: 'error getting athlete from DB: ' + err});
-        } else {
-          strava.getSegmentsFromStrava(user._id, user.token, function(err) {
-            if (err) {
-              res.status(500).json({error: 'error getting segments from strava: ' + err});
-            } else {
-              strava.getStarredSegmentsFromStrava(user._id, user.token, function(err) {
-                if (err) {
-                  res.status(500).json({error: 'error getting starred segments from strava: ' + err});
-                } else {
-                  res.send('updated segments for ' + user._id);
-                }
-              });
-            }
-          });
-        }
-      });
+    strava.getUser(req.params.athlete_id, function(err, user) {
+      if(err) {
+        res.status(500).json({error: 'error getting athlete from DB: ' + err});
+      } else {
+        strava.getSegmentsFromStrava(user._id, user.token, function(err) {
+          if (err) {
+            res.status(500).json({error: 'error getting segments from strava: ' + err});
+          } else {
+            strava.getStarredSegmentsFromStrava(user._id, user.token, function(err) {
+              if (err) {
+                res.status(500).json({error: 'error getting starred segments from strava: ' + err});
+              } else {
+                res.send('updated segments for ' + user._id);
+              }
+            });
+          }
+        });
+      }
+    });
   });
 
   // Get an athletes friends from strava

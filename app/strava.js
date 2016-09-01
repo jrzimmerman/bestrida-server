@@ -223,7 +223,6 @@ function getStarredSegmentsFromStrava(userId, token, callback) {
       var userSegments = {};
       // Save the id of each of the user's current segments into the object
       currentSegments[0].segments.forEach(function (seg) {
-        console.log('seg: ', seg);
         userSegments[seg._id] = seg._id;
       });
 
@@ -251,7 +250,11 @@ function getStarredSegmentsFromStrava(userId, token, callback) {
     })
     .then(function() {
       sortSegments(userId);
-    });
+      callback();
+    })
+    .catch(function(error) {
+      callback(error);
+    })
   });
 }
 
