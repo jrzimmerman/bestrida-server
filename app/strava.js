@@ -227,6 +227,7 @@ function getStarredSegmentsFromStrava (userId, token) {
         Segments.find({ _id: segment.id }, function (err, res) {
           if (err) console.error(err);
           if (!res.length) {
+            // did not find the segment in our DB
             getAndSaveSegmentInfo(segment.id, userId);
           // Else (if segment is already in our DB, don't make Strava API call)
           } else if (res.length) {
@@ -267,15 +268,13 @@ function getAndSaveSegmentInfo (segmentId, userId) {
     if (err) {
       console.log("Received error from segment.get service:\n" + util.stringify(err));
     } else {
+      Segments.saveSegment(segment);
       var userSegment = {
         _id: segment.id,
         name: segment.name,
         count: 1
       };
-      Segments.saveSegment(segment);
-      setTimeout(function() {
-        Users.saveSegments(userId, userSegment)
-      }, 1000);
+      Users.saveSegments(userId, userSegment);
     }
   });
 }

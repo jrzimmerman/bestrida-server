@@ -33,14 +33,20 @@ passport.use(new StravaStrategy({
   function(accessToken, refreshToken, profile, done) {
   // asynchronous verification, for effect...
   process.nextTick(function () {
-      Users.registerAthlete(profile, function() {});
-      setTimeout(function() {
-        strava.getSegmentsFromStrava(profile.id, profile.token);
-        Users.getFriendsFromStrava(profile.id, profile.token);
-      }, 1000);
-      setTimeout(function() {
-        strava.getStarredSegmentsFromStrava(profile.id, profile.token);
-      }, 5000);
+      Users.registerAthlete(profile, function(err) {
+        if (err) {
+          done(err);
+        } else {
+          Users.getFriendsFromStrava(profile.id, profile.token);
+          strava.getSegmentsFromStrava(profile.id, profile.token, function(err) {
+            if (err) {
+              done(err);
+            } else {
+              strava.getStarredSegmentsFromStrava(profile.id, profile.token);
+            }
+          });
+        }
+      });
       // To keep the example simple, the user's Strava profile is returned to
       // represent the logged-in user.  In a typical application, you would want
       // to associate the Strava account with a user record in your database,

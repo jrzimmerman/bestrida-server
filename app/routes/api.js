@@ -1,4 +1,5 @@
 var Challenges = require('../models/challenges');
+var Users = require('../models/users');
 var strava = require('../strava');
 
 module.exports = function(app, express) {
@@ -172,12 +173,17 @@ module.exports = function(app, express) {
   // Get an athletes segments from strava
   apiRouter.route('/athletes/:athlete_id/segments')
   .get(function(req, res) {
-    strava.getAthlete(req.params.athlete_id,
-      function(err, athlete) {
+    strava.getUser(req.params.athlete_id,
+      function(err, user) {
         if(err) {
-          res.status(500).json({error: 'error getting athlete from strava: ' + err});
+          res.status(500).json({error: 'error getting athlete from DB: ' + err});
         } else {
-          res.json(athlete);
+          strava.getSegmentsFromStrava(user._id, user.token, function(err) {
+            if(err) {
+              res.status(500).json({error: 'error getting athlete segments from strava: ' + err});
+            }
+          });
+          res.send('updated segments for ' + user._id);
         }
       });
   });
@@ -185,12 +191,17 @@ module.exports = function(app, express) {
   // Get an athletes friends from strava
   apiRouter.route('/athletes/:athlete_id/friends')
   .get(function(req, res) {
-    strava.getAthlete(req.params.athlete_id,
-      function(err, athlete) {
+    strava.getUser(req.params.athlete_id,
+      function(err, user) {
         if(err) {
-          res.status(500).json({error: 'error getting athlete from strava: ' + err});
+          res.status(500).json({error: 'error getting athlete from DB: ' + err});
         } else {
-          res.json(athlete);
+          Users.getFriendsFromStrava(user._id, user.token, function(err) {
+            if(err) {
+              res.status(500).json({error: 'error getting athlete friends from strava: ' + err});
+            }
+          });
+          res.send('updated friends for ' + user._id);
         }
       });
   });

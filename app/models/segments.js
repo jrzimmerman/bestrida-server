@@ -2,47 +2,30 @@ var mongoose = require('../db');
 
 var segmentSchema = new mongoose.Schema({
   _id: { type: Number, required: true },
+  resourceState: { type: Number },
   name: { type: String, required: true },
-  activityType: { type: String, required: true },
-  distance: { type: Number, required: true },
-  averageGrade: {type: Number, required: true },
-  climbCategory: {type: Number, required: true },
+  activityType: { type: String },
+  distance: { type: Number },
+  averageGrade: {type: Number },
+  maximumGrade: {type: Number },
+  climbCategory: {type: Number },
   city: { type: String },
   state: { type: String },
   country: { type: String },
-  totalElevationGain: {type: Number, required: true },
+  totalElevationGain: {type: Number },
   endLatLng: { type: [mongoose.Schema.Types.Mixed], default: [] },
-  startLatLng: { type: [mongoose.Schema.Types.Mixed], default: [] }
+  startLatLng: { type: [mongoose.Schema.Types.Mixed], default: [] },
+  map: { type: Object, default: {} }
 }, { timestamps: {} });
-
 
 var Segment = mongoose.model('Segment', segmentSchema);
 
 module.exports = Segment;
 
-module.exports.create = function (segmentId, name, activityType, distance,
-                                  averageGrade, startLatLng, endLatLng, climbCategory,
-                                  city, state, country, totalElevationGain) {
-  var newSegment = new Segment({
-    _id: segmentId,
-    name: name,
-    activityType: activityType,
-    distance: distance,
-    averageGrade: averageGrade,
-    climbCategory: climbCategory,
-    city: city,
-    state: state,
-    country: country,
-    totalElevationGain: totalElevationGain,
-    endLatLng: endLatLng,
-    startLatLng: startLatLng
-  });
-  newSegment.save();
-};
-
 module.exports.saveSegment = function (segment) {
   var newSegment = new Segment({
     _id: segment.id,
+    resourceState: segment.resource_state,
     name: segment.name,
     activityType: segment.activity_type,
     distance: segment.distance,
@@ -53,14 +36,15 @@ module.exports.saveSegment = function (segment) {
     country: segment.country,
     totalElevationGain: segment.total_elevation_gain,
     endLatLng: segment.end_latlng,
-    startLatLng: segment.start_latlng
+    startLatLng: segment.start_latlng,
+    map: segment.map
   });
 
-  newSegment.update({_id: segment.id }, { upsert: true }, function (err, segment) {
+  Segment.update({_id: segment.id }, newSegment, { upsert: true }, function (err, segment) {
     if (err) {
-      console.error('Error saving segment:', err);
+      console.error('Error saving segment:' + err);
     } else {
-      console.log('Segment saved!', segment);
+      console.log('Segment saved: ' + segment);
     }
   });
 };

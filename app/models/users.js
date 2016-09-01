@@ -26,14 +26,8 @@ module.exports.registerAthlete = function (user, callback) {
 
   // Check if user exists in db
   User.find({ _id: user.id })
-  .then(function (usersArray) {
-    // If user exists, just refresh token
-    if (usersArray[0]){
-      refreshAthlete(user, callback);
-    } else {
-      // Else if user doesn't exist in db, save them to db
-      saveAthlete(user, callback);
-    }
+  .then(function () {
+    saveAthlete(user, callback);
   })
   .catch(function(error) {
     callback('Error registering athlete: ' + error);
@@ -135,32 +129,13 @@ function saveAthlete (user, callback) {
     photo: user.profile,
     email: user.email
   });
-  newUser.save(function (err, savedUser) {
-    if (err) {
-      callback('Error saving user: ' + err);
-    } else {
-      callback(err, 'User saved: ' + savedUser);
-    }
-  });
-}
-
-function refreshAthlete (user, callback) {
   User.update(
-    { _id: user.id },
-    {
-      firstname: user.firstname,
-      lastname: user.lastname,
-      fullName: user.firstname + ' ' + user.lastname,
-      token: user.token,
-      photo: user.profile,
-      email: user.email
-    },
-    function (err, res) {
+    { _id: user.id }, newUser, {upsert: true},
+    function (err, raw) {
       if (err) {
-        console.error('Error refreshing token: ' + err);
+        callback('Error refreshing token: ' + err);
       } else {
-        console.log('User found: ', !!res.n);
-        console.log('User updated: ', !!res.nModified);
+        callback(err, 'User found: ' + !!raw.n + 'User updated: ' + !!raw.nModified);
       }
     });
 }
