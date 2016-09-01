@@ -59,7 +59,8 @@ module.exports.getFriendsFromStrava = function (id, token) {
 };
 
 module.exports.saveSegments = function (user, segment) {
-  User.update({ _id: user }, { $addToSet: { segments: segment }},
+  console.log('segment: ' + JSON.stringify(segment));
+  User.update({ _id: user }, { $addToSet: { segments: segment }}, {upsert: true},
   function (err, res) {
     if (err) console.error('Error saving segments: ' + err);
     if (res.nModified === 1) console.log('Segment stored in user document');

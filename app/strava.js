@@ -139,6 +139,7 @@ function getUserSegmentsFromDb (id, callback) {
 }
 
 function getSegmentsFromStrava(userId, token, callback) {
+  console.log('getting segments for: ' + userId);
   strava.athlete.listActivities({ access_token: token }, function (err, activities) {
     if (err) {
       callback('Error retrieving activities' + err);
@@ -214,6 +215,7 @@ function getSegmentsFromStrava(userId, token, callback) {
 }
 
 function getStarredSegmentsFromStrava(userId, token, callback) {
+  console.log('getting starred segments for: ' + userId);
   strava.segments.listStarred({ access_token: token }, function(err, segments) {
     if (err) callback('Error retrieving starred segments:' + err);
     // Retrieve a user's current segments to see segments are already saved
