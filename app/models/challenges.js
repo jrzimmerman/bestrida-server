@@ -113,7 +113,7 @@ module.exports.cronComplete = function() {
         Challenge.find({ _id: aChallenge.id })
         .remove(function(err, raw) {
           if (err) console.log(err);
-          console.log('removed challenges: ', raw);
+          console.log('removed challenges: ', !!raw.nModified);
         });
 
       // Else if only one user completed challenge, set default winner
@@ -185,16 +185,16 @@ module.exports.complete = function (challenge, effort, callback) {
         }
       });
     }
-    // Checks if the challenge has a winner; waits 5 seconds to allow for effort to be saved to DB
-    setTimeout(function(){
-      checkForWinner(challenge.id, function(err, res) {
-        if (err) {
-          callback('Error checking for winnder: ' + err);
-        } else {
-          callback(err, 'Successfully checked for winner: ' + res);
-        }
-      });
-    }, 2000);
+  })
+  .then(function(){
+    // Checks if the challenge has a winner
+    checkForWinner(challenge.id, function(err, res) {
+      if (err) {
+        callback('Error checking for winnder: ' + err);
+      } else {
+        callback(err, 'Successfully checked for winner: ' + res);
+      }
+    });
   })
   .catch(function(error) {
     callback(error);
@@ -212,7 +212,7 @@ module.exports.getChallenges = function (user, status, callback) {
         { challengeeId: user, challengeeCompleted: true }
       ],
     })
-    .sort({ expires: 'descending' })
+    .sort([['completed','descending'],['expires','descending']])
     .exec(function (err, challenges) {
       if (err) {
         callback('error finding completed challenges: ' + err);
@@ -277,7 +277,7 @@ function saveSegmentToChallenge(challengeId, segmentId) {
         },
         function (err, raw) {
           if (err) console.error(err);
-          console.log('Updated challenge with segment details:', raw);
+          console.log('Updated challenge with segment details:' + !!res.nModified);
         });
     }
   });

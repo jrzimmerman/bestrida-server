@@ -169,6 +169,32 @@ module.exports = function(app, express) {
       });
   });
 
+  // Get an athletes segments from strava
+  apiRouter.route('/athletes/:athlete_id/segments')
+  .get(function(req, res) {
+    strava.getAthlete(req.params.athlete_id,
+      function(err, athlete) {
+        if(err) {
+          res.status(500).json({error: 'error getting athlete from strava: ' + err});
+        } else {
+          res.json(athlete);
+        }
+      });
+  });
+
+  // Get an athletes friends from strava
+  apiRouter.route('/athletes/:athlete_id/friends')
+  .get(function(req, res) {
+    strava.getAthlete(req.params.athlete_id,
+      function(err, athlete) {
+        if(err) {
+          res.status(500).json({error: 'error getting athlete from strava: ' + err});
+        } else {
+          res.json(athlete);
+        }
+      });
+  });
+
   // Gets all segments
   apiRouter.route('/segments')
   .get(function(req, res) {
