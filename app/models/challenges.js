@@ -190,7 +190,7 @@ module.exports.complete = function (challenge, effort, callback) {
     // Checks if the challenge has a winner
     checkForWinner(challenge.id, function(err, res) {
       if (err) {
-        callback('Error checking for winnder: ' + err);
+        callback('Error checking for winner: ' + err);
       } else {
         callback(err, 'Successfully checked for winner: ' + res);
       }
