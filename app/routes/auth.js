@@ -40,9 +40,15 @@ passport.use(new StravaStrategy({
           Users.getFriendsFromStrava(profile.id, profile.token);
           strava.getSegmentsFromStrava(profile.id, profile.token, function(err) {
             if (err) {
+              console.log('error getting segments from strava: ' + err);
               done(err);
             } else {
-              strava.getStarredSegmentsFromStrava(profile.id, profile.token);
+              strava.getStarredSegmentsFromStrava(profile.id, profile.token, function(err) {
+                if (err) {
+                  console.log('error getting starred segments from strava: ' + err);
+                  done(err);
+                }
+              });
             }
           });
         }

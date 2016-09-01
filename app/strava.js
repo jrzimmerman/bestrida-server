@@ -14,15 +14,18 @@ function registerAthlete(stravaCode, callback) {
       var athlete = payload.athlete;
       athlete.token = payload.access_token;
       callback(null, payload);
-      Users.registerAthlete(athlete, callback);
-      setTimeout(function() {
-        getSegmentsFromStrava(athlete.id, athlete.token, function(err) {
-          if (err) {
-            callback('Error getting segments from Strava: ', err)
-          }
-        });
-        Users.getFriendsFromStrava(athlete.id, athlete.token);
-      }, 2000);
+      Users.registerAthlete(athlete, function(err) {
+        if(err) {
+          callback('Unable to register athlete: ', err);
+        } else {
+          getSegmentsFromStrava(athlete.id, athlete.token, function(err) {
+            if (err) {
+              callback('Error getting segments from Strava: ', err)
+            }
+          });
+          Users.getFriendsFromStrava(athlete.id, athlete.token);
+        }
+      });
     }
   });
 }
@@ -135,10 +138,10 @@ function getUserSegmentsFromDb (id, callback) {
   });
 }
 
-function getSegmentsFromStrava (userId, token, callback) {
+function getSegmentsFromStrava(userId, token, callback) {
   strava.athlete.listActivities({ access_token: token }, function (err, activities) {
     if (err) {
-      console.error('Error retrieving activities', err);
+      callback('Error retrieving activities' + err);
     }
     activities = activities.map(function(activity) {
       return {
@@ -149,7 +152,7 @@ function getSegmentsFromStrava (userId, token, callback) {
     activities.forEach(function(activity) {
       strava.activities.get({id: activity.id}, function(err, oneActivity) {
         if (err) {
-          console.error('Error retrieving activities', err);
+          callback('Error retrieving activities' + err);
         }
         if (oneActivity.hasOwnProperty('segment_efforts')) {
           oneActivity.segment_efforts.forEach(function(segment) {
@@ -158,13 +161,13 @@ function getSegmentsFromStrava (userId, token, callback) {
             // Check to see if oneSegment is in database
             Segments.find({ _id: oneSegment.segment.id }, function (err, segmentDB) {
               if (err) {
-                console.log("Received error: ",err);
+                callback("Cannot find segment: " + err);
               }
               // If segment not found in DB send API request to Strava
               if (!segmentDB[0]) {
                 strava.segments.get( {id: oneSegment.segment.id}, function(err, segmentCall) {
                   if (err) {
-                    console.log("Received error from segment.get service:\n" + util.stringify(err));
+                    callback("Received error from segment.get service:\n" + util.stringify(err));
                   // If segment not found in segment collection, grab segment from Strava
                   } else {
                     Segments.saveSegment(segmentCall);
@@ -189,14 +192,14 @@ function getSegmentsFromStrava (userId, token, callback) {
                 // check if also stored in users' segments property
                 Users.where({_id: userId, "segments.id": oneSegment.segment.id })
                 .exec(function(err, res) {
-                  if (err) console.error(err);
+                  if (err) callback(err);
                   if(!res[0]) {
                     var userSegment = {
                       _id: oneSegment.segment.id,
                       name: oneSegment.segment.name,
                       count: 1
                     };
-                    Users.saveSegments(userId, userSegment);
+                    Users.saveSegments(userId, userSegment, callback);
                   } else {
                     Users.incrementSegmentCount(userId, segment.segment.id);
                   }
@@ -207,25 +210,28 @@ function getSegmentsFromStrava (userId, token, callback) {
         }
       });
     });
-  });
+  }, callback());
 }
 
-function getStarredSegmentsFromStrava (userId, token) {
+function getStarredSegmentsFromStrava(userId, token, callback) {
   strava.segments.listStarred({ access_token: token }, function(err, segments) {
-    if (err) console.error('Error retrieving starred segments:', err);
+    if (err) callback('Error retrieving starred segments:' + err);
     // Retrieve a user's current segments to see segments are already saved
     Users.find({ _id: userId }).select('segments')
     .then(function(currentSegments) {
       // Store user's current segment id's in userSegments object for constant-time lookup
       var userSegments = {};
       // Save the id of each of the user's current segments into the object
-      currentSegments[0].segments.forEach(function (seg) { userSegments[seg._id] = true; });
+      currentSegments[0].segments.forEach(function (seg) {
+        console.log('seg: ', seg);
+        userSegments[seg._id] = seg._id;
+      });
 
       // Iterate over segments retrieved from Strava
       segments.forEach(function(segment) {
         // Check to see if the segment is in database
         Segments.find({ _id: segment.id }, function (err, res) {
-          if (err) console.error(err);
+          if (err) callback('Cannot find segment' + err);
           if (!res.length) {
             // did not find the segment in our DB
             getAndSaveSegmentInfo(segment.id, userId);
@@ -242,11 +248,11 @@ function getStarredSegmentsFromStrava (userId, token) {
           }
         });
       });
+    })
+    .then(function() {
+      sortSegments(userId);
     });
   });
-  setTimeout(function() {
-    sortSegments(userId);
-  }, 3000);
 }
 
 function sortSegments (userId) {
@@ -258,7 +264,7 @@ function sortSegments (userId) {
     });
     Users.update({ _id: userId }, { segments: sortedSegments }, function (err, raw) {
       if (err) console.error(err);
-      console.log(raw.nModified === 1 ? 'User segments were sorted' : 'No changes made to users\' segments ordering');
+      console.log(raw.nModified === 1 ? 'User segments were sorted' : 'No changes made to users segments ordering');
     });
   });
 }
