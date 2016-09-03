@@ -14,15 +14,6 @@ function registerAthlete(stravaCode, callback) {
       var athlete = payload.athlete;
       athlete.token = payload.access_token;
       callback(null, payload);
-      Users.registerAthlete(athlete, callback);
-      setTimeout(function() {
-        getSegmentsFromStrava(athlete.id, athlete.token, function(err) {
-          if (err) {
-            callback('Error getting segments from Strava: ', err)
-          }
-        });
-        Users.getFriendsFromStrava(athlete.id, athlete.token);
-      }, 2000);
     }
   });
 }
@@ -202,7 +193,7 @@ function getSegmentsFromStrava(userId, token, callback) {
                           name: oneSegment.segment.name,
                           count: 1
                         };
-                        Users.saveSegments(userId, userSegment);
+                        Users.saveSegments(userId, userSegment, function() {});
                       } else {
                         Users.incrementSegmentCount(userId, segment.segment.id);
                       }
@@ -244,7 +235,7 @@ function getStarredSegmentsFromStrava (userId, token) {
                 name: res[0].name,
                 count: 1
               };
-              Users.saveSegments(userId, userSegment);
+              Users.saveSegments(userId, userSegment, function() {});
             }
           }
         });
@@ -253,7 +244,7 @@ function getStarredSegmentsFromStrava (userId, token) {
   });
   setTimeout(function() {
     sortSegments(userId);
-  }, 3000);
+  }, 2000);
 }
 
 function sortSegments (userId) {
@@ -282,7 +273,13 @@ function getAndSaveSegmentInfo (segmentId, userId) {
       };
       Segments.saveSegment(segment);
       setTimeout(function() {
-        Users.saveSegments(userId, userSegment)
+        Users.saveSegments(userId, userSegment, function(err) {
+          if (err, res) {
+            console.err('error saving segment: ' + err);
+          } else {
+            console.log('segment ' + JSON.stringify(segment) + ' saved: ' + res);
+          }
+        })
       }, 1000);
     }
   });
