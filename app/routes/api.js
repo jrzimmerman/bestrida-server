@@ -177,19 +177,15 @@ module.exports = function(app, express) {
       if(err) {
         res.status(500).json({error: 'error getting athlete from DB: ' + err});
       } else {
-        strava.getSegmentsFromStrava(user._id, user.token, function(err) {
+        console.log(user.id, user.token);
+        strava.getSegmentsFromStrava(user._id, user.token, function(err, res) {
           if (err) {
             res.status(500).json({error: 'error getting segments from strava: ' + err});
           } else {
-            strava.getStarredSegmentsFromStrava(user._id, user.token, function(err) {
-              if (err) {
-                res.status(500).json({error: 'error getting starred segments from strava: ' + err});
-              } else {
-                res.send('updated segments for ' + user._id);
-              }
-            });
+            res.json({body: 'updated segments for ' + user._id});
           }
         });
+        
       }
     });
   });

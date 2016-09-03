@@ -93,8 +93,10 @@ function getUser(id, callback) {
       callback(err);
     }
     if (!user || !user[0]) {
+      console.error('User ' + id + ' not found!');
       callback(null, 'User ' + id + ' not found!');
     } else if (user[0]) {
+      console.log('user: ' + user[0].id);
       callback(null, user[0]);
     }
   });
