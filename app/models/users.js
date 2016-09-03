@@ -25,66 +25,95 @@ module.exports.registerAthlete = function (user, callback) {
   user.token = token;
 
   // Check if user exists in db
-  User.find({ _id: user.id })
-  .then(function () {
-    saveAthlete(user, callback);
-  })
-  .catch(function(error) {
-    callback('Error registering athlete: ' + error);
+  User.find({ _id: user.id }, function(err) {
+    if (err) {
+      console.error('Error registering athlete: ' + err);
+      callback(err);
+    } else {
+      saveAthlete(user, function(err) {
+        if (err) {
+          callback(err);
+        } else {
+          callback();
+        }
+      });
+    }
   });
 };
 
-module.exports.getFriendsFromStrava = function (id, token) {
+module.exports.getFriendsFromStrava = function (id, token, callback) {
+  console.log('getting friends from strava');
   strava.athlete.listFriends({ access_token: token }, function (err, friends) {
     if (err) {
-      console.error('Error retrieving friends', err);
-    }
-    if (friends.length) {
-      friends = friends.map(function(friend) {
-        return {
-          id: friend.id,
-          username: friend.username,
-          firstname: friend.firstname,
-          lastname: friend.lastname,
-          fullName: friend.firstname + ' ' + friend.lastname,
-          photo: friend.profile,
-          challengeCount: 0,
-          wins: 0,
-          losses: 0
-        };
-      });
-      saveFriends(id, friends);
+      console.error('Error retrieving friends' + err);
+      callback('Error retrieving friends' + err);
+    } else {
+      if (friends.length) {
+        friends = friends.map(function(friend) {
+          return {
+            id: friend.id,
+            username: friend.username,
+            firstname: friend.firstname,
+            lastname: friend.lastname,
+            fullName: friend.firstname + ' ' + friend.lastname,
+            photo: friend.profile,
+            challengeCount: 0,
+            wins: 0,
+            losses: 0
+          };
+        });
+        saveFriends(id, friends, function(err, res) {
+          if (err) {
+            console.error('Error saving friends' + err);
+            callback(err);
+          } else {
+            console.log('saved friends: ', res);
+            callback(err, res);
+          }
+        });
+      } else {
+        console.log('no friends found');
+        callback(err, 'no friends found');
+      }
     }
   });
 };
 
-module.exports.saveSegments = function (user, segment) {
+module.exports.saveSegments = function (user, segment, callback) {
   console.log('segment: ' + JSON.stringify(segment));
-  User.update({ _id: user }, { $addToSet: { segments: segment }}, {upsert: true},
-  function (err, res) {
-    if (err) console.error('Error saving segments: ' + err);
-    if (res.nModified === 1) console.log('Segment stored in user document');
-  });
+   User.update({ _id: user },
+    { $addToSet: {segments: segment}},
+    {$sort: { count: 'descending' }},
+    function (err, res) {
+      if (err) {
+        console.error('Error updating segments: ' + err);
+        callback('Error updating segments: ' + err);
+      } else {
+        console.log('Segments array updated: ' + !!res.nModified);
+        callback(err, 'Segments array updated: ' + !!res.nModified);
+      }
+    }
+  );
 };
 
-module.exports.incrementSegmentCount = function (userId, segmentId) {
-  User.where({ _id: userId, "segments.id": segmentId })
-  .update({
-    $inc: { 'segments.$.count': 1 }
-  },
+module.exports.incrementSegmentCount = function (userId, segmentId, callback) {
+  User.update({ _id: userId, "segments.id": segmentId },
+  {$inc: { 'segments.$.count': 1 }},
   function (err, res) {
     if (err) {
       console.error('Error incrementing segment count: ' + err);
+      callback('Error incrementing segment count: ' + err);
     } else {
       console.log('Incremented segment count: ' + !!res.nModified);
+      callback(err, 'Incremented segment count: ' + !!res.nModified);
     }
   });
 };
 
 // Increment wins and challenge count on the user's friend object
 module.exports.incrementWins = function (userId, friendId) {
-  User.where({ _id: userId, "friends.id": friendId })
-  .update({
+  User.update({ _id: userId, "friends.id": friendId },
+  {
     $inc: {
       'friends.$.challengeCount': 1,
       'friends.$.wins': 1,
@@ -102,8 +131,8 @@ module.exports.incrementWins = function (userId, friendId) {
 
 // Increment losses and challenge count on the user's friend object
 module.exports.incrementLosses = function (userId, friendId) {
-  User.where({ _id: userId, "friends.id": friendId })
-  .update({
+  User.update({ _id: userId, "friends.id": friendId },
+  {
     $inc: {
       'friends.$.challengeCount': 1,
       'friends.$.losses': 1,
@@ -120,7 +149,7 @@ module.exports.incrementLosses = function (userId, friendId) {
 };
 
 // Helper functions
-function saveAthlete (user, callback) {
+function saveAthlete(user, callback) {
   var newUser = new User({
     _id: user.id,
     firstname: user.firstname,
@@ -134,14 +163,16 @@ function saveAthlete (user, callback) {
     { _id: user.id }, newUser, {upsert: true},
     function (err, raw) {
       if (err) {
-        callback('Error refreshing token: ' + err);
+        console.error('Error refreshing token: ' + err);
+        callback(err);
       } else {
-        callback(err, 'User found: ' + !!raw.n + 'User updated: ' + !!raw.nModified);
+        console.log('User found: ' + !!raw.n + ' User updated: ' + !!raw.nModified);
+        callback(err, raw);
       }
     });
 }
 
-function saveFriends (user, stravaFriends) {
+function saveFriends (user, stravaFriends, callback) {
   User.find({ _id: user }).select('friends')
   .exec(function(err, res) {
     var friends = res[0].friends;
@@ -173,9 +204,11 @@ function saveFriends (user, stravaFriends) {
     function (err, res) {
       if (err) {
         console.error('Error updating friends: ' + err);
+        callback(err);
       } else {
         console.log('Friends array found: ' + !!res.n);
         console.log('Friends array updated: ' + !!res.nModified);
+        callback(err, res);
       }
     });
   });

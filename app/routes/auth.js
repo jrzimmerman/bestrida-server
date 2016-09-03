@@ -31,28 +31,8 @@ passport.use(new StravaStrategy({
     callbackURL: "/auth/strava/callback"
   },
   function(accessToken, refreshToken, profile, done) {
-  // asynchronous verification, for effect...
-  process.nextTick(function () {
-      Users.registerAthlete(profile, function(err) {
-        if (err) {
-          done(err);
-        } else {
-          Users.getFriendsFromStrava(profile.id, profile.token);
-          strava.getSegmentsFromStrava(profile.id, profile.token, function(err) {
-            if (err) {
-              console.log('error getting segments from strava: ' + err);
-              done(err);
-            } else {
-              strava.getStarredSegmentsFromStrava(profile.id, profile.token, function(err) {
-                if (err) {
-                  console.log('error getting starred segments from strava: ' + err);
-                  done(err);
-                }
-              });
-            }
-          });
-        }
-      });
+    // asynchronous verification, for effect...
+    process.nextTick(function () {
       // To keep the example simple, the user's Strava profile is returned to
       // represent the logged-in user.  In a typical application, you would want
       // to associate the Strava account with a user record in your database,
@@ -79,8 +59,34 @@ passport.use(new StravaStrategy({
   .get(function(req, res) {
     var userToken = req.user.token;
     var userId = req.user.id;
-
+    var profile = req.user;
     res.redirect('../../loggedIn.html?oauth_token=' + userToken + '&userId=' + userId);
+    Users.registerAthlete(profile, function(err) {
+      if (err) {
+        console.error(err);
+      } else {
+        Users.getFriendsFromStrava(profile.id, profile.token, function(err) {
+          if (err) {
+            console.error(err);
+          } else {
+            strava.getSegmentsFromStrava(profile.id, profile.token, function(err, res) {
+              if (err) {
+                console.error(err);
+              } else {
+                console.log(res);
+              }
+            });
+            strava.getStarredSegmentsFromStrava(profile.id, profile.token, function(err, res) {
+              if(err) {
+                console.error(err);
+              } else {
+                console.log(res);
+              }
+            });
+          }
+        });
+      }
+    });
   });
 
   return authRouter;
