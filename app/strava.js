@@ -166,7 +166,6 @@ function getSegmentsFromStrava(userId, token, callback) {
                           // Check if segment in user's segment obj
                           Users.where({_id: userId, "segments.id": segmentCall.id})
                           .exec(function(err, res) {
-                            console.log('res: ' + res);
                             if(!res[0]) {
                               var userSegment = {
                                 _id: segmentCall.id,

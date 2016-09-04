@@ -44,7 +44,7 @@ module.exports.saveSegment = function (segment) {
     if (err) {
       console.error('Error saving segment:' + err);
     } else {
-      console.log('Segment saved: ' + segment);
+      console.log('Segment saved: ' + segment.name);
     }
   });
 };
