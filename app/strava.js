@@ -177,7 +177,7 @@ function getSegmentsFromStrava(userId, token, callback) {
                                 };
                                 Users.saveSegments(userId, userSegment, function() {});
                               } else {
-                                if (segmentCall.segment.id) {
+                                if (segmentCall.segment && segmentCall.segment.id) {
                                   Users.incrementSegmentCount(userId, segmentCall.segment.id, function(err, res) {
                                     if(err) {
                                       console.error('unable to increment segment count: ' + err);
