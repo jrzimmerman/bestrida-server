@@ -1,5 +1,6 @@
 var mongoose = require('../db');
 var strava = require('strava-v3');
+var util = require('../util');
 
 var userSchema = new mongoose.Schema({
   _id: { type: Number, required: true },
@@ -80,7 +81,6 @@ module.exports.getFriendsFromStrava = function (id, token, callback) {
 };
 
 module.exports.saveSegments = function (user, segment, callback) {
-  console.log('segment: ' + JSON.stringify(segment));
    User.update({ _id: user },
     { $addToSet: {segments: segment}},
     {$sort: { count: 'descending' }},
