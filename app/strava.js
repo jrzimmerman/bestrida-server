@@ -207,7 +207,7 @@ function getSegmentsFromStrava(userId, token, callback) {
           });
         });
       } else {
-        console.log('no activities found');
+        console.log('no activities found, are we rate limited?');
       }
     }
   });
