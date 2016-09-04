@@ -189,7 +189,7 @@ module.exports = function(app, express) {
         });
       }
       setTimeout(function() {
-        res.send('updated segments for ' + user._id);
+        res.json({body: 'updated segments for ' + user._id});
       }, 2000);
     });
   });
@@ -207,7 +207,7 @@ module.exports = function(app, express) {
               res.status(500).json({error: 'error getting athlete friends from strava: ' + err});
             }
           });
-          res.send('updated friends for ' + user._id);
+          res.json({body: 'updated friends for ' + user._id});
         }
       });
   });
