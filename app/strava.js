@@ -135,76 +135,80 @@ function getSegmentsFromStrava(userId, token, callback) {
       console.error('Error retrieving activities' + err);
       callback('Error retrieving activities' + err);
     } else {
-      activities.forEach(function(activity) {
-        strava.activities.get({id: activity.id, access_token: token}, function(err, oneActivity) {
-          if (err) {
-            console.error('Error retrieving activities: ' + err);
-            callback('Error retrieving activities: ' + err);
-          } else {
-            if (oneActivity.hasOwnProperty('segment_efforts')) {
-              console.log('oneActivity: ' + util.stringify(oneActivity));
-              oneActivity.segment_efforts.forEach(function(segment) {
-                console.log('segment effort: ' + util.stringify(segment));
-                // Nested loop, consider alternatives
-                var oneSegment = segment;
-                // Check to see if oneSegment is in database
-                Segments.find({ _id: oneSegment.segment.id }, function (err, segmentDB) {
-                  if (err) {
-                    console.error("Cannot find segment: " + err);
-                    callback("Cannot find segment: " + err);
-                  }
-                  // If segment not found in DB send API request to Strava
-                  if (!segmentDB[0]) {
-                    strava.segments.get( {id: oneSegment.segment.id, access_token: token}, function(err, segmentCall) {
-                      if (err) {
-                        console.error("Received error from segment.get service:\n" + util.stringify(err));
-                        callback("Received error from segment.get service:\n" + util.stringify(err));
-                      // If segment not found in segment collection, grab segment from Strava
-                      } else {
-                        Segments.saveSegment(segmentCall);
-                        // Check if segment in user's segment obj
-                        Users.where({_id: userId, "segments.id": segmentCall.id})
-                        .exec(function(err, res) {
-                          console.log('res: ' + res);
-                          if(!res[0]) {
-                            var userSegment = {
-                              _id: segmentCall.id,
-                              name: segmentCall.name,
-                              count: 1
-                            };
-                            Users.saveSegments(userId, userSegment, function() {});
-                          } else {
-                            Users.incrementSegmentCount(userId, segmentCall.segment.id, function() {});
-                          }
-                        });
-                      }
-                    });
-                  } else {
-                    // If segement is found in segment collection,
-                    // check if also stored in users' segments property
-                    Users.where({_id: userId, "segments.id": oneSegment.segment.id })
-                    .exec(function(err, res) {
-                      if (err) callback(err);
-                      if(!res[0]) {
-                        var userSegment = {
-                          _id: oneSegment.segment.id,
-                          name: oneSegment.segment.name,
-                          count: 1
-                        };
-                        Users.saveSegments(userId, userSegment, function() {});
-                      } else {
-                        Users.incrementSegmentCount(userId, segment.segment.id);
-                      }
-                    });
-                  }
-                });
-              });
+      if (activities.length) {
+        activities.forEach(function(activity) {
+          strava.activities.get({id: activity.id, access_token: token}, function(err, oneActivity) {
+            if (err) {
+              console.error('Error retrieving activities: ' + err);
+              callback('Error retrieving activities: ' + err);
             } else {
-              console.log('activity doesnt have segment effort: ' + util.stringify(oneActivity.name));
+              if (oneActivity.hasOwnProperty('segment_efforts')) {
+                console.log('oneActivity: ' + oneActivity.name);
+                oneActivity.segment_efforts.forEach(function(segment) {
+                  console.log('segment effort: ' + segment.name);
+                  // Nested loop, consider alternatives
+                  var oneSegment = segment;
+                  // Check to see if oneSegment is in database
+                  Segments.find({ _id: oneSegment.segment.id }, function (err, segmentDB) {
+                    if (err) {
+                      console.error("Cannot find segment: " + err);
+                      callback("Cannot find segment: " + err);
+                    }
+                    // If segment not found in DB send API request to Strava
+                    if (!segmentDB[0]) {
+                      strava.segments.get( {id: oneSegment.segment.id, access_token: token}, function(err, segmentCall) {
+                        if (err) {
+                          console.error("Received error from segment.get service:\n" + util.stringify(err));
+                          callback("Received error from segment.get service:\n" + util.stringify(err));
+                          // If segment not found in segment collection, grab segment from Strava
+                        } else {
+                          Segments.saveSegment(segmentCall);
+                          // Check if segment in user's segment obj
+                          Users.where({_id: userId, "segments.id": segmentCall.id})
+                          .exec(function(err, res) {
+                            console.log('res: ' + res);
+                            if(!res[0]) {
+                              var userSegment = {
+                                _id: segmentCall.id,
+                                name: segmentCall.name,
+                                count: 1
+                              };
+                              Users.saveSegments(userId, userSegment, function() {});
+                            } else {
+                              Users.incrementSegmentCount(userId, segmentCall.segment.id, function() {});
+                            }
+                          });
+                        }
+                      });
+                    } else {
+                      // If segement is found in segment collection,
+                      // check if also stored in users' segments property
+                      Users.where({_id: userId, "segments.id": oneSegment.segment.id })
+                      .exec(function(err, res) {
+                        if (err) callback(err);
+                        if(!res[0]) {
+                          var userSegment = {
+                            _id: oneSegment.segment.id,
+                            name: oneSegment.segment.name,
+                            count: 1
+                          };
+                          Users.saveSegments(userId, userSegment, function() {});
+                        } else {
+                          Users.incrementSegmentCount(userId, segment.segment.id);
+                        }
+                      });
+                    }
+                  });
+                });
+              } else {
+                console.log('activity doesnt have segment effort: ' + util.stringify(oneActivity.name));
+              }
             }
-          }
+          });
         });
-      });
+      } else {
+        console.log('no activities found');
+      }
     }
   });
 }
@@ -227,8 +231,6 @@ function getStarredSegmentsFromStrava (userId, token) {
         // Check to see if the segment is in database
         Segments.find({ _id: segment.id }, function (err, res) {
           if (err) console.error(err);
-          console.log('res: ' + res);
-          console.log('length: ', res.length);
           if (!res.length) {
             getAndSaveSegmentInfo(segment.id, userId);
           // Else (if segment is already in our DB, don't make Strava API call)
