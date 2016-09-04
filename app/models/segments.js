@@ -40,11 +40,11 @@ module.exports.saveSegment = function (segment) {
     map: segment.map
   });
 
-  Segment.update({_id: segment.id }, newSegment, { upsert: true }, function (err, segment) {
+  Segment.update({_id: segment.id }, newSegment, { upsert: true }, function (err, res) {
     if (err) {
-      console.error('Error saving segment:' + err);
+      console.error('Error saving segment: ' + err);
     } else {
-      console.log('Segment saved: ' + segment.name);
+      console.log('Segment saved: ' + res);
     }
   });
 };

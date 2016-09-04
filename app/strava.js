@@ -166,15 +166,29 @@ function getSegmentsFromStrava(userId, token, callback) {
                           // Check if segment in user's segment obj
                           Users.where({_id: userId, "segments.id": segmentCall.id})
                           .exec(function(err, res) {
-                            if(!res[0]) {
-                              var userSegment = {
-                                _id: segmentCall.id,
-                                name: segmentCall.name,
-                                count: 1
-                              };
-                              Users.saveSegments(userId, userSegment, function() {});
+                            if (err) {
+                              console.error(err);
                             } else {
-                              Users.incrementSegmentCount(userId, segmentCall.segment.id, function() {});
+                              if(!res[0]) {
+                                var userSegment = {
+                                  _id: segmentCall.id,
+                                  name: segmentCall.name,
+                                  count: 1
+                                };
+                                Users.saveSegments(userId, userSegment, function() {});
+                              } else {
+                                if (segmentCall.segment.id) {
+                                  Users.incrementSegmentCount(userId, segmentCall.segment.id, function(err, res) {
+                                    if(err) {
+                                      console.error('unable to increment segment count: ' + err);
+                                    } else {
+                                      console.log('increment segment count: ' + res);
+                                    }
+                                  });
+                                } else {
+                                  console.log('segment was not returned, are we rate limited?');
+                                }
+                              }
                             }
                           });
                         }
