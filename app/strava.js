@@ -230,7 +230,6 @@ function getStarredSegmentsFromStrava (userId, token) {
   console.log('getting starred segments for: ' + userId);
   console.log('user token: ' + token);
   strava.segments.listStarred({ access_token: token, page: 1, per_page: 200 }, function(err, segments) {
-    console.log('starred segments: ' + util.stringify(segments));
     if (err) console.error('Error retrieving starred segments:', err);
     // Retrieve a user's current segments to see segments are already saved
     Users.find({ _id: userId }).select('segments')
@@ -299,11 +298,11 @@ function getAndSaveSegmentInfo (segmentId, userId) {
       };
       Segments.saveSegment(segment);
       setTimeout(function() {
-        Users.saveSegments(userId, userSegment, function(err, res) {
+        Users.saveSegments(userId, userSegment, function(err) {
           if (err) {
             console.err('error saving segment: ' + err);
           } else {
-            console.log('segment ' + util.stringify(segment) + ' saved: ' + res);
+            console.log('segment saved from strava API: ' + util.stringify(segment));
           }
         })
       }, 1000);
