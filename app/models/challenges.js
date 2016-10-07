@@ -212,7 +212,7 @@ module.exports.getChallenges = function (user, status, callback) {
         { challengeeId: user, challengeeCompleted: true }
       ],
     })
-    .sort([['completed','descending'],['expires','descending']])
+    .sort([['updatedAt','descending'],['expires','descending']])
     .exec(function (err, challenges) {
       if (err) {
         callback('error finding completed challenges: ' + err);
