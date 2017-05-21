@@ -7,6 +7,7 @@ var methodOverride = require('method-override');
 var morgan         = require('morgan');
 var passport       = require('passport');
 var cron           = require('./cron');
+var path           = require('path');
 
 // passport configuration
 app.use(passport.initialize());
@@ -40,6 +41,8 @@ app.use(express.static(__dirname + './../public'));
 // API ROUTES ------------------------
 var apiRoutes = require('./routes/api')(app, express);
 app.use('/api', apiRoutes);
+
+app.use('/privacy-policy', express.static(__dirname + './../public/assets/img/Bestrida_Privacy_Policy.pdf'));
 
 // AUTH ROUTES ------------------------
 var authRoutes = require('./routes/auth')(app, express, passport);
