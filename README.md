@@ -26,51 +26,19 @@
 
 
 ## Development
+build the docker image:
+`docker build . -t bestrida-node`
+
+run the docker container:
+`docker run -it --rm -e PORT="4001"  -p 4001:8080  --name bestrida-node-container bestrida-node`
 
 ### Requirements
 
-- Node 4.x.x
-- Bower
+- Node 6.11.x
 - Grunt
-- Ionic framework (install instructions below)
-- Cordova, and associated plugins (install instructions below)
 
 ### Installing Dependencies
 
-####From within the root directory (client side):
-
-Step 1. Install Ionic framework and libraries
-```sh
-npm install -g ionic
-```
-Step 2. Install Cordova
-```sh
-cordova platform add ios
-```
-Step 3. Install client side dependencies
-```sh
-bower install
-npm install
-```
-Step 4. Install iOS platform for Ionic
-```sh
-ionic platform add ios
-```
-Step 5. Install Cordova plugin for the in-app browser 
-```sh
-cordova plugin add https://git-wip-us.apache.org/repos/asf/cordova-plugin-inappbrowser.git
-```
-Step 6. To run app in browser, use the following command
-```sh
-ionic serve -l
-```
-Step 7. To run app in an iOS emulator (requires Mac OSX), use the following command
-```sh
-ionic emulate ios
-```
-
-
-####From within the root directory (server side):
 
 Step 1. Install server side dependencies
 ```sh

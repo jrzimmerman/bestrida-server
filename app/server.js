@@ -49,3 +49,4 @@ var authRoutes = require('./routes/auth')(app, express, passport);
 app.use('/auth', authRoutes);
 
 app.listen(process.env.PORT || 8000);
+console.log("listening on PORT: " + process.env.PORT);

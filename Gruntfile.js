@@ -7,14 +7,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-express-server');
-  grunt.loadNpmTasks('grunt-karma');
-  grunt.loadNpmTasks('grunt-casperjs');
-  grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-nodemon');
 
-
-  // in what order should the files be concatenated
-  var publicIncludeOrder = require('./include.conf.js');
 
   // grunt setup
   grunt.initConfig({
@@ -30,7 +24,6 @@ module.exports = function(grunt) {
     // what files should be linted
     jshint: {
       gruntfile: 'Gruntfile.js',
-      public: publicIncludeOrder,
       server: 'server/**/*.js',
       options: {
         globals: {
@@ -42,9 +35,7 @@ module.exports = function(grunt) {
     // uglify the files
     uglify: {
       app: {
-        files: {
-          'dist/public/scripts/app.js': publicIncludeOrder
-        }
+        
       }
     },
 
@@ -66,10 +57,6 @@ module.exports = function(grunt) {
     // concat all the js files
     concat: {
       app: {
-        files: {
-          // concat all the app js files into one file
-          'dist/public/scripts/app.js': publicIncludeOrder
-        }
       }
     },
 
@@ -91,41 +78,6 @@ module.exports = function(grunt) {
       }
     },
 
-    // configure karma
-    karma: {
-      options: {
-        configFile: 'karma.conf.js',
-        reporters: ['progress', 'coverage']
-      },
-      // Watch configuration
-      watch: {
-        background: true,
-        reporters: ['progress']
-      },
-      // Single-run configuration for development
-      single: {
-        singleRun: true,
-      },
-      // Single-run configuration for CI
-      ci: {
-        singleRun: true,
-        coverageReporter: {
-          type: 'lcov',
-          dir: 'results/coverage/'
-        }
-      }
-    },
-
-    // configure casperjs
-    casperjs: {
-      options: {},
-      e2e: {
-        files: {
-          'results/casper': 'test/end2end/**/*.js'
-        }
-      }
-    },
-
     // create a watch task for tracking
     // any changes to the following files
     watch: {
@@ -135,26 +87,14 @@ module.exports = function(grunt) {
       },
       public: {
         files: [ 'public/**' ],
-        tasks: [ 'build', 'karma:watch:run', 'casperjs' ]
+        tasks: [ 'build' ]
       },
       server: {
         files: [ 'app/**' ],
-        tasks: [ 'build', 'express:dev', 'casperjs' ],
+        tasks: [ 'build', 'express:dev' ],
         options: {
           spawn: false // Restart server
         }
-      },
-      unitTests: {
-        files: [ 'test/unit/**/*.js' ],
-        tasks: [ 'karma:watch:run' ]
-      },
-      integrationTests: {
-        files: [ 'test/integration/**/*.js' ],
-        tasks: [ 'karma:watch:run' ]
-      },
-      end2endTests: {
-        files: [ 'test/end2end/**/*.js' ],
-        tasks: [ 'casperjs' ]
       }
     }
   });
@@ -162,18 +102,7 @@ module.exports = function(grunt) {
   // Perform a build
   grunt.registerTask('build', [ 'jshint', 'clean', 'copy', 'concat', 'uglify']);
 
-  // Run end2end tests once
-  grunt.registerTask('testend2end', [ 'casperjs' ]);
-
-  // Run public tests once
-  grunt.registerTask('testPublic', [ 'karma:single' ]);
-
-  // Run all tests once
-  grunt.registerTask('test', [ 'testPublic', 'testend2end']);
-
-  // Run all tests once
-  grunt.registerTask('ci', [ 'build','karma:ci', 'express:dev', 'casperjs' ]);
 
   // Start watching and run tests when files change
-  grunt.registerTask('default', [ 'build', 'nodemon:dev', 'karma:watch:start', 'watch' ]);
+  grunt.registerTask('default', [ 'build', 'express:dev', 'watch' ]);
 };
