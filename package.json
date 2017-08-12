@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "build": "grunt build",
-    "start": "node dist/app/server.js",
+    "start": "grunt",
     "dev": "nodemon dist/app/server.js",
     "lint": "eslint app"
   },
