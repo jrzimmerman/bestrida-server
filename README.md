@@ -30,7 +30,7 @@ build the docker image:
 `docker build . -t bestrida-node`
 
 run the docker container:
-`docker run -it --rm -e PORT="4001"  -p 4001:8080  --name bestrida-node-container bestrida-node`
+`docker run -it --rm -e PORT="8080"  -p 8080:8080  --name bestrida-node-container bestrida-node`
 
 ### Requirements
 
