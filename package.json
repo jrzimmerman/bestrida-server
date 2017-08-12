@@ -5,8 +5,8 @@
   "main": "dist/app/server.js",
   "private": true,
   "scripts": {
-    "build": "grunt build",
-    "start": "grunt",
+    "build": "node_modules/.bin/grunt build",
+    "start": "node dist/app/server.js",
     "dev": "nodemon dist/app/server.js",
     "lint": "eslint app"
   },
