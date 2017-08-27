@@ -1,6 +1,5 @@
 var mongoose = require('../db');
 var strava = require('strava-v3');
-var util = require('../util');
 
 var userSchema = new mongoose.Schema({
   _id: { type: Number, required: true },
