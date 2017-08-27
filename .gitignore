@@ -36,8 +36,3 @@ bower_components/
 .floo
 .flooignore
 .vscode
-
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
